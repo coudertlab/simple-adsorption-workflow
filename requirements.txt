@@ -1,1 +1,3 @@
 mofdb_client==0.10.0
+RASPA2
+openbabel
