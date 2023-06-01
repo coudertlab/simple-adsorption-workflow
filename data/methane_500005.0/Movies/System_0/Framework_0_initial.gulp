@@ -1,0 +1,254 @@
+opti prop conp full nosymmetry phonon
+gmax  1e-06
+accuracy 6
+pressure  3.0111e+07
+switch_min rfo gnorm 50.0
+
+cell
+5.5673 11.8214 22.7603 100.356 90 90
+space
+1
+
+species
+Ca core 0
+Ca core 0
+Ca core 0
+Ca core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+H core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+C core 0
+S core 0
+S core 0
+S core 0
+S core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+O core 0
+
+frac
+Ca     core   0.75585   0.63682   0.72287
+Ca     core   0.25585   0.86318   0.77713
+Ca     core   0.24415   0.36318   0.27713
+Ca     core   0.74415   0.13682   0.22287
+H      core   0.19960   0.19450   0.61890
+H      core   0.12490   0.23180   0.40610
+H      core   0.55410   0.42060   0.53720
+H      core   0.56230   0.33880   0.67290
+H      core   0.47830   0.18390   0.71970
+H      core   0.11860   0.04390   0.66910
+H      core   0.20660   0.27510   0.50780
+H      core   0.47130   0.37310   0.43580
+H      core   0.69960   0.30550   0.88110
+H      core   0.62490   0.26820   0.09390
+H      core   0.05410   0.07940   0.96280
+H      core   0.06230   0.16120   0.82710
+H      core   0.97830   0.31610   0.78030
+H      core   0.61860   0.45610   0.83090
+H      core   0.70660   0.22490   0.99220
+H      core   0.97130   0.12690   0.06420
+H      core   0.80040   0.80550   0.38110
+H      core   0.87510   0.76820   0.59390
+H      core   0.44590   0.57940   0.46280
+H      core   0.43770   0.66120   0.32710
+H      core   0.52170   0.81610   0.28030
+H      core   0.88140   0.95610   0.33090
+H      core   0.79340   0.72490   0.49220
+H      core   0.52870   0.62690   0.56420
+H      core   0.30040   0.69450   0.11890
+H      core   0.37510   0.73180   0.90610
+H      core   0.94590   0.92060   0.03720
+H      core   0.93770   0.83880   0.17290
+H      core   0.02170   0.68390   0.21970
+H      core   0.38140   0.54390   0.16910
+H      core   0.29340   0.77510   0.00780
+H      core   0.02870   0.87310   0.93580
+C      core   0.74140   0.00454   0.73489
+C      core   0.73930   0.27674   0.34493
+C      core   0.89080   0.35506   0.53136
+C      core   0.88960   0.28106   0.64219
+C      core   0.05670   0.19296   0.63996
+C      core   0.01140   0.27025   0.43228
+C      core   0.79270   0.30128   0.41069
+C      core   0.66870   0.38344   0.51080
+C      core   0.67280   0.27949   0.67190
+C      core   0.62440   0.18724   0.70025
+C      core   0.00710   0.10262   0.66960
+C      core   0.06100   0.29655   0.49305
+C      core   0.79170   0.09982   0.69994
+C      core   0.62040   0.35546   0.45021
+C      core   0.24140   0.49546   0.76511
+C      core   0.23930   0.22326   0.15507
+C      core   0.39080   0.14494   0.96864
+C      core   0.38960   0.21894   0.85781
+C      core   0.55670   0.30704   0.86004
+C      core   0.51140   0.22975   0.06772
+C      core   0.29270   0.19872   0.08931
+C      core   0.16870   0.11656   0.98920
+C      core   0.17280   0.22051   0.82810
+C      core   0.12440   0.31276   0.79975
+C      core   0.50710   0.39738   0.83040
+C      core   0.56100   0.20345   0.00695
+C      core   0.29170   0.40018   0.80006
+C      core   0.12040   0.14454   0.04979
+C      core   0.25860   0.99546   0.26511
+C      core   0.26070   0.72326   0.65507
+C      core   0.10920   0.64494   0.46864
+C      core   0.11040   0.71894   0.35781
+C      core   0.94330   0.80704   0.36004
+C      core   0.98860   0.72975   0.56772
+C      core   0.20730   0.69872   0.58931
+C      core   0.33130   0.61656   0.48920
+C      core   0.32720   0.72051   0.32810
+C      core   0.37560   0.81276   0.29975
+C      core   0.99290   0.89738   0.33040
+C      core   0.93900   0.70345   0.50695
+C      core   0.20830   0.90018   0.30006
+C      core   0.37960   0.64454   0.54979
+C      core   0.75860   0.50454   0.23489
+C      core   0.76070   0.77674   0.84493
+C      core   0.60920   0.85506   0.03136
+C      core   0.61040   0.78106   0.14219
+C      core   0.44330   0.69296   0.13996
+C      core   0.48860   0.77025   0.93228
+C      core   0.70730   0.80128   0.91069
+C      core   0.83130   0.88344   0.01080
+C      core   0.82720   0.77949   0.17190
+C      core   0.87560   0.68724   0.20025
+C      core   0.49290   0.60262   0.16960
+C      core   0.43900   0.79655   0.99305
+C      core   0.70830   0.59982   0.19994
+C      core   0.87960   0.85546   0.95021
+S      core   0.96363   0.39835   0.60768
+S      core   0.46363   0.10165   0.89232
+S      core   0.03637   0.60165   0.39232
+S      core   0.53637   0.89835   0.10768
+O      core   0.80500   0.49310   0.63096
+O      core   0.91520   0.26226   0.30936
+O      core   0.21890   0.41534   0.61176
+O      core   0.52570   0.98423   0.74378
+O      core   0.91910   0.95695   0.75285
+O      core   0.52510   0.26758   0.32832
+O      core   0.30500   0.00690   0.86904
+O      core   0.41520   0.23774   0.19064
+O      core   0.71890   0.08466   0.88824
+O      core   0.02570   0.51577   0.75622
+O      core   0.41910   0.54305   0.74715
+O      core   0.02510   0.23242   0.17168
+O      core   0.19500   0.50690   0.36904
+O      core   0.08480   0.73774   0.69064
+O      core   0.78110   0.58466   0.38824
+O      core   0.47430   0.01577   0.25622
+O      core   0.08090   0.04305   0.24715
+O      core   0.47490   0.73242   0.67168
+O      core   0.69500   0.99310   0.13096
+O      core   0.58480   0.76226   0.80936
+O      core   0.28110   0.91534   0.11176
+O      core   0.97430   0.48423   0.24378
+O      core   0.58090   0.45695   0.25285
+O      core   0.97490   0.76758   0.82832

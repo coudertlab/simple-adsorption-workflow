@@ -72,6 +72,6 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 e.g : `python src/download_cif_from_csd.py KAXQIL`
 - [ ] Optional : Download all cifs files given a material name
 - [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper.
-- [ ] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `T` using RASPA python wrapper
-- [ ] Add to the workflow a step to compute the unit cell in order to avoid the bias from periodic boundary conditions
+- [x] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `TEMP` using RASPA python wrapper
+- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions
 - [ ] Generate a run file using `multiprocessing` on the local machine

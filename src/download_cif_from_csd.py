@@ -1,8 +1,9 @@
 #!/usr/bin/env python
-import sys
+import sys,os
 from ccdc import io
 
-CIFDIR = './cifs'
+CIFDIR = f"{os.environ.get('DATA_DIR')}/cif"
+os.makedirs(CIFDIR,exist_ok=True)
 
 # Entry identifier of the desired entry
 entry_identifier = sys.argv[1]
@@ -20,5 +21,9 @@ crystal = entry.crystal
 cif_string = crystal.to_string('cif')
 
 # Save the CIF string to a CIF file
-with open(f'{CIFDIR}/{entry_identifier}_csd.cif', 'w') as cif_file:
+cifname = f'{CIFDIR}/{entry_identifier}_csd.cif'
+with open(cifname, 'w') as cif_file:
     cif_file.write(cif_string)
+    print(f'Cif has been written in {cifname}.')
+
+

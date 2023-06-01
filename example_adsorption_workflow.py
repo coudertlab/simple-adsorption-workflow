@@ -1,31 +1,55 @@
 from src.wraspa2 import *
 import os,shutil
+import numpy as np
+from ase.io import read
+from math import ceil
 
-# Create a input script for RASPA
-data_dir = os.environ.get('DATA_DIR')
-raspa_dir_cifs = f'{os.environ.get("RASPA_PARENT")}/share/raspa/structures/cif'
+########################## USER INTERFACE ###########################
+PMIN = 10 # 10 Pa
+PMAX = 1000000.0 # 10 bar
+NPOINTS = 5
+ADSORBATE = 'KAXQIL_clean_coremof-2019'
+TEMP = 298.15
+FF = 'GenericMOFs'
+GAS = ['N2','methane']
+######################################################################
 
-os.makedirs(f'{data_dir}/input',exist_ok=True)
-structure = 'KAXQIL_clean_coremof-2019'
-gas = 'CO2'
-string_input = create_script(structure=structure,
-                             molecule_name=gas,
-                             temperature=298.15,
-                             pressure=10,
-                             unit_cells=(1,1,2),
-                             forcefield='GenericMOFs')
-name = 'test'
-filename = f'{data_dir}/input/{name}.input'
-with open(filename,'w') as f:
-    f.write(string_input)
+# Range of variables
+pressures = np.linspace(PMIN, PMAX, NPOINTS)
+l_dict_var  = [{'molecule_name': molecule_name, 'pressure': pressure} for molecule_name in GAS for pressure in pressures]
+dict_input = {'structure':ADSORBATE,
+              'temperature':TEMP,
+              'unit_cells':(1,1,1),
+              'forcefield':FF
+}
 
-# Copy the cif file in the directory visible by RASPA
-shutil.copy(f'{data_dir}/cif/{structure}.cif',raspa_dir_cifs)
+# Default data directory
+data_dir=os.environ.get("DATA_DIR")
 
-# Run the script
-os.chdir('./data')
-result = run_script(filename, structure=None, stream=False)
-sys.exit()
-# Parse output
-uptakes = result["Number of molecules"][gas]["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]
-print(uptakes)
+# Inputs
+for i,dict_var in enumerate(l_dict_var):
+    # Create directory
+    work_dir = f'{data_dir}/{"_".join(str(value) for value in dict_var.values())}'
+    os.makedirs(work_dir,exist_ok=True)
+    
+    # Copy cif
+    cif_path = f'{data_dir}/cif/{dict_input["structure"]}.cif'
+    shutil.copy(cif_path,work_dir)
+
+    # Correct the unit cell to avoid bias from pbc
+    atoms = read(cif_path)
+    a, b, c, _,_,_ = atoms.cell.cellpar()
+    n_a = ceil(24/ a)
+    n_b = ceil(24/ b)
+    n_c = ceil(24/ c)
+    dict_input['unit_cells'] = (n_a,n_b,n_c)
+
+    # Create input
+    filename = f'{work_dir}/simulation.input'
+    with open(filename,'w') as f:
+        string_input = create_script(**dict_var,**dict_input)
+        f.write(string_input)
+        print(f'Raspa input file {filename} created.')
+    
+    # Create running file
+    create_run_script(path=work_dir,save=True)

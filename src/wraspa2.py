@@ -7,7 +7,7 @@ This is intended 1. to allow users to automate + simplify their workflows and
 Based on https://github.com/iRASPA/RASPA2/blob/master/python/raspa2.py.
 """
 from ctypes import cdll, c_void_p, c_char_p, c_bool, cast
-import os,sys
+import os,sys,stat
 from textwrap import dedent
 from multiprocessing import Process, Pipe
 import argparse
@@ -87,7 +87,6 @@ def run(structure, molecule_name, temperature=273.15, pressure=101325,
     """
     return parse(run_script(create_script(**locals()), structure))
 
-
 def run_script(input_script, structure=None, stream=True):
     """Runs RASPA on the inputted structure, returning simulation results.
 
@@ -118,7 +117,6 @@ def run_script(input_script, structure=None, stream=True):
     # time, but allows still reachable memory to be garbage collected by the
     # OS and also protects against segfaults destablizing an entire engine.
     parent_conn, child_conn = Pipe()
-    print(structure)
     p = Process(target=_script_subprocess, args=(input_script, structure or "",
                                                  raspa_dir, stream,
                                                  child_conn))
@@ -130,13 +128,6 @@ def run_script(input_script, structure=None, stream=True):
 
     if stream:
         return output
-    
-    # Delete useless files and folders
-    data_dir = os.environ.get('DATA_DIR')
-    import shutil
-    for dirs in ['VTK','Movies','Restart']:
-        shutil.rmtree(f'{data_dir}/{dirs}')
-
 
 def _script_subprocess(input_script, structure, raspa_dir, stream, conn):
     """Loads and runs libraspa2. Called through multiprocessing.Process.
@@ -147,7 +138,6 @@ def _script_subprocess(input_script, structure, raspa_dir, stream, conn):
     libraspa = cdll.LoadLibrary(os.path.join(libraspa_dir, libraspa_file))
     libraspa.run.argtypes = (c_char_p, c_char_p, c_char_p, c_bool)
     libraspa.run.restype = c_void_p
-
     ptr = libraspa.run(input_script.encode("ascii"),
                        structure.encode("ascii"),
                        raspa_dir.encode("ascii"), stream)
@@ -231,7 +221,6 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                               SwapProbability          1.0
                               CreateNumberOfMolecules  0
                   """.format(**locals())).strip()
-
 
 def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
                 pressure=101325, helium_void_fraction=1.0,
@@ -622,6 +611,38 @@ def pybel_to_raspa_cif(structure):
 
     return cif
 
+
+def create_run_script(path,save=True):
+    """
+    Returns the run command in bash.
+    """
+    raspa_dir = os.environ.get("RASPA_DIR")
+    dyld_dir = os.environ.get("DYLD_LIBRARY_PATH")
+    ld_dir = os.environ.get("DYLD_LIBRARY_PATH")
+    run_string = dedent("""
+                #!/bin/bash
+
+                export RASPA_DIR={raspa_dir}
+                export DYLD_LIBRARY_PATH={dyld_dir}
+                export LD_LIBRARY_PATH={ld_dir}
+
+                $(which simulate) 'simulation.input'
+                 """.format(**locals())).strip()
+    if save :
+        file_path = f"{path}/run.sh"
+        with open(file_path,'w') as f:
+            f.write(run_string)
+        os.chmod(file_path, stat.S_IRWXU) # Read, write, and execute by owner
+    else:
+        return run_string
+
+def delete_unused_files(work_dir):
+    """
+    Delete useless files and folders in the working directory.
+    """
+    import shutil
+    for dirs in ['VTK','Movies','Restart']:
+        shutil.rmtree(f'{work_dir}/{dirs}')
 
 def run_command_line():
     """Called by the `simulate` command, enables CLI interface."""
