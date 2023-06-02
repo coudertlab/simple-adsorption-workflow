@@ -5,6 +5,7 @@ conda activate simple-adsorption-workflow
 
 # Modify the following lines to reflect the paths of your data
 export DATA_DIR=$PWD/data
+export INPUT_DIR=$PWD
 
 # Modify the following lines to reflect the accurate paths to the libraries on your system.
 export RASPA_PARENT=/opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2

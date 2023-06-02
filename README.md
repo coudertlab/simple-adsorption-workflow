@@ -13,8 +13,57 @@ Install requirements in the conda environment
 conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
-### CSD Python API
+## User input (a json file)
 
+e.g. `input.json`:
+```
+{
+  "adsorbent" : ["KAXQIL"]
+  "gas": ["N2", "Xe"],
+  "pressure": [10,100,1000,10000,100000,1000000]
+}
+```
+
+- A six-letter CSD code identifying the material (example: `KAXQIL`)
+- A choice of guest molecule `ADSORBATE` (example: CH4)
+- Temperature `TEMPERATURE`
+- Pressure range (`PMIN`, `PMAX`)
+- Number of points to be calculated on the isotherm `POINTS`
+
+In this workflow, there are restrictions to make simulations simple (strict assumptions):
+
+- the material is available in the CoreMOF database (through MOFXDB database)
+ https://github.com/n8ta/mofdb-client
+- the guest molecule is a rare gas (Ar, Xe) or has a spherical model (N2, CH4, SF6)
+- no electrostatic interactions are considered
+
+## Workflow output
+
+An adsorption isotherm, i.e., a series of (pressure, loading) values.
+
+## To do (Priority)
+- [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
+e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
+
+> Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
+- [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper.
+- ~~[x] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `TEMP` using RASPA python wrapper~~
+- [ ] Create a json input file and document its format
+- [ ] Parse the json input with `example-workflow-adsorption` and test creation of input files for raspa
+- [ ] Merge the two scripts that look for cif files and include them in the `example-workflow-adsorption` 
+- [ ] Add a simple analysis script to check raspa outputs, plot a isotherm
+
+## To do (Optional)
+
+- [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
+e.g : `python src/download_cif_from_csd.py KAXQIL`
+- [ ] Download all cifs files given a material name
+- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a raspa simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lentghs. 
+- [ ] Implement the job launcher depending on the node architecture (ask SIMAP people)
+
+## For future development
+
+### CSD Python API
 
 > Note : A local installation of the CSD Python API (under license) is needed to go further. One need first to log in at :
 https://www.ccdc.cam.ac.uk/support-and-resources/csdsdownloads/
@@ -35,43 +84,3 @@ conda env config vars set CSDHOME=<PATH_TO_CSD> #e.g.:/opt/CCDC/CSD_2022
 ```
 
 > NOTE : solving the environment can take a few minutes due to the number of dependencies to satisfy.
-
-### RASPA
-
-Install RASPA in the current conda environment, it also allows to import the python wrapper too.
-```Bash
-pip install RASPA2
-```
-
-
-## User input
-
-- A six-letter CSD code identifying the material (example: `KAXQIL`)
-- A choice of guest molecule `ADSORBATE` (example: CH4)
-- Temperature `TEMPERATURE`
-- Pressure range (`PMIN`, `PMAX`)
-- Number of points to be calculated on the isotherm `POINTS`
-
-In this workflow, there are restrictions to make simulations simple (strict assumptions):
-
-- the material is available in the CoreMOF database (through MOFXDB database)
- https://github.com/n8ta/mofdb-client
-- the guest molecule is a rare gas (Ar, Xe) or has a spherical model (N2, CH4, SF6)
-- no electrostatic interactions are considered
-
-## Workflow output
-
-An adsorption isotherm, i.e., a series of (pressure, loading) values.
-
-## To do 
-- [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
-e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
-
-> Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
-- [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
-e.g : `python src/download_cif_from_csd.py KAXQIL`
-- [ ] Optional : Download all cifs files given a material name
-- [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper.
-- [x] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `TEMP` using RASPA python wrapper
-- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions
-- [ ] Generate a run file using `multiprocessing` on the local machine

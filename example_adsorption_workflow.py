@@ -1,39 +1,24 @@
 from src.wraspa2 import *
+from src.input_parser import *
 import os,shutil
-import numpy as np
 from ase.io import read
 from math import ceil
 
-########################## USER INTERFACE ###########################
-PMIN = 10 # 10 Pa
-PMAX = 1000000.0 # 10 bar
-NPOINTS = 5
-ADSORBATE = 'KAXQIL_clean_coremof-2019'
-TEMP = 298.15
-FF = 'GenericMOFs'
-GAS = ['N2','methane']
-######################################################################
-
-# Range of variables
-pressures = np.linspace(PMIN, PMAX, NPOINTS)
-l_dict_var  = [{'molecule_name': molecule_name, 'pressure': pressure} for molecule_name in GAS for pressure in pressures]
-dict_input = {'structure':ADSORBATE,
-              'temperature':TEMP,
-              'unit_cells':(1,1,1),
-              'forcefield':FF
-}
-
-# Default data directory
+# Directories
 data_dir=os.environ.get("DATA_DIR")
+input_dir=os.environ.get("INPUT_DIR")
 
-# Inputs
-for i,dict_var in enumerate(l_dict_var):
+# Load json file and returns a list of dictionaries with input parameters
+l_dict_parameters = parse_json(f"{input_dir}/input.json")
+
+# Create input for RASPA
+for i,dict_parameters in enumerate(l_dict_parameters):
     # Create directory
-    work_dir = f'{data_dir}/{"_".join(str(value) for value in dict_var.values())}'
+    work_dir = f'{data_dir}/simulations/{"_".join(str(value) if not isinstance(value, list) else "_".join(str(v) for v in value) for value in dict_parameters.values())}'
     os.makedirs(work_dir,exist_ok=True)
     
     # Copy cif
-    cif_path = f'{data_dir}/cif/{dict_input["structure"]}.cif'
+    cif_path = f'{data_dir}/cif/{dict_parameters["structure"]}.cif'
     shutil.copy(cif_path,work_dir)
 
     # Correct the unit cell to avoid bias from pbc
@@ -42,13 +27,13 @@ for i,dict_var in enumerate(l_dict_var):
     n_a = ceil(24/ a)
     n_b = ceil(24/ b)
     n_c = ceil(24/ c)
-    dict_input['unit_cells'] = (n_a,n_b,n_c)
+    dict_parameters['unit_cells'] = (n_a,n_b,n_c)
 
-    # Create input
+    # Create input script
     filename = f'{work_dir}/simulation.input'
     with open(filename,'w') as f:
-        string_input = create_script(**dict_var,**dict_input)
-        f.write(string_input)
+        string_input = create_script(**dict_parameters)
+        f.write(string_input + '\n')
         print(f'Raspa input file {filename} created.')
     
     # Create running file
