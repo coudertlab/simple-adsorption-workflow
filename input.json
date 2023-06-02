@@ -1,7 +1,7 @@
 {
     "parameters":
         {
-        "structure":["KAXQIL"],
+        "structure":["KAXQIL","SABWAU"],
         "molecule_name": ["N2", "methane"],
         "pressure": [10,1E6],
         "npoints":5,

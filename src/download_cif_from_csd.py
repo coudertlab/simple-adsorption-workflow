@@ -24,6 +24,6 @@ cif_string = crystal.to_string('cif')
 cifname = f'{CIFDIR}/{entry_identifier}_csd.cif'
 with open(cifname, 'w') as cif_file:
     cif_file.write(cif_string)
-    print(f'Cif has been written in {cifname}.')
+    print(f'Cif has been written in {cifname} .')
 
 

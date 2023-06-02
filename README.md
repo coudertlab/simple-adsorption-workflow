@@ -66,12 +66,13 @@ Default directory : `./data/plots/`.
 e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 
 > Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
-- [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper.
+- [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper
 - ~~[x] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `TEMP` using RASPA python wrapper~~
-- [ ] Create a json input file and document its format
-- [ ] Parse the json input with `example-workflow-adsorption` and test creation of input files for raspa
-- [ ] Merge the two scripts that look for cif files and include them in the `example-workflow-adsorption` 
-- [ ] Add a simple analysis script to check raspa outputs, plot a isotherm
+- [x] Create a json input file and document its format
+- [x] Parse the json input with `example-workflow-adsorption` and test creation of input files for raspa
+- [ ] Merge the two scripts that look for cif files and include them in the main program `example-workflow-adsorption.py`
+- [ ] Put the calculation of the minimal supercell in a function.
+- [ ] Add a simple analysis script to check RASPA outputs, plot an isotherm
 
 ## To do (Optional)
 
