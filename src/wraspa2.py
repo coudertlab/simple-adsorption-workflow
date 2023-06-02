@@ -224,7 +224,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   """.format(**locals())).strip()
     if save is True :
         with open(filename,'w') as f:
-            f.write(string_output)
+            f.write(string_output+'\n')
             print(f'Raspa input file {filename} created.')
     else:
         return string_output 
