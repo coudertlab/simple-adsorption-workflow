@@ -33,21 +33,22 @@ pip install -r requirements.txt
         }
 }
 ```
-In this example, the user can modify parameters and default parameters for RASPA. One need to specify :
-- A six-letter CSD code identifying the material (example: `KAXQIL`)
-- A choice of guest molecule `molecule_name` (example: methane)
-- Temperature `temperature`
-- Pressure range `pressures` : 2 values (min and max) are required
-- Number of points to be calculated on the isotherm `npoints`
+In this example, the user can modify parameters and default parameters for RASPA simulations. The required specifications are as follows:
 
-> Note : If some entries are multiple (e.g. several materials), the program will combine all possible parameters, generating a simulation folder for each unique set of parameters.
+- A six-letter CSD code to identify the material (e.g., `KAXQIL`).
+- Selection of a guest molecule using molecule_name (e.g., `methane`).
+- Setting the temperature (`temperature`).
+- Specifying a pressure range with two values (`pressures`): minimum and maximum pressure.
+- Determining the number of points to calculate on the isotherm (`npoints`).
 
+It's important to note that if there are multiple entries for any parameter (e.g., multiple materials), the program will generate simulation folders for each unique combination of parameters.
 
-In this workflow, there are restrictions to make simulations simple (strict assumptions):
+In this workflow, there are certain restrictions in order to keep the simulations simple and make some assumptions:
+- The material must be available in the CoreMOF database, accessible through the MOFXDB database (https://github.com/n8ta/mofdb-client).
+- The guest molecule should be a rare gas such as argon (Ar) or xenon (Xe), or it should have a spherical model, like nitrogen (N2), methane (CH4), or sulfur hexafluoride (SF6).
+- No electrostatic interactions are considered in the simulations.
 
-- the material is available in the CoreMOF database, through MOFXDB database (https://github.com/n8ta/mofdb-client)
-- the guest molecule is a rare gas (Ar, Xe) or has a spherical model (N2, CH4, SF6)
-- no electrostatic interactions are considered
+These restrictions and assumptions aim to streamline the simulations and simplify the modeling process.
 
 ## Workflow outputs
 
@@ -71,7 +72,7 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Parse the json input in the workflow and check the creation of the input files for RASPA
 - [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
 - [x] Put the calculation of the minimal supercell in a function.
-- [ ] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
+- [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [ ] Add a simple analysis script to check RASPA outputs, plot an isotherm
 
 ## To do (Optional)
