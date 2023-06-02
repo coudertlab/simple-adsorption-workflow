@@ -33,7 +33,7 @@ pip install -r requirements.txt
         }
 }
 ```
-In this example, the user can modify parameters and default parameters for raspa. One need to specify :
+In this example, the user can modify parameters and default parameters for RASPA. One need to specify :
 - A six-letter CSD code identifying the material (example: `KAXQIL`)
 - A choice of guest molecule `molecule_name` (example: methane)
 - Temperature `temperature`
@@ -58,7 +58,7 @@ Default directory : `./data/cif/`
 
 - [ ] step 2 : One need details about the node architecture to launch in parallel all simulations.
 
-- [ ] step 3 : It plots a single isotherm, i.e., a series of (pressure, loading) values and/or check consistency of raspa outputs.
+- [ ] step 3 : It plots a single isotherm, i.e., a series of (pressure, loading) values and/or check consistency of RASPA outputs.
 Default directory : `./data/plots/`.
 
 ## To do (Priority)
@@ -67,11 +67,11 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 
 > Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
 - [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper
-- ~~[x] Generate all inputs files for RASPA with a set of parameters `ADSORBATE`,`PMIN`,`PMAX`,`NPOINTS` and `TEMP` using RASPA python wrapper~~
 - [x] Create a json input file and document its format
-- [x] Parse the json input with `example-workflow-adsorption` and test creation of input files for raspa
-- [ ] Merge the two scripts that look for cif files and include them in the main program `example-workflow-adsorption.py`
+- [x] Parse the json input in the workflow and check the creation of the input files for RASPA
+- [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
 - [ ] Put the calculation of the minimal supercell in a function.
+- [ ] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [ ] Add a simple analysis script to check RASPA outputs, plot an isotherm
 
 ## To do (Optional)
@@ -79,7 +79,7 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
 e.g : `python src/download_cif_from_csd.py KAXQIL`
 - [ ] Download all cifs files given a material name
-- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a raspa simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lentghs. 
+- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a RASPA simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lengths which could be used to define the minimal supercell. 
 - [ ] Implement the job launcher depending on the node architecture (ask SIMAP people)
 
 ## For future development
