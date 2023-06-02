@@ -37,4 +37,5 @@ for i,dict_parameters in enumerate(l_dict_parameters):
 
 # TODO : write below a code to launch the calculations depending on the node architecture
 
-# TODO : write below a code to generate isotherms in a CSV format 
+# TODO : write below a code to generate isotherms in a CSV format
+# Plot example : see notebook example_plot.ipynb

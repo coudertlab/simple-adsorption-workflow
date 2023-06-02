@@ -73,7 +73,8 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
 - [x] Put the calculation of the minimal supercell in a function.
 - [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
-- [ ] Add a simple analysis script to check RASPA outputs, plot an isotherm
+- [x] Python notebook for plotting an isotherm
+- [ ] Add a simple analysis script to check RASPA outputs
 
 ## To do (Optional)
 
