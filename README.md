@@ -13,33 +13,53 @@ Install requirements in the conda environment
 conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
-## User input (a json file)
+## User input (JSON file)
 
-e.g. `input.json`:
 ```
 {
-  "adsorbent" : ["KAXQIL"]
-  "gas": ["N2", "Xe"],
-  "pressure": [10,100,1000,10000,100000,1000000]
+    "parameters":
+        {
+        "structure":["KAXQIL"],
+        "molecule_name": ["N2", "methane"],
+        "pressure": [10,1E6],
+        "npoints":5,
+        "temperature": [298.15]
+        }
+        ,
+    "defaults":
+        {
+            "unit_cells":[1,1,1],
+            "FF":"GenericMOFs"
+        }
 }
 ```
-
+In this example, the user can modify parameters and default parameters for raspa. One need to specify :
 - A six-letter CSD code identifying the material (example: `KAXQIL`)
-- A choice of guest molecule `ADSORBATE` (example: CH4)
-- Temperature `TEMPERATURE`
-- Pressure range (`PMIN`, `PMAX`)
-- Number of points to be calculated on the isotherm `POINTS`
+- A choice of guest molecule `molecule_name` (example: methane)
+- Temperature `temperature`
+- Pressure range `pressures` : 2 values (min and max) are required
+- Number of points to be calculated on the isotherm `npoints`
+
+> Note : If some entries are multiple (e.g. several materials), the program will combine all possible parameters, generating a simulation folder for each unique set of parameters.
+
 
 In this workflow, there are restrictions to make simulations simple (strict assumptions):
 
-- the material is available in the CoreMOF database (through MOFXDB database)
- https://github.com/n8ta/mofdb-client
+- the material is available in the CoreMOF database, through MOFXDB database (https://github.com/n8ta/mofdb-client)
 - the guest molecule is a rare gas (Ar, Xe) or has a spherical model (N2, CH4, SF6)
 - no electrostatic interactions are considered
 
-## Workflow output
+## Workflow outputs
 
-An adsorption isotherm, i.e., a series of (pressure, loading) values.
+- [x] step 1 : It first returns a set of directories with input and running files for RASPA. 
+Default directory : `./data/simulations/`.
+Internally, the program will search for the CIF files corresponding to the material name(s) in the MOFXDB database, and will choose the version corresponding to CoRE MOF 2019. 
+Default directory : `./data/cif/`
+
+- [ ] step 2 : One need details about the node architecture to launch in parallel all simulations.
+
+- [ ] step 3 : It plots a single isotherm, i.e., a series of (pressure, loading) values and/or check consistency of raspa outputs.
+Default directory : `./data/plots/`.
 
 ## To do (Priority)
 - [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
