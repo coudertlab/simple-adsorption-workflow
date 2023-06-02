@@ -3,6 +3,8 @@ from itertools import product
 import sys
 import os
 from mofdb_client import fetch
+from ase.io import read
+from math import ceil
 
 try:
     from ccdc import io
@@ -52,7 +54,6 @@ def parse_json(filename, cifnames=None):
         dictionary = {key: value for key, value in zip(dict_parameters.keys(), combo)}
         dictionary.update(data['defaults'])
         l_dict_parameters.append(dictionary)
-    print(l_dict_parameters[0])
     return l_dict_parameters
 
 
@@ -161,3 +162,17 @@ def get_cifnames(directory=CIFDIR, substring=""):
         if filename.endswith('.cif') and substring in filename:
             cif_filenames.append(os.path.splitext(filename)[0])
     return cif_filenames
+
+
+def get_minimal_unit_cells(cif_path):
+    """
+    Get the minimal supercell multipliers to avoid periodic boundary conditions bias.
+    This is an approximate method that is only valid rigorous for the rectangular cell.
+    TODO : implement the extended method for triclinic box, using the output of RASPA simulation with 0 steps.
+    """
+    atoms = read(cif_path)
+    a, b, c, _,_,_ = atoms.cell.cellpar()
+    n_a = ceil(24/ a)
+    n_b = ceil(24/ b)
+    n_c = ceil(24/ c)
+    return n_a,n_b,n_c

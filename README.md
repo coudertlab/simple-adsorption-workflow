@@ -70,7 +70,7 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Create a json input file and document its format
 - [x] Parse the json input in the workflow and check the creation of the input files for RASPA
 - [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
-- [ ] Put the calculation of the minimal supercell in a function.
+- [x] Put the calculation of the minimal supercell in a function.
 - [ ] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [ ] Add a simple analysis script to check RASPA outputs, plot an isotherm
 
