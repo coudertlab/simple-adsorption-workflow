@@ -175,4 +175,4 @@ def get_minimal_unit_cells(cif_path):
     n_a = ceil(24/ a)
     n_b = ceil(24/ b)
     n_c = ceil(24/ c)
-    return n_a,n_b,n_c
+    return [n_a,n_b,n_c]

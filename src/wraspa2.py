@@ -150,7 +150,8 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   helium_void_fraction=1.0, unit_cells=(1, 1, 1),
                   simulation_type="MonteCarlo", cycles=2000,
                   init_cycles="auto", forcefield="CrystalGenerator",
-                  input_file_type="cif", **kwargs):
+                  input_file_type="cif",
+                  save=False,filename='simulation.input', **kwargs):
     """Creates a RASPA simulation input file from parameters.
 
     Args:
@@ -187,7 +188,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
     if init_cycles == "auto":
         init_cycles = min(cycles // 2, 10000)
 
-    return dedent("""
+    string_output = dedent("""
                   SimulationType                {simulation_type}
                   NumberOfCycles                {cycles}
                   NumberOfInitializationCycles  {init_cycles}
@@ -221,6 +222,12 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                               SwapProbability          1.0
                               CreateNumberOfMolecules  0
                   """.format(**locals())).strip()
+    if save is True :
+        with open(filename,'w') as f:
+            f.write(string_output)
+            print(f'Raspa input file {filename} created.')
+    else:
+        return string_output 
 
 def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
                 pressure=101325, helium_void_fraction=1.0,
@@ -628,7 +635,7 @@ def create_run_script(path,save=True):
 
                 $(which simulate) 'simulation.input'
                  """.format(**locals())).strip()
-    if save :
+    if save is True :
         file_path = f"{path}/run.sh"
         with open(file_path,'w') as f:
             f.write(run_string)
