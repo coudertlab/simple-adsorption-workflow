@@ -5,6 +5,8 @@ import os
 from mofdb_client import fetch
 from ase.io import read
 from math import ceil
+import pandas as pd
+import secrets
 
 try:
     from ccdc import io
@@ -13,6 +15,7 @@ except ImportError:
     pass
 
 CIFDIR = f"{os.environ.get('DATA_DIR')}/cif"
+DATADIR = f"{os.environ.get('DATA_DIR')}"
 os.makedirs(CIFDIR, exist_ok=True)
 
 
@@ -176,3 +179,22 @@ def get_minimal_unit_cells(cif_path):
     n_b = ceil(24/ b)
     n_c = ceil(24/ c)
     return [n_a,n_b,n_c]
+
+def create_dir(dict_parameters,index_file=f'{DATADIR}/simulations/index.csv',data_dir=DATADIR):
+    os.makedirs(f'{data_dir}/simulations/',exist_ok=True)
+    dict_parameters["simkey"] = secrets.token_hex(14)
+    work_dir = f'{data_dir}/simulations/{dict_parameters["simkey"]}'
+    os.makedirs(work_dir,exist_ok=True)
+    df = pd.DataFrame()
+    
+    if os.path.isfile(index_file):
+        # Append the DataFrame to the existing CSV file
+        df = df.append(pd.Series(dict_parameters), ignore_index=True)
+        df.to_csv(index_file, mode='a', header= False, index=False)
+        print(f"Row appended to '{index_file}'.")
+    else:
+        # Create a new CSV file with the DataFrame
+        df = df.append(pd.Series(dict_parameters), ignore_index=True)
+        df.to_csv(index_file, index=False)
+        print(f"New file '{index_file}' created.")
+    return work_dir

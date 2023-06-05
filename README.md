@@ -74,15 +74,16 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Put the calculation of the minimal supercell in a function.
 - [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [x] Python notebook for plotting an isotherm
-- [ ] Add a simple analysis script to check RASPA outputs
+- [x] Add a simple analysis script to check RASPA outputs
+- [ ] Add an index file created with the data directories, in order to store the parameters of each simulation
+- [ ] Add a script to store isotherms in CSV format
 
 ## To do (Optional)
 
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
-e.g : `python src/download_cif_from_csd.py KAXQIL`
 - [ ] Download all cifs files given a material name
 - [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a RASPA simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lengths which could be used to define the minimal supercell. 
-- [ ] Implement the job launcher depending on the node architecture (ask SIMAP people)
+- [ ] Link the workflow ot a job manager that runs a single RASPA simulation for each available CPU (to discuss with SIMAP group).
 
 ## For future development
 

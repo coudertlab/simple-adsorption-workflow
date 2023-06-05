@@ -1,7 +1,10 @@
 import os,glob
 
+data_dir = os.environ.get('DATA_DIR')
+sim_dir = os.environ.get(f'{data_dir}/simulations')
+
 def check_simulations(verbose=False,
-                      path=f'{os.environ.get("DATA_DIR")}/simulations'):
+                      path=sim_dir):
     dir_no_outputs=[]
     dir_many_outputs=[]
     warnings_one_output={}
@@ -16,7 +19,6 @@ def check_simulations(verbose=False,
             dir_many_outputs.append(dir)
         else :
             dir_no_outputs.append(dir)
-            print("bad")
 
     non_empty_warnings = {key:value for key,value in warnings_one_output.items() if isinstance(value, list) and len(value) > 0}
     non_empty_errors = {key:value for key,value in errors_one_output.items() if isinstance(value, list) and len(value) > 0}
@@ -42,3 +44,6 @@ def print_dict(d):
         for element in elements:
             print(element)
         print()
+
+#def convert_to_csv(path=sim_dir):
+
