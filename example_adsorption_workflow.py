@@ -1,5 +1,6 @@
 from src.wraspa2 import *
 from src.input_parser import *
+from src.convert_data import *
 import os,shutil
 
 # Define paths
@@ -39,11 +40,10 @@ for i,dict_parameters in enumerate(l_dict_parameters):
 # TODO : write below a code to launch the calculations depending on the node architecture
 
 # Check RASPA outputs
-from src.convert_data import *
 check_simulations(verbose=False)
 
 # Extract isotherms and write CSV files
-#convert_to_csv(path=f'{data_dir}/simulations')
+output_isotherms_to_csv()
 
-# TODO : write below a code to generate isotherms in a CSV format
-# Plot example : see notebook example_plot.ipynb
+# Plot isotherms
+# e.g. : jupyter notebook plot_isotherms.ipynb
