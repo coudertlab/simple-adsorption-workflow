@@ -9,14 +9,24 @@ isotherm_dir =  f'{data_dir}/isotherms'
 os.makedirs(isotherm_dir,exist_ok=True)
 
 def check_simulations(verbose=False,
-                      path=sim_dir):
+                      sim_dir=sim_dir):
+    """
+    Check the simulations in the specified directory.
+
+    Parameters:
+        verbose (bool): Whether to print detailed information. Default is False.
+        sim_dir (str): The directory path containing the simulations.
+
+    Returns:
+        None
+    """
     dir_no_outputs=[]
     dir_many_outputs=[]
     warnings_one_output={}
     errors_one_output={}
-    all_dirs = [ path for path in os.listdir(path) if os.path.isdir(path)]
+    all_dirs = [ name for name in os.listdir(sim_dir) if os.path.isdir(os.path.join(sim_dir, name))]
     for dir in all_dirs:
-        l_data_files = glob.glob(f'{path}/{dir}/Output/System_0/*.data')
+        l_data_files = glob.glob(f'{sim_dir}/{dir}/Output/System_0/*.data')
         if len(l_data_files)==1:
             filename = l_data_files[0]
             warnings_one_output[filename] = get_lines_with_match('WARNING',filename)
@@ -28,7 +38,7 @@ def check_simulations(verbose=False,
 
     non_empty_warnings = {key:value for key,value in warnings_one_output.items() if isinstance(value, list) and len(value) > 0}
     non_empty_errors = {key:value for key,value in errors_one_output.items() if isinstance(value, list) and len(value) > 0}
-    print(f'{len(all_dirs)} directories found in {path}:')
+    print(f'{len(all_dirs)} directories found in {sim_dir}:')
     print(f"No       outputs found in {len(dir_no_outputs):5d} directories.")
     if verbose is True : print(dir_no_outputs);print()
     
@@ -39,6 +49,16 @@ def check_simulations(verbose=False,
     if verbose is True : print_dict(non_empty_errors)
 
 def get_lines_with_match(string,filename):
+    """
+    Get lines from a file that match a given string.
+
+    Parameters:
+        string (str): The string to match.
+        filename (str): The path of the file to search.
+
+    Returns:
+        list: A list of lines that match the string.
+    """
     lines = []
     with open(filename, 'r') as file:
         for line in file:
@@ -47,6 +67,15 @@ def get_lines_with_match(string,filename):
     return list(set(lines))
 
 def print_dict(d):
+    """
+    Print a dictionary with each key-value pair on a new line.
+
+    Parameters:
+        d (dict): The dictionary to print.
+
+    Returns:
+        None
+    """
     for key, elements in d.items():
         print(f"{key}:")
         for element in elements:
@@ -54,6 +83,16 @@ def print_dict(d):
         print()
 
 def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
+    """
+    Output isotherms to CSV files.
+
+    Parameters:
+        input_path (str): The path to the input directory containing simulation data.
+        output_path (str): The path to the output directory for the generated CSV files.
+
+    Returns:
+        None
+    """
     df = pd.read_csv(f'{sim_dir}/index.csv')
     param_columns = df.columns.difference(['pressure', 'simkey']).to_list()
     grouped = df.groupby(param_columns)

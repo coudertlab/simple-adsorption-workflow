@@ -41,7 +41,7 @@ In this example, the user can modify parameters and default parameters for RASPA
 - Specifying a pressure range with two values (`pressures`): minimum and maximum pressure.
 - Determining the number of points to calculate on the isotherm (`npoints`).
 
-It's important to note that if there are multiple entries for any parameter (e.g., multiple materials), the program will generate simulation folders for each unique combination of parameters.
+> Note : `parameters` and `defaults` have been divided for the following purpose : if there are lists of parameters in the `parameters` field (e.g., multiple materials), the program will generate simulation folders for each unique combination of `parameters`.
 
 In this workflow, there are certain restrictions in order to keep the simulations simple and make some assumptions:
 - The material must be available in the CoreMOF database, accessible through the MOFXDB database (https://github.com/n8ta/mofdb-client).
@@ -59,8 +59,7 @@ Default directory : `./data/cif/`
 
 - [ ] step 2 : One need details about the node architecture to launch in parallel all simulations.
 
-- [ ] step 3 : It plots a single isotherm, i.e., a series of (pressure, loading) values and/or check consistency of RASPA outputs.
-Default directory : `./data/plots/`.
+- [x] step 3 : isotherms are stored in `./data/isotherms/` as CSV files and are associated to a unique identifier `isokey`. In order to retrieve simulation parameters, one relies on the `isotherms.csv`.
 
 ## To do (Priority)
 - [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
@@ -71,19 +70,19 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Create a json input file and document its format
 - [x] Parse the json input in the workflow and check the creation of the input files for RASPA
 - [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
-- [x] Put the calculation of the minimal supercell in a function.
+- [x] Calculate in a function the minimal supercell.
 - [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [x] Python notebook for plotting an isotherm
-- [x] Add a simple analysis script to check RASPA outputs
-- [ ] Add an index file created with the data directories, in order to store the parameters of each simulation
-- [ ] Add a script to store isotherms in CSV format
+- [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`.
+- [x] Add an index file created with the data directories, in order to store the parameters of each simulation
+- [x] Add a script to store isotherms in CSV format
 
 ## To do (Optional)
 
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
 - [ ] Download all cifs files given a material name
 - [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a RASPA simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lengths which could be used to define the minimal supercell. 
-- [ ] Link the workflow ot a job manager that runs a single RASPA simulation for each available CPU (to discuss with SIMAP group).
+- [ ] Link the workflow to a job manager that runs a single RASPA simulation for each available CPU (to discuss with SIMAP group).
 
 ## For future development
 

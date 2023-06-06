@@ -181,6 +181,17 @@ def get_minimal_unit_cells(cif_path):
     return [n_a,n_b,n_c]
 
 def create_dir(dict_parameters,index_file=f'{DATADIR}/simulations/index.csv',data_dir=DATADIR):
+    """
+    Create a new directory for simulations and update the index file.
+
+    Parameters:
+        dict_parameters (dict): A dictionary containing the simulation parameters.
+        index_file (str): The path to the index file.
+        data_dir (str): The root directory for the simulations.
+
+    Returns:
+        str: The path to the newly created directory.
+    """
     os.makedirs(f'{data_dir}/simulations/',exist_ok=True)
     dict_parameters["simkey"] = secrets.token_hex(14)
     work_dir = f'{data_dir}/simulations/{dict_parameters["simkey"]}'
