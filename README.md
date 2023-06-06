@@ -1,5 +1,14 @@
 # simple-adsorption-workflow
 
+Automating RASPA simulations and analysis for adsorption studies using a simple workflow with JSON input, CoRE MOF database integration, and isotherm generation.
+
+## Description
+
+This program provides a simple workflow for automating RASPA simulations for adsorption studies. It allows users to specify simulation parameters and default settings through a JSON file, and generates directories with input and running files for RASPA. The program retrieves CIF files from the CoRE MOF database and stores isotherms as CSV files. The workflow aims to streamline the simulations and simplify the modeling process, making it easier to study adsorption phenomena.
+
+Some code is heavily inspired by [RASPA python wrapper](https://github.com/WilmerLab/raspa2/tree/sensor_array_mof_adsorption/python) and has been adapted to meet the specific needs of this program.
+
+
 ## Install
 
 ### Environments 
@@ -49,6 +58,11 @@ In this workflow, there are certain restrictions in order to keep the simulation
 - No electrostatic interactions are considered in the simulations.
 
 These restrictions and assumptions aim to streamline the simulations and simplify the modeling process.
+
+## Workflow example
+```Bash
+python example-workflow-adsorption.py
+```
 
 ## Workflow outputs
 
