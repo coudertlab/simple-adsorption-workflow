@@ -109,6 +109,7 @@ def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
     print(f' File {isotherm_dir}/isotherms.csv have been created.\nAn isokey have been assigned to each isotherms.\n')
     
     # Create a CSV file for each isotherms
+    df_isot = pd.read_csv(f'{isotherm_dir}/isotherms.csv', skipinitialspace=False)
     for index,row in df_isot.iterrows():
         results =[]
         simkeys = eval(row['simkeys'].replace(' ',','))
@@ -127,3 +128,4 @@ def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
         df_iso['pressure(bar)'] = df_iso['pressure(bar)']/100000
         file_out = f'{isotherm_dir}/{row["isokey"]}.csv'
         df_iso.to_csv(file_out,index=False)
+    print(f'{df_isot.shape[0]} isotherms stored in CSV files.')
