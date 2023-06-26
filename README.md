@@ -11,17 +11,30 @@ Some code is heavily inspired by [RASPA python wrapper](https://github.com/Wilme
 
 ## Install
 
-### Environments 
-Use a conda environment with python 3.
+- Use a conda environment with python 3 :
 ```bash
 conda create -n simple-adsorption-workflow python=3
 ```
 
-Install requirements in the conda environment
+- Install requirements in the conda environment :
 ```bash
 conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
+
+- Define the environment variables :
+```bash
+source set_environment
+```
+
+To recover the environment variables at each activation of the conda environment :
+
+```bash
+printf "%s\n" "#/bin/sh" "source $PWD/set_environment" > $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.sh
+chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.sh
+```
+
+
 ## User input (JSON file)
 
 ```
@@ -121,3 +134,16 @@ conda env config vars set CSDHOME=<PATH_TO_CSD> #e.g.:/opt/CCDC/CSD_2022
 ```
 
 > NOTE : solving the environment can take a few minutes due to the number of dependencies to satisfy.
+
+### Environment settings in fish shell
+
+```bash
+conda activate simple-adsorption-workflow
+source set_environment_fish
+```
+
+To recover the environment variables at each activation of the conda environment :
+```bash
+printf "%s\n" "source $PWD/set_environment_fish" > $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
+chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
+```

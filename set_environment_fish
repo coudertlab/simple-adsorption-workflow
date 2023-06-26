@@ -2,11 +2,11 @@
 
 # Modify the following lines to reflect the paths of your data
 # By default, the program reads the JSON input in the current folder and all others I/O are stored in the data folder
-export DATA_DIR=$PWD/data
-export INPUT_DIR=$PWD
+set -gx DATA_DIR $PWD/data
+set -gx INPUT_DIR $PWD
 
-# Modify the following lines to reflect the accurate paths to the libraries on your system.
-export RASPA_PARENT=/opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
+# Modify the following lines to reflect the accurate paths to the libraries on your system
+set -gx RASPA_PARENT /opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 
 #export PYTHONPATH=/opt/RASPA2/python/
 #export ZEO_DIR=~/zeo++-0.3
@@ -15,13 +15,16 @@ export RASPA_PARENT=/opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/si
 
 # Fill with the python executable with the correct environment (satisfying requirements.txt)
 #export PACKAGE_PYTHON=$(which python)
-export PACKAGE_PYTHON=$CONDA_PREFIX/bin/python
+set -gx PACKAGE_PYTHON $CONDA_PREFIX/bin/python
 
 # The following lines should not be modified (unless you know what you are doing).
-export RASPA_DIR=$RASPA_PARENT/simulations
-export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
-export LD_LIBRARY_PATH=$RASPA_DIR/lib
+set -gx RASPA_DIR $RASPA_PARENT/simulations
+set -gx DYLD_LIBRARY_PATH $RASPA_DIR/lib
+set -gx LD_LIBRARY_PATH $RASPA_DIR/lib
 
 # Make visible the path to all python scripts
-export PACKAGE=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd) # current dir path
-export PYTHONPATH=$PACKAGE:$PYTHONPATH
+#set -gx PACKAGE (dirname (status -f))
+set -gx PACKAGE (realpath (dirname (status -f)))
+set -gx PYTHONPATH $PACKAGE $PYTHONPATH
+
+
