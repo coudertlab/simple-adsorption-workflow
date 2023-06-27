@@ -643,6 +643,27 @@ def create_run_script(path,save=True):
     else:
         return run_string
 
+def create_job_script(path):
+    """
+    Returns the job script in bash.
+    """
+
+    job_string = dedent("""
+                #!/bin/bash
+
+                for dir in $(find simulations/ -mindepth 1 -type d); do
+                cd $dir
+                ./run.sh &
+                cd ../..
+                done
+                wait  # Wait for all background jobs to finish
+                echo "All jobs completed"
+                 """).strip()
+    file_path = f"{path}/job.sh"
+    with open(file_path,'w') as f:
+        f.write(job_string)
+    os.chmod(file_path, stat.S_IRWXU) # Read, write, and execute by owner
+
 def delete_unused_files(work_dir):
     """
     Delete useless files and folders in the working directory.

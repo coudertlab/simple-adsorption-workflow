@@ -73,8 +73,15 @@ In this workflow, there are certain restrictions in order to keep the simulation
 These restrictions and assumptions aim to streamline the simulations and simplify the modeling process.
 
 ## Workflow example
+First define the paths for input and output files :
 ```Bash
-python example-workflow-adsorption.py
+export DATA_DIR=~/tests-workflow/   # default : ./data
+export INPUT_FILE=~/tests-workflow/ # for JSON file. default : ./
+```
+
+Then run the main script :
+```Bash
+python $PACKAGE/example-workflow-adsorption.py
 ```
 
 ## Workflow outputs
@@ -84,9 +91,15 @@ Default directory : `./data/simulations/`.
 Internally, the program will search for the CIF files corresponding to the material name(s) in the MOFXDB database, and will choose the version corresponding to CoRE MOF 2019. 
 Default directory : `./data/cif/`
 
-- [ ] step 2 : One need details about the node architecture to launch in parallel all simulations.
+- [ ] step 2 : run adsorption simulations
+    - [x] on a local machine : if the number of simulations is less than the number of cores, one can use the script `/data/job.sh`.
+
+    - [ ] on a HPC machine : do what `job.sh` does with a job manager (e.g.SLURM).
+    (to be discussed with SIMAP/GRICAD)
 
 - [x] step 3 : isotherms are stored in `./data/isotherms/` as CSV files and are associated to a unique identifier `isokey`. In order to retrieve simulation parameters, one relies on the `isotherms.csv`.
+
+- [ ] step 4 : compute accessible surface area with Zeo++
 
 ## To do (Priority)
 - [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
@@ -100,16 +113,17 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Calculate in a function the minimal supercell.
 - [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [x] Python notebook for plotting an isotherm
-- [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`.
+- [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`
 - [x] Add an index file created with the data directories, in order to store the parameters of each simulation
 - [x] Add a script to store isotherms in CSV format
+- [ ] Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
 
 ## To do (Optional)
 
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
 - [ ] Download all cifs files given a material name
 - [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a RASPA simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lengths which could be used to define the minimal supercell. 
-- [ ] Link the workflow to a job manager that runs a single RASPA simulation for each available CPU (to discuss with SIMAP group).
+
 
 ## For future development
 

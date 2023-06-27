@@ -37,7 +37,11 @@ for i,dict_parameters in enumerate(l_dict_parameters):
     # Create running file
     create_run_script(path=work_dir,save=True)
 
-# TODO : write below a code to launch the calculations depending on the node architecture
+# Run the adsorption simulations
+create_job_script(path=data_dir)
+os.system(f"{data_dir}/job.sh > sim.log 2>&1")
+
+# TODO : call here a function that use the HPC job manager (e.g. SLURM)
 
 # Check RASPA outputs
 check_simulations(verbose=False)
