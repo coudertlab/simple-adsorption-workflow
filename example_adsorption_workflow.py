@@ -8,6 +8,9 @@ data_dir  = os.environ.get("DATA_DIR")
 input_dir = os.environ.get("INPUT_DIR")
 json_path = f"{input_dir}/input.json"
 
+
+### STEP 1 ###
+
 # Get CIF files from the structures provided in the json files
 cif_from_json(json_path)
 
@@ -26,8 +29,6 @@ for i,dict_parameters in enumerate(l_dict_parameters):
     dict_parameters["unit_cells"] = get_minimal_unit_cells(cif_path)
 
     # Create working directory and add CIF file
-    #work_dir = f'{data_dir}/simulations/{"_".join(str(value) if not isinstance(value, list) else "_".join(str(v) for v in value) for value in dict_parameters.values())}'
-    #os.makedirs(work_dir,exist_ok=True)
     work_dir = create_dir(dict_parameters,index_file=f'{data_dir}/simulations/index.csv')
     shutil.copy(cif_path,work_dir)
 
@@ -37,6 +38,9 @@ for i,dict_parameters in enumerate(l_dict_parameters):
     # Create running file
     create_run_script(path=work_dir,save=True)
 
+
+### STEP 2 ###
+
 # Run the adsorption simulations
 create_job_script(path=data_dir)
 os.system(f"{data_dir}/job.sh > sim.log 2>&1")
@@ -45,6 +49,9 @@ os.system(f"{data_dir}/job.sh > sim.log 2>&1")
 
 # Check RASPA outputs
 check_simulations(verbose=False)
+
+
+### STEP 3 ###
 
 # Extract isotherms and write CSV files
 output_isotherms_to_csv()

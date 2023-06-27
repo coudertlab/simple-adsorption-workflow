@@ -86,18 +86,18 @@ python $PACKAGE/example-workflow-adsorption.py
 
 ## Workflow outputs
 
-- [x] step 1 : It first returns a set of directories with input and running files for RASPA. 
+- [x] step 1 : Returns a set of directories with input and running files for RASPA. 
 Default directory : `./data/simulations/`.
 Internally, the program will search for the CIF files corresponding to the material name(s) in the MOFXDB database, and will choose the version corresponding to CoRE MOF 2019. 
 Default directory : `./data/cif/`
 
-- [ ] step 2 : run adsorption simulations
-    - [x] on a local machine : if the number of simulations is less than the number of cores, one can use the script `/data/job.sh`.
+- [x] step 2 : Run adsorption simulations
+    - [x] on a local machine : using the bash script `/data/job.sh`.
 
-    - [ ] on a HPC machine : do what `job.sh` does with a job manager (e.g.SLURM).
+    - [ ] on a HPC machine : using a job manager (e.g.SLURM).
     (to be discussed with SIMAP/GRICAD)
 
-- [x] step 3 : isotherms are stored in `./data/isotherms/` as CSV files and are associated to a unique identifier `isokey`. In order to retrieve simulation parameters, one relies on the `isotherms.csv`.
+- [x] step 3 : Generate isotherms and store them in `./data/isotherms/` as CSV files. Each isotherm is associated to a unique identifier `isokey` and corresponding information are given in `isotherms.csv`.
 
 - [ ] step 4 : compute accessible surface area with Zeo++
 
