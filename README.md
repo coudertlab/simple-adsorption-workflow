@@ -22,6 +22,15 @@ conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
 
+- Install Zeo++
+
+Download and compile Zeo++ at http://www.zeoplusplus.org/download.html.
+Remember the path to the directory containing the executable ```network``` by mofying the corresponding line in `set_environment` :
+```
+export ZEO_DIR=/opt/zeo++-0.3
+```
+
+
 - Define the environment variables :
 ```bash
 source set_environment

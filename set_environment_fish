@@ -8,13 +8,13 @@ set -gx INPUT_DIR $PWD
 # Modify the following lines to reflect the accurate paths to the libraries on your system
 set -gx RASPA_PARENT /opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 
-#export PYTHONPATH=/opt/RASPA2/python/
-#export ZEO_DIR=~/zeo++-0.3
-#export CPP_DIR=~/surface-csampler
-#export GLOST_DIR=~/glost
+#set -gx PYTHONPATH /opt/RASPA2/python/
+set -gx ZEO_DIR /opt/zeo++-0.3
+#set -gx CPP_DIR ~/surface-csampler
+#set -gx GLOST_DIR ~/glost
 
 # Fill with the python executable with the correct environment (satisfying requirements.txt)
-#export PACKAGE_PYTHON=$(which python)
+#set -gx PACKAGE_PYTHON $(which python)
 set -gx PACKAGE_PYTHON $CONDA_PREFIX/bin/python
 
 # The following lines should not be modified (unless you know what you are doing).

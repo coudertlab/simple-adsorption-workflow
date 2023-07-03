@@ -9,7 +9,7 @@ export INPUT_DIR=$PWD
 export RASPA_PARENT=/opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 
 #export PYTHONPATH=/opt/RASPA2/python/
-#export ZEO_DIR=~/zeo++-0.3
+export ZEO_DIR=/opt/zeo++-0.3
 #export CPP_DIR=~/surface-csampler
 #export GLOST_DIR=~/glost
 
