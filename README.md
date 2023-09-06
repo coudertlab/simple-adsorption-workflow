@@ -13,7 +13,7 @@ Some code is heavily inspired by [RASPA python wrapper](https://github.com/Wilme
 
 - Use a conda environment with python 3 :
 ```bash
-conda create -n simple-adsorption-workflow python=3
+conda create -n simple-adsorption-workflow python=3.9
 ```
 
 - Install requirements in the conda environment :
@@ -39,6 +39,7 @@ source set_environment
 To recover the environment variables at each activation of the conda environment :
 
 ```bash
+mkdir -p $CONDA_PREFIX/etc/conda/activate.d/
 printf "%s\n" "#/bin/sh" "source $PWD/set_environment" > $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.sh
 chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.sh
 ```
@@ -167,6 +168,7 @@ source set_environment_fish
 
 To recover the environment variables at each activation of the conda environment :
 ```bash
+mkdir -p $CONDA_PREFIX/etc/conda/activate.d/
 printf "%s\n" "source $PWD/set_environment_fish" > $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
 chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
 ```
