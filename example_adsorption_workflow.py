@@ -34,8 +34,8 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
     parser.add_argument("-t","--tests", action="store_true", help="run tests")
-    parser.add_argument("-o", "--output-dir", default=f"{os.environ.get('HOME')}/data", help="output directory path")
-    parser.add_argument("-i", "--input-file", default=f"{os.environ.get('HOME')}/data/input.json", help="full path of a json input file")
+    parser.add_argument("-o", "--output-dir", default=f"{os.getcwd()}/data", help="output directory path")
+    parser.add_argument("-i", "--input-file", default=f"{os.getcwd()}/data/input.json", help="full path of a json input file")
 
     args = parser.parse_args()
     if args.tests:
@@ -53,9 +53,10 @@ def run_test(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    if args.output_dir ==  f"{os.environ.get('HOME')}/data":
-        args.output_dir = f"{os.environ.get('HOME')}/tests"
-        args.input_file      = f"{os.environ.get('PACKAGE')}/tests/test_isotherms/input.json"
+    if args.output_dir == f"{os.getcwd()}/data":
+        args.output_dir = f"{os.getcwd()}/tests"
+    if not args.input_file:
+        args.input_file = f"{os.environ.get('PACKAGE')}/tests/test_isotherms/input.json"
     args.input_file      = f"{os.environ.get('PACKAGE')}/tests/test_isotherms/input.json"
     print(f"------------------------ Running tests ------------------------\n")
     try:
@@ -81,7 +82,7 @@ def test_zeopp(args):
         args (argparse.Namespace): Parsed command-line arguments.
     """
     target_file  = os.path.abspath(f"{os.environ.get('PACKAGE')}/tests/test_zeopp_asa/results_zeopp.csv")
-    test_file    = os.path.abspath(f"{os.environ.get('HOME')}/tests/zeopp_asa/results_zeopp.csv")
+    test_file    = os.path.abspath(f"{args.output_dir}/zeopp_asa/results_zeopp.csv")
     with open(target_file, 'rb') as file1, open(test_file, 'rb') as file2:
         content1 = file1.read()
         content2 = file2.read()
@@ -97,13 +98,13 @@ def test_isotherms(args):
         args (argparse.Namespace): Parsed command-line arguments.
     """
     target_files  = os.listdir(f"{os.environ.get('PACKAGE')}/tests/test_isotherms/isotherms")
-    test_files    = os.listdir(f"{os.environ.get('HOME')}/tests/isotherms")
+    test_files    = os.listdir(f"{args.output_dir}/isotherms")
     if len(target_files) !=  len(test_files):
         raise Exception("Error : Number of isotherms do not match. Remove ~/tests repository before running tests.")
     else :
         for filename in [ isoname for isoname in test_files if isoname[:3] == 'iso']:
             line_count = 0
-            with open(f"{os.environ.get('HOME')}/tests/isotherms/{filename}", "r") as file:
+            with open(f"{args.output_dir}/isotherms/{filename}", "r") as file:
                 for line in file:
                     line_count += 1
             if line_count != 6: # 5 points + header

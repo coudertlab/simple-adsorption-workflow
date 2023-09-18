@@ -90,7 +90,7 @@ To specify input and output locations :
 ```bash
 python $PACKAGE/example-workflow-adsorption.py -i path/to/myinput.json -o path/to/data/directory
 ```
-By default, the output path is `~/data` and the input file should be written on the root directory (`~/data/input.json`).
+By default, the output data is written to the current directory (`./data`) and the input file should be placed in the root directory (`./data/input.json`).
 
 <p align="center">
   <img src="./figures/diagram_workflow.png" alt="Diagram of the workflow" width="600" height="400" />
@@ -103,6 +103,8 @@ To test the workflow on a local machine, use the `-t` flag :
 ```bash
 python $PACKAGE/example_adsorption_workflow.py -t
 ```
+
+By default, the output directory is `./tests` and the input file is located in the github repository (`$PACKAGE/tests/test_isotherms/input.json`).
 
 ## Development todo lists
 

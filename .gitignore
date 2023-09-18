@@ -4,3 +4,5 @@ dev.ipynb
 nohup.out
 figures/*.pdf
 figures/*.odp
+figures/.*
+
