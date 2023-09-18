@@ -20,10 +20,10 @@ def main():
         Run the script to execute the workflow based on provided input arguments.
     """
     args = parse_arguments()
-    sim_dir_names = prepare_input_files(args)   # STEP 1
-    run_simulations(args,sim_dir_names)         # STEP 2
-    check_isotherms(args,sim_dir_names)         # STEP 3
-    #get_geometrical_features(args)             # STEP 4 : in progress
+    cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
+    run_simulations(args,sim_dir_names)                     # STEP 2
+    check_isotherms(args,sim_dir_names)                     # STEP 3
+    get_geometrical_features(args,cif_names)                # STEP 4
 
 def parse_arguments():
     """
@@ -59,16 +59,34 @@ def run_test(args):
     args.input_file      = f"{os.environ.get('PACKAGE')}/tests/test_isotherms/input.json"
     print(f"------------------------ Running tests ------------------------\n")
     try:
-        sim_dir_names = prepare_input_files(args)    # STEP 1
+        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)          # STEP 2
         check_isotherms(args,sim_dir_names)          # STEP 3
         test_isotherms(args)
+        get_geometrical_features(args,cif_names)               # STEP 4
+        test_zeopp(args)
         print("Tests succeeded")
     except Exception as e:
         print(e)
         print("Tests NOT succeeded")
     print(f"------------------------ End of tests ------------------------\n")
     exit(0)
+
+def test_zeopp(args):
+    """
+    Count the number of lines in the output csv files with surface 
+    areas and compare to the targeted values.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    target_file  = os.path.abspath(f"{os.environ.get('PACKAGE')}/tests/test_zeopp_asa/results_zeopp.csv")
+    test_file    = os.path.abspath(f"{os.environ.get('HOME')}/tests/zeopp_asa/results_zeopp.csv")
+    with open(target_file, 'rb') as file1, open(test_file, 'rb') as file2:
+        content1 = file1.read()
+        content2 = file2.read()
+        if content1 != content2:
+            raise Exception("Error : Results with Zeo++ test are different from expected.")
 
 def test_isotherms(args):
     """
@@ -81,8 +99,7 @@ def test_isotherms(args):
     target_files  = os.listdir(f"{os.environ.get('PACKAGE')}/tests/test_isotherms/isotherms")
     test_files    = os.listdir(f"{os.environ.get('HOME')}/tests/isotherms")
     if len(target_files) !=  len(test_files):
-        print("Error : Number of isotherms do not match. Delete ~/tests repository before running tests.")
-        exit(0)
+        raise Exception("Error : Number of isotherms do not match. Remove ~/tests repository before running tests.")
     else :
         for filename in [ isoname for isoname in test_files if isoname[:3] == 'iso']:
             line_count = 0
@@ -90,8 +107,7 @@ def test_isotherms(args):
                 for line in file:
                     line_count += 1
             if line_count != 6: # 5 points + header
-                print(f"Error : Number of lines in isotherms files do not match. ")
-                exit(0)
+                raise Exception(f"Error : Number of lines in isotherms files do not match. ")
 
 def prepare_input_files(args):
     """
@@ -115,12 +131,12 @@ def prepare_input_files(args):
     print(f"Storing data in {args.output_dir}\n")
 
     # Get CIF files from the structures provided in the JSON file
-    cifnames = cif_from_json(args.input_file, args.output_dir,
+    cif_names = cif_from_json(args.input_file, args.output_dir,
                              database='mofxdb', substring="coremof-2019",
                              verbose=False)
 
     # Parse the JSON file and extract input parameters
-    l_dict_parameters = parse_json(args.input_file, cifnames=cifnames)
+    l_dict_parameters = parse_json(args.input_file, cifnames=cif_names)
 
     # Create inputs for RASPA for each set of parameters
     sim_dir_names = []
@@ -141,7 +157,7 @@ def prepare_input_files(args):
     # Create a job script for all simulations (each using 1 CPU)
     create_job_script(args.output_dir, sim_dir_names)
 
-    return sim_dir_names
+    return cif_names, sim_dir_names
 
 def run_simulations(args,sim_dir_names):
     """
@@ -169,7 +185,7 @@ def check_isotherms(args,sim_dir_names=None):
     check_simulations(args.output_dir,sim_dir_names, verbose=False)
     output_isotherms_to_csv(args.output_dir,sim_dir_names,args.tests)
 
-def get_geometrical_features(args,cif_files):
+def get_geometrical_features(args,cif_names):
     """
     Calculate geometrical features of the porous crystals using Zeo++.
 
@@ -177,7 +193,7 @@ def get_geometrical_features(args,cif_files):
         args (argparse.Namespace): Parsed command-line arguments.
     """
     run_zeopp_asa(args.output_dir,
-                cif_files=[f'{args.output_dir}/cif/{structure}.cif' for structure in cif_files])
+                cif_files=[f'{args.output_dir}/cif/{structure}.cif' for structure in cif_names])
 
 if __name__ == "__main__":
     main()

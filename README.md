@@ -92,10 +92,10 @@ python $PACKAGE/example-workflow-adsorption.py -i path/to/myinput.json -o path/t
 ```
 By default, the output path is `~/data` and the input file should be written on the root directory (`~/data/input.json`).
 
-<div style="text-align:center;">
-  <img src="./figures/diagram_workflow.png" alt="diagram" />
-  <p style="text-align:center;"><i>Diagram of the workflow</i></p>
-</div>
+<p align="center">
+  <img src="./figures/diagram_workflow.png" alt="Diagram of the workflow" width="600" height="400" />
+</p>
+<p align="center"><i>Diagram of the workflow</i></p>
 
 ## Tests
 
@@ -133,7 +133,7 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`
 - [x] Add an index file created with the data directories, in order to store the parameters of each simulation
 - [x] Add a script to store isotherms in CSV format
-- [ ] Step 4 : Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
+- [x] Step 4 : Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
 - [x] Add a test to verify the isotherms have been recovered from simulation outputs
 ## To do (Optional)
 

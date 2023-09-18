@@ -2,19 +2,17 @@ import re
 import pandas as pd
 import glob,os
 
-#data_dir = os.environ.get('DATA_DIR')
-#zeopp_dir = os.environ.get('ZEO_DIR')
-#zeopp_output_dir =  f'{data_dir}/zeopp_asa'
-
-#os.makedirs(zeopp_output_dir,exist_ok=True)
+zeopp_dir = os.environ.get('ZEO_DIR')
 
 def run_zeopp_asa(data_dir,
                   cif_files=None,
                   chan_radius=1.2,
                   probe_radius = 1.2,
-                  num_samples_per_atom = 2000):
+                  num_samples_per_atom = 2000,
+                  verbose=False):
 
     # Run Zeo++ on all selected cifs files or found in the default directory
+    print(f"Running Zeo++ to compute accessible surface area...")
     if cif_files is not None:
         assert isinstance(cif_files, list), 'Argument cif_files must be a list.'
         for file in cif_files:
@@ -22,6 +20,8 @@ def run_zeopp_asa(data_dir,
     else:
         cif_files=glob.glob(f'{data_dir}/cif/*cif')
 
+    zeopp_output_dir = f"{data_dir}/zeopp_asa/"
+    os.makedirs(zeopp_output_dir,exist_ok=True)
     for cif_file in cif_files:
         basename = os.path.basename(cif_file)
         cif_basename, extension = os.path.splitext(basename)
@@ -91,4 +91,6 @@ def run_zeopp_asa(data_dir,
     df = pd.DataFrame(data)
     result_filename = f'{zeopp_output_dir}/results_zeopp.csv'
     df.to_csv(result_filename,index=False)
-    print(f"All data extracted from Zeo++ in {zeopp_output_dir} have been stored in {result_filename}.")
+    print(f"Results stored in results_zeopp.csv.")
+    if verbose :
+        print(f"All data extracted from Zeo++ in {zeopp_output_dir} have been stored in {result_filename}.")
