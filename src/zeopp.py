@@ -2,13 +2,13 @@ import re
 import pandas as pd
 import glob,os
 
-data_dir = os.environ.get('DATA_DIR')
-zeopp_dir = os.environ.get('ZEO_DIR')
-zeopp_output_dir =  f'{data_dir}/zeopp_asa'
+#data_dir = os.environ.get('DATA_DIR')
+#zeopp_dir = os.environ.get('ZEO_DIR')
+#zeopp_output_dir =  f'{data_dir}/zeopp_asa'
 
-os.makedirs(zeopp_output_dir,exist_ok=True)
+#os.makedirs(zeopp_output_dir,exist_ok=True)
 
-def run_zeopp_asa(path=data_dir,
+def run_zeopp_asa(data_dir,
                   cif_files=None,
                   chan_radius=1.2,
                   probe_radius = 1.2,
@@ -25,7 +25,7 @@ def run_zeopp_asa(path=data_dir,
     for cif_file in cif_files:
         basename = os.path.basename(cif_file)
         cif_basename, extension = os.path.splitext(basename)
-        os.system(f'{zeopp_dir}/network -ha -sa {chan_radius} {probe_radius} {num_samples_per_atom} {zeopp_output_dir}/{cif_basename}.sa {path}/cif/{cif_basename}.cif >> {data_dir}/zeopp.log 2>&1')
+        os.system(f'{zeopp_dir}/network -ha -sa {chan_radius} {probe_radius} {num_samples_per_atom} {zeopp_output_dir}/{cif_basename}.sa {data_dir}/cif/{cif_basename}.cif >> {data_dir}/zeopp.log 2>&1')
 
     # Define the regular expression patterns for extracting data
     unitcell_volume_pattern = r"Unitcell_volume:\s([\d.]+)"
