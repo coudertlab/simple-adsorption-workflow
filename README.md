@@ -101,7 +101,7 @@ By default, the output path is `~/data` and the input file should be written on 
 
 To test the workflow on a local machine, use the `-t` flag : 
 ```bash
-python $PACKAGE/example-workflow-adsorption.py -t 
+python $PACKAGE/example_adsorption_workflow.py -t
 ```
 
 ## Development todo lists
