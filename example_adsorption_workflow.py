@@ -1,5 +1,5 @@
 import os,shutil
-
+import sys
 from src.wraspa2 import *
 from src.input_parser import *
 from src.convert_data import *
@@ -53,7 +53,7 @@ os.system(f"{data_dir}/job.sh > sim.log 2>&1")
 # Check RASPA outputs
 check_simulations(verbose=False)
 
-
+sys.exit()
 ### STEP 3 ###
 
 # Extract isotherms and write CSV files
