@@ -1,0 +1,6 @@
+sim.log
+src/__pychache__/*
+dev.ipynb
+nohup.out
+figures/*pdf
+figures/*ods

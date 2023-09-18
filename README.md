@@ -83,18 +83,28 @@ In this workflow, there are certain restrictions in order to keep the simulation
 These restrictions and assumptions aim to streamline the simulations and simplify the modeling process.
 
 ## Workflow example
-First define the paths for input and output files :
-```Bash
-export DATA_DIR=~/tests-workflow/   # default : ./data
-export INPUT_FILE=~/tests-workflow/ # for JSON file. default : ./
-```
-
-Then run the main script :
 ```Bash
 python $PACKAGE/example-workflow-adsorption.py
 ```
+To specify input and output locations :
+```bash
+python $PACKAGE/example-workflow-adsorption.py -i path/to/myinput.json -o path/to/data/directory
+```
+By default, the output path is `~/data` and the input file should be written on the root directory (`~/data/input.json`).
 
-## Workflow outputs
+<div style="text-align:center;">
+  <img src="./figures/diagram_workflow.png" alt="diagram" />
+  <p style="text-align:center;"><i>Diagram of the workflow</i></p>
+</div>
+
+## Tests
+
+To test the workflow on a local machine, use the `-t` flag : 
+```bash
+python $PACKAGE/example-workflow-adsorption.py -t 
+```
+
+## Development todo lists
 
 - [x] step 1 : Returns a set of directories with input and running files for RASPA. 
 Default directory : `./data/simulations/`.
@@ -107,11 +117,8 @@ Default directory : `./data/cif/`
     - [ ] on a HPC machine : using a job manager (e.g.SLURM).
     (to be discussed with SIMAP/GRICAD)
 
-- [x] step 3 : Generate isotherms and store them in `./data/isotherms/` as CSV files. Each isotherm is associated to a unique identifier `isokey` and corresponding information are given in `isotherms.csv`.
+- [x] step 3 : Generate isotherms and store them in `./data/isotherms/` as CSV files. Each isotherm is associated to a unique identifier `isokey` and corresponding information are given in `index.csv`.
 
-- [ ] step 4 : compute accessible surface area with Zeo++
-
-## To do (Priority)
 - [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
 e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 
@@ -126,8 +133,8 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`
 - [x] Add an index file created with the data directories, in order to store the parameters of each simulation
 - [x] Add a script to store isotherms in CSV format
-- [ ] Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
-
+- [ ] Step 4 : Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
+- [x] Add a test to verify the isotherms have been recovered from simulation outputs
 ## To do (Optional)
 
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.

@@ -225,7 +225,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
     if save is True :
         with open(filename,'w') as f:
             f.write(string_output+'\n')
-            print(f'Raspa input file {filename} created.')
+            #print(f'Raspa input file {filename} created.')
     else:
         return string_output 
 
@@ -643,19 +643,21 @@ def create_run_script(path,save=True):
     else:
         return run_string
 
-def create_job_script(path):
+def create_job_script(path,sim_dir_names):
     """
     Returns the job script in bash.
     """
 
-    job_string = dedent("""
+    sim_dir_names_string = './simulations/'+ ' ./simulations/'.join(sim_dir_names)
+#$(find simulations/ -mindepth 1 -type d)
+    job_string = dedent(f"""
                 #!/bin/bash
-
-                for dir in $(find simulations/ -mindepth 1 -type d); do
+                for dir in {sim_dir_names_string} ; do
                 cd $dir
                 ./run.sh &
                 cd ../..
                 done
+                echo "Simulations running ..."
                 wait  # Wait for all background jobs to finish
                 echo "All jobs completed"
                  """).strip()

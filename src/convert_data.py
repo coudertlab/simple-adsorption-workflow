@@ -3,34 +3,35 @@ from src.output_parser import *
 import pandas as pd
 import secrets
 
-data_dir = os.environ.get('DATA_DIR')
-sim_dir = f'{data_dir}/simulations'
-isotherm_dir =  f'{data_dir}/isotherms'
-os.makedirs(isotherm_dir,exist_ok=True)
-
-def check_simulations(verbose=False,
-                      sim_dir=sim_dir):
+def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     """
-    Check the simulations in the specified directory.
+    Returns statistics of warning, errors in simulations.
 
     Parameters:
         verbose (bool): Whether to print detailed information. Default is False.
-        sim_dir (str): The directory path containing the simulations.
+        sim_dir_names (list): A list of strings with the name of the simulation directories.
+                              By default, it looks at all subdirectories in the simulation directory.
 
     Returns:
         None
     """
     dir_no_outputs=[]
+    dir_one_output=[]
     dir_many_outputs=[]
     warnings_one_output={}
     errors_one_output={}
-    all_dirs = [ name for name in os.listdir(sim_dir) if os.path.isdir(os.path.join(sim_dir, name))]
+    sim_dir = f"{data_dir}/simulations/"
+    if sim_dir_names is not None :
+        all_dirs = sim_dir_names    
+    else :
+        all_dirs = [ name for name in os.listdir(sim_dir) if os.path.isdir(os.path.join(sim_dir, name))]
     for dir in all_dirs:
-        l_data_files = glob.glob(f'{sim_dir}/{dir}/Output/System_0/*.data')
+        l_data_files = glob.glob(f'{data_dir}/simulations/{dir}/Output/System_0/*.data')
         if len(l_data_files)==1:
             filename = l_data_files[0]
             warnings_one_output[filename] = get_lines_with_match('WARNING',filename)
             errors_one_output[filename] = get_lines_with_match('ERROR',filename)
+            dir_one_output.append(dir)
         elif len(l_data_files)>1:
             dir_many_outputs.append(dir)
         else :
@@ -38,8 +39,13 @@ def check_simulations(verbose=False,
 
     non_empty_warnings = {key:value for key,value in warnings_one_output.items() if isinstance(value, list) and len(value) > 0}
     non_empty_errors = {key:value for key,value in errors_one_output.items() if isinstance(value, list) and len(value) > 0}
-    print(f'{len(all_dirs)} directories found in {sim_dir}:')
-    print(f"No       outputs found in {len(dir_no_outputs):5d} directories.")
+    
+    if sim_dir_names is not None:
+        print(f'{len(all_dirs)} directories selected in {sim_dir}:')
+    else:
+        print(f'{len(all_dirs)} directories found in {sim_dir}:')
+
+    print(f"One       output found in {len(dir_one_output):5d} directories.")
     if verbose is True : print(dir_no_outputs);print()
     
     print(f"Multiple outputs found in {len(dir_many_outputs):5d} directories.")
@@ -82,18 +88,28 @@ def print_dict(d):
             print(element)
         print()
 
-def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
+def output_isotherms_to_csv(data_dir,sim_dir_names=None,test=False,verbose=False):
     """
     Output isotherms to CSV files.
 
     Parameters:
-        input_path (str): The path to the input directory containing simulation data.
-        output_path (str): The path to the output directory for the generated CSV files.
+        data_dir (str): Parent directory.
+        sim_dir_names (list): List of string with simulation directory names.
+                              By default, it will create isotherms from all 
+                              files found in the simulation directory.
 
     Returns:
         None
     """
-    df = pd.read_csv(f'{sim_dir}/index.csv')
+
+    # Create isotherms directory if not already exist
+    isotherm_dir = f"{data_dir}/isotherms"
+    os.makedirs(isotherm_dir,exist_ok=True)
+
+    # Find the rstored results based on the list of simulaiton directories
+    df = pd.read_csv(f'{data_dir}/simulations/index.csv')
+    if sim_dir_names is not None :
+        df = df.loc[df['simkey'].isin(sim_dir_names)]
     param_columns = df.columns.difference(['pressure', 'simkey']).to_list()
     grouped = df.groupby(param_columns)
 
@@ -103,13 +119,19 @@ def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
         simkeys = data["simkey"]
         series_metadata_isot = data.iloc[0].drop('simkey')
         series_metadata_isot["simkeys"] = simkeys.to_numpy()
-        series_metadata_isot["isokey"] = secrets.token_hex(6)
+        series_metadata_isot["isokey"] = "iso" + secrets.token_hex(4)
         df_isot = df_isot.append(series_metadata_isot)
-    df_isot.to_csv(f'{isotherm_dir}/isotherms.csv',index=False)
-    print(f' File {isotherm_dir}/isotherms.csv have been created.\nAn isokey have been assigned to each isotherms.\n')
-    
+    if  os.path.isfile(f'{isotherm_dir}/index.csv'):
+        df_isot.to_csv(f'{isotherm_dir}/index.csv',index=False,header=False,mode = 'a')
+    else :
+        df_isot.to_csv(f'{isotherm_dir}/index.csv',index=False,mode = 'w')
+        if verbose :
+            print(f'A new file {isotherm_dir}/index.csv have been created.\n'
+                    'A key have been assigned to each isotherms.\n')
+    print(f'Created {df_isot.shape[0]} new isotherms in {isotherm_dir}.')
+
     # Create a CSV file for each isotherms
-    df_isot = pd.read_csv(f'{isotherm_dir}/isotherms.csv', skipinitialspace=False)
+    df_isot = pd.read_csv(f'{isotherm_dir}/index.csv', skipinitialspace=False)
     for index,row in df_isot.iterrows():
         results =[]
         simkeys = eval(row['simkeys'].replace(' ',','))
@@ -128,4 +150,4 @@ def output_isotherms_to_csv(input_path=sim_dir,output_path=isotherm_dir):
         df_iso['pressure(bar)'] = df_iso['pressure(bar)']/100000
         file_out = f'{isotherm_dir}/{row["isokey"]}.csv'
         df_iso.to_csv(file_out,index=False)
-    print(f'{df_isot.shape[0]} isotherms stored in CSV files.')
+    print(f'Total number of isotherms in {isotherm_dir} : {df_isot.shape[0]}')
