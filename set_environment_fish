@@ -1,20 +1,10 @@
 #/bin/false
 
-# Modify the following lines to reflect the paths of your data
-# By default, the program reads the JSON input in the current folder and all others I/O are stored in the data folder
-set -gx DATA_DIR $PWD/data
-set -gx INPUT_DIR $PWD
-
 # Modify the following lines to reflect the accurate paths to the libraries on your system
 set -gx RASPA_PARENT /opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
-
-#set -gx PYTHONPATH /opt/RASPA2/python/
 set -gx ZEO_DIR /opt/zeo++-0.3
-#set -gx CPP_DIR ~/surface-csampler
-#set -gx GLOST_DIR ~/glost
 
 # Fill with the python executable with the correct environment (satisfying requirements.txt)
-#set -gx PACKAGE_PYTHON $(which python)
 set -gx PACKAGE_PYTHON $CONDA_PREFIX/bin/python
 
 # The following lines should not be modified (unless you know what you are doing).
@@ -23,7 +13,6 @@ set -gx DYLD_LIBRARY_PATH $RASPA_DIR/lib
 set -gx LD_LIBRARY_PATH $RASPA_DIR/lib
 
 # Make visible the path to all python scripts
-#set -gx PACKAGE (dirname (status -f))
 set -gx PACKAGE (realpath (dirname (status -f)))
 set -gx PYTHONPATH $PACKAGE $PYTHONPATH
 
