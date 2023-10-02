@@ -7,6 +7,15 @@ from src.zeopp import *
 import argparse
 import time
 
+ENV_VAR_LIST = [
+    "RASPA_PARENT",
+    "ZEO_DIR",
+    "PACKAGE_PYTHON",
+    "RASPA_DIR",
+    "DYLD_LIBRARY_PATH",
+    "LD_LIBRARY_PATH"
+]
+
 def main():
     """
     Main function to execute a gas adsorption workflow in porous crystals.
@@ -37,6 +46,8 @@ def parse_arguments():
     parser.add_argument("-o", "--output-dir", default=f"{os.getcwd()}/data", help="output directory path")
     parser.add_argument("-i", "--input-file", default=f"{os.getcwd()}/data/input.json", help="full path of a json input file")
 
+    check_environment_variables(ENV_VAR_LIST)
+
     args = parser.parse_args()
     if args.tests:
         run_test(args)
@@ -44,7 +55,24 @@ def parse_arguments():
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
         parser.print_help()
         exit(1)
+
     return args
+
+def check_environment_variables(env_var_list):
+    """
+    Check if all required environment variables exist.
+
+    Args:
+        ENV_VAR_LIST (list): A list of required environment variable names.
+
+    Returns:
+        None: If all required variables exist.
+        Exception: Raises an exception if any required variable is missing.
+    """
+    missing_variables = [var for var in env_var_list if var not in os.environ]
+    if missing_variables:
+        raise EnvironmentError(f"The following required environment variables are missing: {', '.join(missing_variables)}")
+
 
 def run_test(args):
     """
@@ -61,10 +89,10 @@ def run_test(args):
     print(f"------------------------ Running tests ------------------------\n")
     try:
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
-        run_simulations(args,sim_dir_names)          # STEP 2
-        check_isotherms(args,sim_dir_names)          # STEP 3
+        run_simulations(args,sim_dir_names)                     # STEP 2
+        check_isotherms(args,sim_dir_names)                     # STEP 3
         test_isotherms(args)
-        get_geometrical_features(args,cif_names)               # STEP 4
+        get_geometrical_features(args,cif_names)                # STEP 4
         test_zeopp(args)
         print("Tests succeeded")
     except Exception as e:
