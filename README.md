@@ -84,11 +84,11 @@ These restrictions and assumptions aim to streamline the simulations and simplif
 
 ## Workflow example
 ```Bash
-python $PACKAGE/example-workflow-adsorption.py
+python $PACKAGE_DIR/example-workflow-adsorption.py
 ```
 To specify input and output locations :
 ```bash
-python $PACKAGE/example-workflow-adsorption.py -i path/to/myinput.json -o path/to/data/directory
+python $PACKAGE_DIR/example-workflow-adsorption.py -i path/to/myinput.json -o path/to/data/directory
 ```
 By default, the output data is written to the current directory (`./data`) and the input file should be placed in the root directory (`./data/input.json`).
 
@@ -101,10 +101,10 @@ By default, the output data is written to the current directory (`./data`) and t
 
 To test the workflow on a local machine, use the `-t` flag : 
 ```bash
-python $PACKAGE/example_adsorption_workflow.py -t
+python $PACKAGE_DIR/example_adsorption_workflow.py -t
 ```
 
-By default, the output directory is `./tests` and the input file is located in the github repository (`$PACKAGE/tests/test_isotherms/input.json`).
+By default, the output directory is `./tests` and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms/input.json`).
 
 ## Development todo lists
 
