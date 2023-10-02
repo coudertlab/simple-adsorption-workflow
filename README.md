@@ -84,11 +84,11 @@ These restrictions and assumptions aim to streamline the simulations and simplif
 
 ## Workflow example
 ```Bash
-python $PACKAGE_DIR/example-workflow-adsorption.py
+python $PACKAGE_DIR/example_workflow_adsorption.py
 ```
 To specify input and output locations :
 ```bash
-python $PACKAGE_DIR/example-workflow-adsorption.py -i path/to/myinput.json -o path/to/data/directory
+python $PACKAGE_DIR/example_workflow_adsorption.py -i path/to/myinput.json -o path/to/data/directory
 ```
 By default, the output data is written to the current directory (`./data`) and the input file should be placed in the root directory (`./data/input.json`).
 
@@ -125,10 +125,10 @@ Default directory : `./data/cif/`
 e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 
 > Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
-- [x] Create a simple workflow in a python script `example-workflow-adsorption.py` based on RASPA2 python wrapper
+- [x] Create a simple workflow in a python script `example_workflow_adsorption.py` based on RASPA2 python wrapper
 - [x] Create a json input file and document its format
 - [x] Parse the json input in the workflow and check the creation of the input files for RASPA
-- [x] Merge the two scripts that download for cif files and include them in the main program `example-workflow-adsorption.py`
+- [x] Merge the two scripts that download for cif files and include them in the main program `example_workflow_adsorption.py`
 - [x] Calculate in a function the minimal supercell.
 - [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
 - [x] Python notebook for plotting an isotherm
