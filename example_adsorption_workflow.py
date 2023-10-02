@@ -8,7 +8,7 @@ import argparse
 import time
 
 ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR"]
-PACKAGE = os.path.dirname(os.path.abspath(__file__)) # package root directory
+PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
 
 def main():
     """
@@ -78,8 +78,8 @@ def run_test(args):
     if args.output_dir == f"{os.getcwd()}/data":
         args.output_dir = f"{os.getcwd()}/tests"
     if not args.input_file:
-        args.input_file = f"{PACKAGE}/tests/test_isotherms/input.json"
-    args.input_file      = f"{PACKAGE}/tests/test_isotherms/input.json"
+        args.input_file = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
+    args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
     print(f"------------------------ Running tests ------------------------\n")
     try:
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
@@ -103,7 +103,7 @@ def test_zeopp(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    target_file  = os.path.abspath(f"{PACKAGE}/tests/test_zeopp_asa/results_zeopp.csv")
+    target_file  = os.path.abspath(f"{PACKAGE_DIR}/tests/test_zeopp_asa/results_zeopp.csv")
     test_file    = os.path.abspath(f"{args.output_dir}/zeopp_asa/results_zeopp.csv")
     with open(target_file, 'rb') as file1, open(test_file, 'rb') as file2:
         content1 = file1.read()
@@ -119,7 +119,7 @@ def test_isotherms(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    target_files  = os.listdir(f"{PACKAGE}/tests/test_isotherms/isotherms")
+    target_files  = os.listdir(f"{PACKAGE_DIR}/tests/test_isotherms/isotherms")
     test_files    = os.listdir(f"{args.output_dir}/isotherms")
     if len(target_files) !=  len(test_files):
         raise Exception("Error : Number of isotherms do not match. Remove ~/tests repository before running tests.")
