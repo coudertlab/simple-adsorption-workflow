@@ -23,7 +23,7 @@ sys.path.append(current_dir)
 # Now you can import and use the local module
 from output_parser import parse
 
-raspa_dir = os.environ.get('RASPA_PARENT')
+raspa_dir = os.environ.get('RASPA_PARENT_DIR')
 libraspa_dir = os.environ.get('LD_LIBRARY_PATH')
 libraspa_file = os.listdir(libraspa_dir)[0]
 
