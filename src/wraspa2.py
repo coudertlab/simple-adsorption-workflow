@@ -24,7 +24,7 @@ sys.path.append(current_dir)
 from output_parser import parse
 
 raspa_dir = os.environ.get('RASPA_PARENT_DIR')
-libraspa_dir = os.environ.get('LD_LIBRARY_PATH')
+libraspa_dir = os.environ.get('LD_LIBRARY_PATH').split(":")[0]
 libraspa_file = os.listdir(libraspa_dir)[0]
 
 try:
