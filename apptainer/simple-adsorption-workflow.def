@@ -1,0 +1,51 @@
+Bootstrap: docker
+From: python:3.9-slim
+Stage: devel
+
+%files
+    ../../simple-adsorption-workflow /home/app
+
+%post
+    apt-get -y update
+    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
+    cd /home/app
+    pip install --no-cache-dir -r requirements.txt
+    tar xvf zeo++-0.3.tar
+    rm -rf zeo++-0.3.tar
+    rm -rf /home/app/apptainer
+    cd /home/app/zeo++-0.3/voro++/src
+    make
+    cd /home/app/zeo++-0.3
+    make
+
+
+Bootstrap: docker
+From: python:3.9-slim
+Stage: final
+
+%files from devel
+    /home/app /home/app
+
+%environment
+    export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
+    export RASPA_DIR=$RASPA_PARENT_DIR/simulations
+    export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
+    export LD_LIBRARY_PATH=$RASPA_DIR/lib
+    export ZEO_DIR=/home/app/zeo++-0.3
+
+%post
+    apt-get -y update
+    apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
+    pip install --no-cache-dir -r /home/app/requirements.txt
+
+%runscript
+    cd /home/app
+    python3 ./example_adsorption_workflow.py -t -o /tmp/tests
+
+%labels
+    Owner Arthur Hardiagon
+    Author dylan.bissuel@univ-lyon1.fr
+    Version v0.0.1
+    MyLabel simple-adsorption-workflow
+    EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
+
