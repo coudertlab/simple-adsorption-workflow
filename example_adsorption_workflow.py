@@ -5,7 +5,7 @@ from src.input_parser import *
 from src.convert_data import *
 from src.zeopp import *
 import argparse
-import time
+import time,datetime
 
 ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR"]
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
@@ -35,10 +35,11 @@ def parse_arguments():
     Returns:
         argparse.Namespace: Parsed command-line arguments.
     """
+    default_directory = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_data"
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
     parser.add_argument("-t","--tests", action="store_true", help="run tests")
-    parser.add_argument("-o", "--output-dir", default=f"{os.getcwd()}/data", help="output directory path")
-    parser.add_argument("-i", "--input-file", default=f"{os.getcwd()}/data/input.json", help="full path of a json input file")
+    parser.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
+    parser.add_argument("-i", "--input-file", default=f"{default_directory}/input.json", help="full path of a json input file")
 
     check_environment_variables(ENV_VAR_LIST)
 
@@ -150,7 +151,11 @@ def prepare_input_files(args):
     Returns:
         list: List of simulation directory names.
     """
-    os.makedirs(args.output_dir, exist_ok=True)
+    try:
+        os.makedirs(args.output_dir, exist_ok=False)
+    except FileExistsError as e :
+        print("The existing folder cannot be overwritten!")
+        raise(e)
     print(f"Storing data in {args.output_dir}\n")
 
     # Get CIF files from the structures provided in the JSON file
