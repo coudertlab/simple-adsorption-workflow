@@ -45,6 +45,9 @@ def parse_arguments():
 
     args = parser.parse_args()
     if args.tests:
+        # change slightly the name of the output directory and run the first test
+        if args.output_dir == default_directory:
+            args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_test"
         run_test(args)
     elif not os.path.exists(args.input_file):
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
@@ -68,7 +71,6 @@ def check_environment_variables(env_var_list):
     if missing_variables:
         raise EnvironmentError(f"The following required environment variables are missing: {', '.join(missing_variables)}")
 
-
 def run_test(args):
     """
     Run test cases and verify the gas adsorption workflow.
@@ -76,13 +78,10 @@ def run_test(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    if args.output_dir == f"{os.getcwd()}/data":
-        args.output_dir = f"{os.getcwd()}/tests"
-    if not args.input_file:
-        args.input_file = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
-    args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
     print(f"------------------------ Running tests ------------------------\n")
     try:
+        args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
+        print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
         check_isotherms(args,sim_dir_names)                     # STEP 3
