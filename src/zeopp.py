@@ -89,7 +89,8 @@ def run_zeopp_asa(data_dir,
 
     # Create a DataFrame from the parsed data
     df = pd.DataFrame(data)
-    df.sort_values('Name')
+    # The following line guarantee a correct line-to-line comparison in the unitary test
+    df.sort_values('Name',ascending=True,inplace=True) 
     result_filename = f'{zeopp_output_dir}/results_zeopp.csv'
     df.to_csv(result_filename,index=False)
     print(f"Results stored in results_zeopp.csv.")
