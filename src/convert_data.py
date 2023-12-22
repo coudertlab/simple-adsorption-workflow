@@ -212,11 +212,6 @@ def get_git_commit_hash():
 def get_workflow_metadata():
     metadata = {}
 
-    # Get the Git commit hash
-    commit_hash = get_git_commit_hash()
-    if commit_hash:
-        metadata['git_commit_hash'] = commit_hash
-
     # Timestamp of the workflow run
     metadata['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -235,7 +230,7 @@ def get_workflow_metadata():
     metadata['machine'] = platform.machine()
     metadata['processor'] = platform.processor()
 
-    # Additional package versions
+    # Package versions
     os.chdir(os.getenv('PACKAGE_DIR'))
     git_hash = get_git_commit_hash()
     metadata['workflow_package_git_hash'] = git_hash

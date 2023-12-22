@@ -1,5 +1,4 @@
-import os,shutil
-import sys
+import os,shutil,glob
 from src.wraspa2 import *
 from src.input_parser import *
 from src.convert_data import *
@@ -8,8 +7,8 @@ import argparse
 import time,datetime
 import traceback
 
-ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR"]
-PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
+#PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
+ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR","PACKAGE_DIR"]
 
 def main():
     """
@@ -38,24 +37,42 @@ def parse_arguments():
     """
     default_directory = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_data"
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
-    parser.add_argument("-t","--tests", action="store_true", help="run tests")
     parser.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
     parser.add_argument("-i", "--input-file", default=f"{default_directory}/input.json", help="full path of a json input file")
 
+    # Tests
+    parser.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
+    parser.add_argument("-t2","--test-output-json"  , action="store_true", help="run test to create JSON outputs (without isotherms)")
+
+    # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
 
+    ## Test runs start here
+
+    # Create a dictionary mapping flags to test functions
+    test_functions = {
+        'test_isotherms_csv': run_test_isotherms_csv,
+        'test_output_json': run_test_output_json,
+    }
     args = parser.parse_args()
-    if args.tests:
-        # change slightly the name of the output directory and run the first test
-        if args.output_dir == default_directory:
-            args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_test"
-        #run_test(args)
-        run_test_output_json(args)
-    elif not os.path.exists(args.input_file):
+
+    # Execute corresponding tests
+    nb_test=0
+    for arg_name, test_func in test_functions.items():
+        if getattr(args, arg_name):
+            # Change the name of the output directory to identify a test
+            if args.output_dir == default_directory:
+                args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{arg_name}"
+            test_func(args)
+            nb_test+=1
+
+    # Input file test
+    if nb_test==0 and not os.path.exists(args.input_file):
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
         parser.print_help()
         exit(1)
-
+    
+    ## Test runs end here
     return args
 
 def check_environment_variables(env_var_list):
@@ -73,7 +90,7 @@ def check_environment_variables(env_var_list):
     if missing_variables:
         raise EnvironmentError(f"The following required environment variables are missing: {', '.join(missing_variables)}")
 
-def run_test(args):
+def run_test_isotherms_csv(args):
     """
     Run a test that launch the whole workflow and reconstruct isotherms using CSV output files.
 
@@ -82,7 +99,7 @@ def run_test(args):
     """
     print(f"------------------------ Running tests ------------------------\n")
     try:
-        args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
+        args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
@@ -107,12 +124,14 @@ def run_test_output_json(args):
     """
     print(f"------------------------ Running tests ------------------------\n")
     try:
-        args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
+        args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
+        output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/run398c565d.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
-        #test_isotherms(args)
+        print(glob.glob(f'{args.output_dir}/simulations/run*json'))
+        compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
         get_geometrical_features(args,cif_names)                # STEP 4
         test_zeopp(args)
         print("Tests succeeded")
@@ -131,7 +150,7 @@ def test_zeopp(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    target_file  = os.path.abspath(f"{PACKAGE_DIR}/tests/test_zeopp_asa/results_zeopp.csv")
+    target_file  = os.path.abspath(f"{os.getenv('PACKAGE_DIR')}/tests/test_zeopp_asa/results_zeopp.csv")
     test_file    = os.path.abspath(f"{args.output_dir}/zeopp_asa/results_zeopp.csv")
     with open(target_file, 'rb') as file1, open(test_file, 'rb') as file2:
         content1 = file1.read()
@@ -147,7 +166,7 @@ def test_isotherms(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    target_files  = os.listdir(f"{PACKAGE_DIR}/tests/test_isotherms/isotherms")
+    target_files  = os.listdir(f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/isotherms")
     test_files    = os.listdir(f"{args.output_dir}/isotherms")
     if len(target_files) !=  len(test_files):
         raise Exception("Error : Number of isotherms do not match. Remove ~/tests repository before running tests.")
@@ -159,6 +178,29 @@ def test_isotherms(args):
                     line_count += 1
             if line_count != 6: # 5 points + header
                 raise Exception(f"Error : Number of lines in isotherms files do not match. ")
+
+def compare_json_subtrees(file1, file2, subtree):
+    """
+    Compare the output json with the reference one in the tests repository for a given sec
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    with open(file1, 'r') as f1, open(file2, 'r') as f2:
+        json_data1 = json.load(f1)
+        json_data2 = json.load(f2)
+
+    # Extract the specific subtree from JSON data
+    data1_subtree = json_data1.get('data', {}).get(subtree, {})
+    data2_subtree = json_data2.get('data', {}).get(subtree, {})
+
+    # Compare the subtrees
+    if data1_subtree == data2_subtree:
+        print(f"The '{subtree}' subtrees are identical between files {file1} and file {file2}")
+        return 0
+    else:
+        print(f"The '{subtree}' subtrees are different between files {file1} and file {file2}.")
+        return 1
 
 def prepare_input_files(args):
     """
