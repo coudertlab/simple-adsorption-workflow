@@ -53,6 +53,20 @@ def parse_json(filename,cifnames):
         l_dict_parameters.append(dictionary)
     return l_dict_parameters
 
+def parse_json_2(filename):
+    """
+    Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
+
+    Args:
+        filename (str): The name of the JSON file to parse.
+    Returns:
+        list: A list of dictionaries, each representing a combination of parameter values.
+    """
+
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    return data
+
 def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
     """
     Generate CIF files from a JSON file containing structures.
@@ -224,6 +238,3 @@ def create_dir(dict_parameters,data_dir,simulation_name_length=4,verbose=False):
             print(f"New file '{index_file}' created.")
     return work_dir
 
-def check_data(dict_parameters,data_dir):
-    '''
-    '''

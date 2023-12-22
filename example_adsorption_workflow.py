@@ -6,6 +6,7 @@ from src.convert_data import *
 from src.zeopp import *
 import argparse
 import time,datetime
+import traceback
 
 ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR"]
 PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
@@ -25,7 +26,7 @@ def main():
     args = parse_arguments()
     cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
     run_simulations(args,sim_dir_names)                     # STEP 2
-    check_isotherms(args,sim_dir_names)                     # STEP 3
+    output_isotherms_to_csv(args,sim_dir_names)             # STEP 3
     get_geometrical_features(args,cif_names)                # STEP 4
 
 def parse_arguments():
@@ -48,7 +49,8 @@ def parse_arguments():
         # change slightly the name of the output directory and run the first test
         if args.output_dir == default_directory:
             args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_test"
-        run_test(args)
+        #run_test(args)
+        run_test_output_json(args)
     elif not os.path.exists(args.input_file):
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
         parser.print_help()
@@ -73,7 +75,7 @@ def check_environment_variables(env_var_list):
 
 def run_test(args):
     """
-    Run test cases and verify the gas adsorption workflow.
+    Run a test that launch the whole workflow and reconstruct isotherms using CSV output files.
 
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
@@ -84,13 +86,39 @@ def run_test(args):
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
-        check_isotherms(args,sim_dir_names)                     # STEP 3
+        reconstruct_isotherms_to_csv(args,sim_dir_names)        # STEP 3
         test_isotherms(args)
         get_geometrical_features(args,cif_names)                # STEP 4
         test_zeopp(args)
         print("Tests succeeded")
     except Exception as e:
-        print(e)
+        #print(e)
+        print(traceback.format_exc())
+        print("Tests NOT succeeded")
+    print(f"------------------------ End of tests ------------------------\n")
+    exit(0)
+
+def run_test_output_json(args):
+    """
+    Run a test that launch the whole workflow and reconstruct isotherms using JSON output files.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    print(f"------------------------ Running tests ------------------------\n")
+    try:
+        args.input_file      = f"{PACKAGE_DIR}/tests/test_isotherms/input.json"
+        print(f"Reading input file in {args.input_file}")
+        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
+        run_simulations(args,sim_dir_names)                     # STEP 2
+        export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
+        #test_isotherms(args)
+        get_geometrical_features(args,cif_names)                # STEP 4
+        test_zeopp(args)
+        print("Tests succeeded")
+    except Exception as e:
+        #print(e)
+        print(traceback.format_exc())
         print("Tests NOT succeeded")
     print(f"------------------------ End of tests ------------------------\n")
     exit(0)
@@ -180,7 +208,6 @@ def prepare_input_files(args):
         shutil.copy(cif_path_filename, work_dir)
         create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
         create_run_script(path=work_dir, save=True)
-
     # Create a job script for all simulations (each using 1 CPU)
     create_job_script(args.output_dir, sim_dir_names)
 
@@ -201,7 +228,7 @@ def run_simulations(args,sim_dir_names):
     execution_time = time.time()- start_time
     print(f"Simulations completed in {execution_time:.2f} seconds.")
 
-def check_isotherms(args,sim_dir_names=None):
+def reconstruct_isotherms_to_csv(args,sim_dir_names=None):
     """
     Check and process the results of gas adsorption simulations.
 
@@ -210,7 +237,18 @@ def check_isotherms(args,sim_dir_names=None):
         sim_dir_names (list, optional): List of simulation directory names.
     """
     check_simulations(args.output_dir,sim_dir_names, verbose=False)
-    output_isotherms_to_csv(args.output_dir,sim_dir_names,args.tests)
+    output_isotherms_to_csv(args,sim_dir_names)
+
+def export_simulation_result_to_json(args,sim_dir_names=None,**kwargs):
+    """
+    Check and process the results of gas adsorption simulations.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+        sim_dir_names (list, optional): List of simulation directory names.
+    """
+    check_simulations(args.output_dir,sim_dir_names,**kwargs)
+    output_to_json(args,sim_dir_names,**kwargs)
 
 def get_geometrical_features(args,cif_names):
     """

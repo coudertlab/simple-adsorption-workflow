@@ -1,7 +1,12 @@
 import os,glob
 from src.output_parser import *
+from src.input_parser import *
 import pandas as pd
 import secrets
+import platform
+import sys
+import datetime
+import subprocess
 
 def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     """
@@ -88,12 +93,12 @@ def print_dict(d):
             print(element)
         print()
 
-def output_isotherms_to_csv(data_dir,sim_dir_names=None,test=False,verbose=False):
+def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     """
     Output isotherms to CSV files.
 
     Parameters:
-        data_dir (str): Parent directory.
+        args (argparse.Namespace): Parsed command-line arguments
         sim_dir_names (list): List of string with simulation directory names.
                               By default, it will create isotherms from all 
                               files found in the simulation directory.
@@ -103,11 +108,11 @@ def output_isotherms_to_csv(data_dir,sim_dir_names=None,test=False,verbose=False
     """
 
     # Create isotherms directory if not already exist
-    isotherm_dir = f"{data_dir}/isotherms"
+    isotherm_dir = f"{args.output_dir}/isotherms"
     os.makedirs(isotherm_dir,exist_ok=True)
 
-    # Find the rstored results based on the list of simulaiton directories
-    df = pd.read_csv(f'{data_dir}/simulations/index.csv')
+    # Find the restored results based on the list of simulation directories
+    df = pd.read_csv(f'{args.output_dir}/simulations/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
     param_columns = df.columns.difference(['pressure', 'simkey']).to_list()
@@ -135,7 +140,7 @@ def output_isotherms_to_csv(data_dir,sim_dir_names=None,test=False,verbose=False
     for index,row in df_isot.iterrows():
         results =[]
         simkeys = eval(row['simkeys'].replace(' ',','))
-        paths = [f'{data_dir}/simulations/{simkey}/Output/System_0/' for simkey in simkeys]
+        paths = [f'{args.output_dir}/simulations/{simkey}/Output/System_0/' for simkey in simkeys]
         filenames = [os.listdir(path)[0] for path in paths]
         for filename,path in zip(filenames,paths):
             with open(os.path.join(path,filename),'r') as f:
@@ -146,8 +151,116 @@ def output_isotherms_to_csv(data_dir,sim_dir_names=None,test=False,verbose=False
                     r["Number of molecules"][gas]
                     ["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]]
                     for r in results]
-        df_iso = pd.DataFrame(uptakes,columns=['pressure(bar)','uptake(cm^3 (STP)/cm^3 framework)']).sort_values(by='pressure(bar)')
-        df_iso['pressure(bar)'] = df_iso['pressure(bar)']/100000
+        df_iso = pd.DataFrame(uptakes,columns=['pressure(Pa)','uptake(cm^3 (STP)/cm^3 framework)']).sort_values(by='pressure(Pa)')
+        df_iso['pressure(bar)'] = df_iso['pressure(Pa)']/100000
         file_out = f'{isotherm_dir}/{row["isokey"]}.csv'
         df_iso.to_csv(file_out,index=False)
     print(f'Total number of isotherms in {isotherm_dir} : {df_isot.shape[0]}')
+
+def output_to_json(args,input_json,sim_dir_names=None,verbose=False):
+    '''
+    Return a single output by workflow run in a JSON format.
+
+    Parameters:
+        input_json (str) : json input path
+        data_dir (str): Parent directory.
+        sim_dir_names (list): List of string with simulation directory names.
+                              By default, it will create isotherms from all 
+                              files found in the simulation directory.
+
+    Returns:
+        None
+    '''
+    dict_results = {}
+    
+    # Add run inputs of the whole workflow in the output file
+    dict_input = parse_json_2(args.input_file)
+    dict_results.update({"input":dict_input})
+
+    # Add running metadata
+    dict_metadata = get_workflow_metadata()
+    dict_results.update({"metadata":dict_metadata})
+
+    # Add parameters for each simulation
+    df = pd.read_csv(f'{args.output_dir}/simulations/index.csv')
+    if sim_dir_names is not None :
+        df = df.loc[df['simkey'].isin(sim_dir_names)]
+    df = df.apply(lambda row: extract_properties(row,args), axis=1)
+    dict_data = df.to_dict(orient='records')
+    dict_results.update({"results":dict_data})
+
+    # Generate a key for to index the run of the workflow
+    runkey = 'run' + secrets.token_hex(4)
+
+    # Write the dictionary in a JSON file
+    with open(f'{args.output_dir}/simulations/{runkey}.json', 'a') as f:
+        json.dump(dict_results, f, indent=4)
+
+    # Write the output for debugging
+    if verbose:
+        print(json.dumps(dict_results,indent=4))
+
+def get_git_commit_hash():
+    try:
+        # Get the current commit hash using git command
+        commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('utf-8')
+        return commit_hash
+    except Exception as e:
+        print(f"Error getting commit hash: {e}")
+        return None
+
+def get_workflow_metadata():
+    metadata = {}
+
+    # Get the Git commit hash
+    commit_hash = get_git_commit_hash()
+    if commit_hash:
+        metadata['git_commit_hash'] = commit_hash
+
+    # Timestamp of the workflow run
+    metadata['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Python version and interpreter information
+    metadata['python_version'] = sys.version
+    metadata['python_compiler'] = platform.python_compiler()
+    metadata['python_implementation'] = platform.python_implementation()
+
+    # Operating system details
+    metadata['os_platform'] = platform.platform()
+    metadata['os_version'] = platform.version()
+    metadata['os_system'] = platform.system()
+    metadata['os_release'] = platform.release()
+
+    # Machine architecture
+    metadata['machine'] = platform.machine()
+    metadata['processor'] = platform.processor()
+
+    # Additional package versions
+    os.chdir(os.getenv('PACKAGE_DIR'))
+    git_hash = get_git_commit_hash()
+    metadata['workflow_package_git_hash'] = git_hash
+
+    return metadata
+
+def extract_properties(row,args):
+    '''
+    Use the RASPA parser to extract the adsorption properties.
+
+    Parameters:
+        row (Pandas.Series) : a series with the input parameters of a simulation.
+        args (argparse.Namespace): Parsed command-line arguments
+
+    Returns:
+        row (Pandas.Series) : the appended series.
+
+    '''
+    simkey = row['simkey']
+    path = f'{args.output_dir}/simulations/{simkey}/Output/System_0/'
+    filename = os.listdir(path)[0]
+    with open(os.path.join(path,filename),'r') as f:
+        string_output = f.read()
+    r = parse(string_output)
+    gas = row['molecule_name']
+    row['Pressure(Pa)'] = r['Thermo/Baro-stat NHC parameters']['External Pressure'][0]
+    row['uptake(cm^3 (STP)/cm^3 framework)'] = r["Number of molecules"][gas]["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]
+    return row

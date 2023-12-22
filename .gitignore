@@ -1,8 +1,10 @@
 sim.log
-src/__pychache__/*
+src/__pycache__/*
 dev.ipynb
 nohup.out
 figures/*.pdf
 figures/*.odp
 figures/.*
-
+.trash/*
+.ipynb_checkpoints/*
+.vscode/*
