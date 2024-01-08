@@ -157,12 +157,12 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         df_iso.to_csv(file_out,index=False)
     print(f'Total number of isotherms in {isotherm_dir} : {df_isot.shape[0]}')
 
-def output_to_json(args,input_json,sim_dir_names=None,verbose=False):
+def output_to_json(args,sim_dir_names=None,verbose=False):
     '''
     Return a single output by workflow run in a JSON format.
 
     Parameters:
-        input_json (str) : json input path
+        args (argparse.Namespace): Parsed command-line arguments
         data_dir (str): Parent directory.
         sim_dir_names (list): List of string with simulation directory names.
                               By default, it will create isotherms from all 
@@ -199,6 +199,75 @@ def output_to_json(args,input_json,sim_dir_names=None,verbose=False):
     # Write the output for debugging
     if verbose:
         print(json.dumps(dict_results,indent=4))
+
+def transform_grouped_data(grouped_data):
+    '''
+    Group data into a dictionary. Different values will be grouped in a list.
+
+    Example:
+    --------
+    grouped_data = [
+        {
+            'cycles': 20.0,
+            'uptake(cm^3 (STP)/cm^3 framework)': 0.1
+        },
+        {
+            'cycles': 20.0,
+            'uptake(cm^3 (STP)/cm^3 framework)': 0.2
+        },
+        {
+            'cycles': 20.0,
+            'uptake(cm^3 (STP)/cm^3 framework)': 0.15
+        }
+    ]
+    transformed_data = transform_grouped_data(grouped_data)
+    print(transformed_data)
+    Output:
+    {'uptake(cm^3 (STP)/cm^3 framework)': [0.1, 0.2, 0.15], 'cycles': 20.0}
+    '''
+    df = pd.DataFrame(grouped_data)
+    varying_values = df.nunique() > 1
+    transformed_df = df.loc[:, varying_values]
+    unique_keys = df.columns[df.nunique() == 1].tolist()
+    transformed_data = transformed_df.to_dict('list')
+    unique_values_dict = {key: df[key].iloc[0] for key in unique_keys}
+    combined_result = transformed_data.copy()
+    combined_result.update(unique_values_dict)
+    
+    return combined_result
+
+def output_isotherms_to_json(args,file):
+    '''
+    Group data along the 'pressure' key.
+
+    Parameters:
+        args (argparse.Namespace): Parsed command-line arguments
+        file (str) : path to the database json file
+    Returns:
+        None
+    '''
+
+    # Create isotherms directory if not already exist
+    isotherm_dir = f"{args.output_dir}/isotherms"
+    os.makedirs(isotherm_dir,exist_ok=True)
+
+    with open(file) as f:
+        file_contents = f.read()
+    parsed_json = json.loads(file_contents)
+    
+    #print(json.dumps(parsed_json, indent=4))
+    df = pd.DataFrame(parsed_json["results"])
+
+    # This choice of columns is crucial to properly set the group splitting
+    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure']
+    param_columns = df.columns.difference(columns_to_ignore).to_list()
+    grouped = df.groupby(param_columns)
+
+    with open(f'{isotherm_dir}/isotherms.json', 'a') as f:
+        for group,data_group in grouped:
+            isotherm = transform_grouped_data(data_group)
+            json.dump(isotherm, f, indent=4)
+    print(f"Data for {len(grouped)} isotherms have been written in {isotherm_dir}/isotherms.json.")
 
 def get_git_commit_hash():
     try:

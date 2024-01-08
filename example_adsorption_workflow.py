@@ -134,8 +134,7 @@ def run_test_output_json(args):
         run_simulations(args,sim_dir_names)                     # STEP 2
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
         compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
-        get_geometrical_features(args,cif_names)                # STEP 4
-        test_zeopp(args)
+        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
         print("Tests succeeded")
     except Exception as e:
         #print(e)

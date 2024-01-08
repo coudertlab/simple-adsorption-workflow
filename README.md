@@ -111,7 +111,8 @@ By default, a directory (`./<DATE>_<TIME>_test_output_csv`) with the tests outpu
 
 ### Reconstruct isotherms from JSON : `--test-isotherm-json`
 
-It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in a single JSON file. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository.
+It runs 20 simulations on RASPA then stores the results in a single JSON file. It then reconstructs the isotherms and store the results in JSON format.
+
 To run it, use the `-t2` flag : 
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py -t2
@@ -130,8 +131,9 @@ Default directory : `./data/cif/`
 - [x] step 2 : Run adsorption simulations
     - [x] on a local machine : using the bash script `/data/job.sh`.
 
-    - [ ] on a HPC machine : using a job manager (e.g.SLURM).
+    - [x] on a HPC machine : using a job manager (e.g.SLURM).
     (to be discussed with SIMAP/GRICAD)
+    - [x] using a container
 
 - [x] step 3 : Generate isotherms and store them in `./data/isotherms/` as CSV files. Each isotherm is associated to a unique identifier `isokey` and corresponding information are given in `index.csv`.
 
@@ -151,6 +153,13 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Add a script to store isotherms in CSV format
 - [x] Step 4 : Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
 - [x] Add a test to verify the isotherms have been recovered from simulation outputs
+- [x] Convert simulation output to more flexible JSON data
+- [x] Add a test to check that isotherms can be extracted from JSON database : `python $PACKAGE_DIR/example_adsorption_workflow.py -t2`
+- [ ] Update the notebook example for plotting (add plot from JSON)
+- [ ] Add a function to merge JSON databases and then reconstruct all isotherms
+- [ ] Add a test (test 3) for the last point
+- [ ] Rearrange the documentation in several pages
+- [ ] Prepare a test for HPC : must be reproducible (data found in the literature) and add benchmarks
 ## To do (Optional)
 
 - [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
