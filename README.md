@@ -99,12 +99,26 @@ By default, the output data is written to the current directory (`./data`) and t
 
 ## Tests
 
-To test the workflow on a local machine, use the `-t` flag : 
+### Reconstruct isotherms from CSV : `--test-isotherm-csv`
+
+It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in CSV files. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository. The geometrical features are also stored in a CSV format, and 
+To run it, use the `-t` flag : 
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py -t
 ```
 
-By default, the output directory is `./tests` and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms/input.json`).
+By default, a directory (`./<DATE>_<TIME>_test_output_csv`) with the tests outputs will be created in the current directory and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms_csv/input.json`).
+
+### Reconstruct isotherms from JSON : `--test-isotherm-json`
+
+It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in a single JSON file. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository.
+To run it, use the `-t2` flag : 
+```bash
+python $PACKAGE_DIR/example_adsorption_workflow.py -t2
+```
+
+By default, a directory (`./<DATE>_<TIME>_test_output_json`) with the tests outputs will be created in the current directory and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms_json/input.json`).
+
 
 ## Development todo lists
 

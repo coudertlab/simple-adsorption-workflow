@@ -130,7 +130,6 @@ def run_test_output_json(args):
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
-        print(glob.glob(f'{args.output_dir}/simulations/run*json'))
         compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
         get_geometrical_features(args,cif_names)                # STEP 4
         test_zeopp(args)
@@ -196,7 +195,6 @@ def compare_json_subtrees(file1, file2, subtree):
 
     # Compare the subtrees
     if data1_subtree == data2_subtree:
-        print(f"The '{subtree}' subtrees are identical between files {file1} and file {file2}")
         return 0
     else:
         print(f"The '{subtree}' subtrees are different between files {file1} and file {file2}.")
