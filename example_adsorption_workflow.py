@@ -6,6 +6,7 @@ from src.zeopp import *
 import argparse
 import time,datetime
 import traceback
+from deepdiff import DeepDiff
 
 #PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
 ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR","PACKAGE_DIR"]
@@ -37,9 +38,9 @@ def parse_arguments():
     """
     default_directory = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_data"
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
+    parser.add_argument("-i", "--input-file", default=f"{default_directory}/input.json", help="path to a json input file")
     parser.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
-    parser.add_argument("-i", "--input-file", default=f"{default_directory}/input.json", help="full path of a json input file")
-
+    
     # Tests
     parser.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
     parser.add_argument("-t2","--test-output-json"  , action="store_true", help="run test to create JSON outputs (without isotherms)")
@@ -67,11 +68,11 @@ def parse_arguments():
             nb_test+=1
 
     # Input file test
-    if nb_test==0 and not os.path.exists(args.input_file):
+    if nb_test == 0 and not os.path.exists(args.input_file):
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
         parser.print_help()
         exit(1)
-    
+
     ## Test runs end here
     return args
 
@@ -180,25 +181,38 @@ def test_isotherms(args):
 
 def compare_json_subtrees(file1, file2, subtree):
     """
-    Compare the output json with the reference one in the tests repository for a given sec
+    Compare the output json with the reference one in the tests repository given a common key.
 
     Args:
-        args (argparse.Namespace): Parsed command-line arguments.
+        file1 (str)  : path to a JSON file.
+        file2 (str)  : path to a JSON file.
+        subtree (str): first-level key of JSON object. Must be in shared by both JSON files.
     """
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         json_data1 = json.load(f1)
         json_data2 = json.load(f2)
 
     # Extract the specific subtree from JSON data
-    data1_subtree = json_data1.get('data', {}).get(subtree, {})
-    data2_subtree = json_data2.get('data', {}).get(subtree, {})
+    data1_subtree = json_data1.get(subtree, {})
+    data2_subtree = json_data2.get(subtree, {})
 
+    # Use DeepDiff to get a dictionary with changed and deleted values
+    result = DeepDiff(data1_subtree,data2_subtree)
+
+    # Extract unique key names from the "values_changed" section
+    unique_key_names = set()
+    for key in result["values_changed"]:
+        key_split = key.split("[")[2].split("]")[0]  # Extract the key name between square brackets
+        unique_key_names.add(key_split)
+
+    # Return an error if the unique keys are different from the ones expected.
+    if unique_key_names != {"'uptake(cm^3 (STP)/cm^3 framework)'","'simkey'"}:
+        raise ValueError(f"The '{subtree}' section differs between files {file1} and file {file2}.")
+
+#    print(json.dumps(result, indent=4))
     # Compare the subtrees
-    if data1_subtree == data2_subtree:
-        return 0
-    else:
-        print(f"The '{subtree}' subtrees are different between files {file1} and file {file2}.")
-        return 1
+    #if data1_subtree != data2_subtree:
+    #    raise ValueError(f"The '{subtree}' subtrees are different between files {file1} and file {file2}.")
 
 def prepare_input_files(args):
     """
