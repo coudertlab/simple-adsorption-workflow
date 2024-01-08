@@ -12,8 +12,8 @@ import warnings
 try:
     from ccdc import io
     from ccdc.search import TextNumericSearch
-except ImportError:
-    pass
+except Exception as e:
+    print(e)
 
 def parse_json(filename,cifnames):
     """
