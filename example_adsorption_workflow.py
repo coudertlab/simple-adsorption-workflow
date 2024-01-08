@@ -38,7 +38,7 @@ def parse_arguments():
     """
     default_directory = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_data"
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
-    parser.add_argument("-i", "--input-file", default=f"{default_directory}/input.json", help="path to a json input file")
+    parser.add_argument("-i", "--input-file", help="path to a json input file") #default=f"{default_directory}/input.json",
     parser.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
     
     # Tests
@@ -57,6 +57,14 @@ def parse_arguments():
     }
     args = parser.parse_args()
 
+    # Input file test
+    if args.input_file is not None and not os.path.exists(args.input_file):
+        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
+        parser.print_help()
+        exit(1)
+    if args.input_file is not None and not os.path.isabs(args.input_file):
+        args.input_file = os.path.abspath(args.input_file)
+
     # Execute corresponding tests
     nb_test=0
     for arg_name, test_func in test_functions.items():
@@ -66,12 +74,6 @@ def parse_arguments():
                 args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{arg_name}"
             test_func(args)
             nb_test+=1
-
-    # Input file test
-    if nb_test == 0 and not os.path.exists(args.input_file):
-        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
-        parser.print_help()
-        exit(1)
 
     ## Test runs end here
     return args
@@ -100,7 +102,7 @@ def run_test_isotherms_csv(args):
     """
     print(f"------------------------ Running tests ------------------------\n")
     try:
-        args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
+        if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
         run_simulations(args,sim_dir_names)                     # STEP 2
@@ -125,7 +127,7 @@ def run_test_output_json(args):
     """
     print(f"------------------------ Running tests ------------------------\n")
     try:
-        args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
+        if not args.input_file : args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
         output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/run398c565d.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
@@ -207,12 +209,8 @@ def compare_json_subtrees(file1, file2, subtree):
 
     # Return an error if the unique keys are different from the ones expected.
     if unique_key_names != {"'uptake(cm^3 (STP)/cm^3 framework)'","'simkey'"}:
+        print(unique_key_names)
         raise ValueError(f"The '{subtree}' section differs between files {file1} and file {file2}.")
-
-#    print(json.dumps(result, indent=4))
-    # Compare the subtrees
-    #if data1_subtree != data2_subtree:
-    #    raise ValueError(f"The '{subtree}' subtrees are different between files {file1} and file {file2}.")
 
 def prepare_input_files(args):
     """
