@@ -263,11 +263,16 @@ def output_isotherms_to_json(args,file):
     param_columns = df.columns.difference(columns_to_ignore).to_list()
     grouped = df.groupby(param_columns)
 
+    all_isotherms = {"isotherms":[]}
+    for group,data_group in grouped:
+        isokey = "iso" + secrets.token_hex(4)
+        isotherm_dict = transform_grouped_data(data_group)
+        isotherm_dict["isokey"] = isokey
+        all_isotherms["isotherms"].append(isotherm_dict)
+    #print(json.dumps(all_isotherms,indent=4))
     with open(f'{isotherm_dir}/isotherms.json', 'a') as f:
-        for group,data_group in grouped:
-            isotherm = transform_grouped_data(data_group)
-            json.dump(isotherm, f, indent=4)
-    print(f"Data for {len(grouped)} isotherms have been written in {isotherm_dir}/isotherms.json.")
+            json.dump(all_isotherms, f, indent=4)
+    print(f"Data for {len(all_isotherms['isotherms'])} isotherms have been written in {isotherm_dir}/isotherms.json.")
 
 def get_git_commit_hash():
     try:
