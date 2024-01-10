@@ -156,8 +156,8 @@ e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
 - [x] Convert simulation output to more flexible JSON data
 - [x] Add a test to check that isotherms can be extracted from JSON database : `python $PACKAGE_DIR/example_adsorption_workflow.py -t2`
 - [x] Update the notebook example for plotting (add plot from JSON)
-- [ ] Add a function to merge JSON databases and then reconstruct all isotherms
-- [ ] Add a test (test 3) for the last point
+- [x] Add a function to merge JSON databases and then reconstruct all isotherms
+- [x] Add a test (test 3) for the last point
 - [ ] Rearrange the documentation in several pages
 - [ ] Prepare a test for HPC : must be reproducible (data found in the literature) and add benchmarks
 ## To do (Optional)

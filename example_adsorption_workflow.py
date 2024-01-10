@@ -53,7 +53,7 @@ def parse_arguments():
     # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
 
-    ## Test runs start here
+    args = parser.parse_args()
 
     # Create a dictionary mapping flags to test functions
     test_functions = {
@@ -61,18 +61,27 @@ def parse_arguments():
         'test_output_json':   run_test_output_json,
         'test_merge_json':    run_test_merge_json
     }
-    args = parser.parse_args()
 
-    # Input file test
-    if args.input_file is not None and not os.path.exists(args.input_file):
+    # Input file tests
+    if (args.input_file is not None and not os.path.exists(args.input_file)):
         print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
         parser.print_help()
         exit(1)
     if args.input_file is not None and not os.path.isabs(args.input_file):
         args.input_file = os.path.abspath(args.input_file)
 
+    # Test with no input files
+    if args.input_file == None:
+        nb_tests = 0
+        for arg_name, test_func in test_functions.items():
+            if getattr(args, arg_name):
+                nb_tests+=1
+        if nb_tests == 0 :
+            print(f"Input file not provided. Provide a correct input file using -i option.")
+            parser.print_help()
+            exit(1)
+
     # Execute corresponding tests
-    nb_test=0
     for arg_name, test_func in test_functions.items():
         if getattr(args, arg_name):
             # Change the name of the output directory to identify a test
@@ -81,7 +90,6 @@ def parse_arguments():
             test_func(args)
             nb_test+=1
 
-    ## Test runs end here
     return args
 
 def check_environment_variables(env_var_list):
