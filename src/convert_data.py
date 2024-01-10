@@ -236,7 +236,7 @@ def transform_grouped_data(grouped_data):
     
     return combined_result
 
-def output_isotherms_to_json(args,file):
+def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json'):
     '''
     Group data along the 'pressure' key.
 
@@ -254,12 +254,16 @@ def output_isotherms_to_json(args,file):
     with open(file) as f:
         file_contents = f.read()
     parsed_json = json.loads(file_contents)
-    
-    #print(json.dumps(parsed_json, indent=4))
-    df = pd.DataFrame(parsed_json["results"])
+
+    # The following line aimed to flat 'results' sections when several workflows runs have been merged in a single json file
+    flattened_list = flatten_list(parsed_json["results"])
+    df = pd.DataFrame(flattened_list)
+
+    # This step helps plotting the data
+    df.sort_values(by="Pressure(Pa)",inplace=True)
 
     # This choice of columns is crucial to properly set the group splitting
-    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure']
+    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
     param_columns = df.columns.difference(columns_to_ignore).to_list()
     grouped = df.groupby(param_columns)
 
@@ -270,9 +274,11 @@ def output_isotherms_to_json(args,file):
         isotherm_dict["isokey"] = isokey
         all_isotherms["isotherms"].append(isotherm_dict)
     #print(json.dumps(all_isotherms,indent=4))
-    with open(f'{isotherm_dir}/isotherms.json', 'a') as f:
-            json.dump(all_isotherms, f, indent=4)
-    print(f"Data for {len(all_isotherms['isotherms'])} isotherms have been written in {isotherm_dir}/isotherms.json.")
+    with open(f'{isotherm_dir}/{isotherm_filename}', 'a') as f:
+        json.dump(all_isotherms, f, indent=4)
+    print(f"Data for {len(all_isotherms['isotherms'])} isotherms have been saved in {isotherm_dir}/{isotherm_filename}")
+
+    return len(all_isotherms['isotherms'])
 
 def get_git_commit_hash():
     try:
@@ -333,3 +339,34 @@ def extract_properties(row,args):
     row['Pressure(Pa)'] = r['Thermo/Baro-stat NHC parameters']['External Pressure'][0]
     row['uptake(cm^3 (STP)/cm^3 framework)'] = r["Number of molecules"][gas]["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]
     return row
+
+def merge_json(args,json1,json2,filename='run_merged.json'):
+    """
+    Merge two json from independent workflow runs into a new file.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    os.makedirs(f'{args.output_dir}',exist_ok=True)
+    path_filename=f'{args.output_dir}/{filename}'
+    with open(json1,"r") as f1 :
+        json1_dict = json.load(f1)
+    with open(json2,"r") as f2 :
+        json2_dict = json.load(f2)
+    merged_json = {"input":[],"metadata":[],"results":[]}
+    for key,values in merged_json.items():
+        values.append(json1_dict[key])
+        values.append(json2_dict[key])
+    with open(path_filename,"w") as fp:
+        json.dump(merged_json,fp,indent=4)
+    print(f'{path_filename} has been been created.')
+    return path_filename
+
+def flatten_list(lst):
+    flattened_list = []
+    for item in lst:
+        if isinstance(item, list):
+            flattened_list.extend(flatten_list(item))
+        else:
+            flattened_list.append(item)
+    return flattened_list

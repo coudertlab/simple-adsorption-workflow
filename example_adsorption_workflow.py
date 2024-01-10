@@ -7,6 +7,8 @@ import argparse
 import time,datetime
 import traceback
 from deepdiff import DeepDiff
+import matplotlib.pyplot as plt
+import matplotlib.markers as markers
 
 #PACKAGE_DIR = os.path.dirname(os.path.abspath(__file__)) # package root directory
 ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR","PACKAGE_DIR"]
@@ -27,6 +29,8 @@ def main():
     cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
     run_simulations(args,sim_dir_names)                     # STEP 2
     output_isotherms_to_csv(args,sim_dir_names)             # STEP 3
+    export_simulation_result_to_json(args,sim_dir_names,verbose=False)
+    output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
     get_geometrical_features(args,cif_names)                # STEP 4
 
 def parse_arguments():
@@ -43,7 +47,8 @@ def parse_arguments():
     
     # Tests
     parser.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
-    parser.add_argument("-t2","--test-output-json"  , action="store_true", help="run test to create JSON outputs (without isotherms)")
+    parser.add_argument("-t2","--test-output-json"  , action="store_true", help="run test to create JSON outputs")
+    parser.add_argument("-t3","--test-merge-json"   , action="store_true", help="run test to merge json databases")
 
     # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
@@ -53,7 +58,8 @@ def parse_arguments():
     # Create a dictionary mapping flags to test functions
     test_functions = {
         'test_isotherms_csv': run_test_isotherms_csv,
-        'test_output_json': run_test_output_json,
+        'test_output_json':   run_test_output_json,
+        'test_merge_json':    run_test_merge_json
     }
     args = parser.parse_args()
 
@@ -112,7 +118,6 @@ def run_test_isotherms_csv(args):
         test_zeopp(args)
         print("Tests succeeded")
     except Exception as e:
-        #print(e)
         print(traceback.format_exc())
         print("Tests NOT succeeded")
     print(f"------------------------ End of tests ------------------------\n")
@@ -137,7 +142,34 @@ def run_test_output_json(args):
         output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
         print("Tests succeeded")
     except Exception as e:
-        #print(e)
+        print(traceback.format_exc())
+        print("Tests NOT succeeded")
+    print(f"------------------------ End of tests ------------------------\n")
+    exit(0)
+
+def run_test_merge_json(args):
+    """
+    Run a test that merge two json from independent workflow runs and reconstruct isotherms from :
+    - the first output
+    - the second output
+    - the merged output
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    print(f"------------------------ Running tests ------------------------\n")
+    try:
+        json1,json2 =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/simulations/*")
+        merged_json = merge_json(args,json1,json2)
+        jsons = {'isotherms from json 1':json1,'isotherms from json 2':json2, 'Isotherms from merged JSON':merged_json}
+        for suptitle,file in jsons.items():
+            basename = os.path.basename(file)
+            nb_isotherms = output_isotherms_to_json(args,file,isotherm_filename=f'isotherms_{basename}')
+            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle)
+        assert nb_isotherms == 10,'The number of isotherms after the merge must be 10.'
+        print("Found 10 isotherms (< 12  = total number of isotherms in separated JSON files.)")
+        print("Tests succeeded")
+    except Exception as e:
         print(traceback.format_exc())
         print("Tests NOT succeeded")
     print(f"------------------------ End of tests ------------------------\n")
@@ -310,6 +342,44 @@ def get_geometrical_features(args,cif_names):
     """
     run_zeopp_asa(args.output_dir,
                 cif_files=[f'{args.output_dir}/cif/{structure}.cif' for structure in cif_names])
+
+def plot_isotherm(isotherm_json,suptitle=None):
+    '''
+    Plot all isotherms with a default settings for legend, colors and markers.
+
+    Args:
+        isotherm_json (str): Path to the file with isotherm post-processed data in JSON format.
+    '''
+    warnings.filterwarnings("ignore") 
+    with open(isotherm_json,"r") as f:
+        file_contents = f.read()
+    parsed_json = json.loads(file_contents)
+
+    df_json = pd.DataFrame(parsed_json["isotherms"])
+    n_isotherms = df_json.shape[0]
+    legends = []
+    cmap = plt.colormaps['tab20']
+    colors  = [cmap(i) for i in range(n_isotherms)]
+    ms = list(markers.MarkerStyle.markers)[:n_isotherms]
+    fig,ax = plt.subplots()
+    x = "Pressure(Pa)"
+    y = "uptake(cm^3 (STP)/cm^3 framework)"
+    for i,row in df_json.iterrows():
+        isotherm = pd.DataFrame({x:row[x],y:row[y]})
+        isotherm.plot(x=x,y=y,kind='line',ax= ax,color=colors[i],legend=False)
+        isotherm.plot(x=x,y=y,kind='scatter',ax= ax,color=colors[i],marker=ms[i])
+        legends.append(','.join(map(str,row[['structure','molecule_name','temperature']].values)))
+
+    # Creating legend handles with both marker symbol and label and display it
+    handles = []
+    for i in range(n_isotherms):
+        handle = plt.Line2D([], [], color=colors[i], marker=ms[i], markersize=6, label=legends[i])
+        handles.append(handle)
+    _ = ax.legend(handles=handles, bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    plt.suptitle(suptitle,y=0.95)
+    fig.tight_layout()
+    plt.show(block=False)
 
 if __name__ == "__main__":
     main()
