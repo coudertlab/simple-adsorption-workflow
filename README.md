@@ -1,42 +1,40 @@
 # simple-adsorption-workflow
 
-Automating RASPA simulations and analysis for adsorption studies using a simple workflow with JSON input, CoRE MOF database integration, and isotherm generation.
+Automating RASPA simulations and analysis for adsorption studies using a minimalist workflow with JSON input/output, CoRE MOF database integration, isotherm generation, prospecting tools and plot examples.
 
 ## Description
 
-This program provides a simple workflow for automating RASPA simulations for adsorption studies. It allows users to specify simulation parameters and default settings through a JSON file, and generates directories with input and running files for RASPA. The program retrieves CIF files from the CoRE MOF database and stores isotherms as CSV files. The workflow aims to streamline the simulations and simplify the modeling process, making it easier to study adsorption phenomena.
+This package provides a demonstrative workflow for automating RASPA simulations for adsorption studies. It allows users to specify simulation parameters and default settings through a JSON file, and generates directories with input files and submission scripts for RASPA. The program retrieves CIF files from the CoRE MOF database and stores isotherms as CSV or JSON files. This workflow aims to streamline the simulations and simplify the analysis process, making it easier to study adsorption phenomena.
 
-Some code is heavily inspired by [RASPA python wrapper](https://github.com/WilmerLab/raspa2/tree/sensor_array_mof_adsorption/python) and has been adapted to meet the specific needs of this program.
+Part of the code presented here was heavily inspired by [RASPA python wrapper](https://github.com/WilmerLab/raspa2/tree/sensor_array_mof_adsorption/python), and been adapted to meet the workflow architecture.
 
 
 ## Install
 
-- Use a conda environment with python 3 :
+### With Conda
+
+- Create a conda environment with Python 3.9:
 ```bash
 conda create -n simple-adsorption-workflow python=3.9
 ```
 
-- Install requirements in the conda environment :
+- Use pip to install the libraries listed in `requirements.txt` in the conda environment:
 ```bash
 conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
 
-- Install Zeo++
-
-Download and compile Zeo++ at http://www.zeoplusplus.org/download.html.
-Remember the path to the directory containing the executable ```network``` by mofying the corresponding line in `set_environment` :
+- Download and compile Zeo++ at [http://www.zeoplusplus.org/download.html](http://www.zeoplusplus.org/download.html). To inform the workflow of the executable `network`s path, modify the corresponding line in `set_environment`:
 ```
 export ZEO_DIR=/opt/zeo++-0.3
 ```
 
-
-- Define the environment variables :
+- Define the environment variables:
 ```bash
 source set_environment
 ```
 
-To recover the environment variables at each activation of the conda environment :
+Optionally, you can set up this recovering of the environment variables at each activation of the conda environment:
 
 ```bash
 mkdir -p $CONDA_PREFIX/etc/conda/activate.d/
@@ -44,8 +42,16 @@ printf "%s\n" "#/bin/sh" "source $PWD/set_environment" > $CONDA_PREFIX/etc/conda
 chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.sh
 ```
 
+In the case you are running in a fish shell, `set_environment_fish` should be used  in the commands above instead of `set_environment`.
+
+### With Docker
+
+A already configured Docker image is provided, and can be mounted via
+**... ??? Expand on that ???**
 
 ## User input (JSON file)
+
+This is the standard format of the `input.json` file to be provided by the user:
 
 ```
 {
@@ -84,123 +90,60 @@ These restrictions and assumptions aim to streamline the simulations and simplif
 
 ## Workflow example
 ```Bash
-python $PACKAGE_DIR/example_workflow_adsorption.py
+python $PACKAGE_DIR/example_adsorption_workflow.py
 ```
 To specify input and output locations :
 ```bash
-python $PACKAGE_DIR/example_workflow_adsorption.py -i path/to/myinput.json -o path/to/data/directory
+python $PACKAGE_DIR/example_adsorption_workflow.py -i path/to/myinput.json -o path/to/data/directory
 ```
-By default, the output data is written to the current directory (`./data`) and the input file should be placed in the root directory (`./data/input.json`).
+By default, when the flag `-o` is not provided,   a new directory will be created with the following formatting name : `./<Date>_<Time>_<Runtype>/` .
+The run type <Runtype> is `data` for normal runs and `<name_of_test>` for tests cases.
 
+The schematic diagram (Fig. 1) outlines the primary functions executed within the workflow:
+
+- **Parsing Input File:** The input file undergoes parsing and interpretation to generate simulation input files. Error messages are generated if the structure names are not found in the database or if gas names do not match the default ones in RASPA.
+
+- **Calculations:** Two types of calculations are performed:
+  - Grand Canonical Monte Carlo simulations using RASPA.
+  - Pore characterization of the structures using Zeo++.
+
+- **Storage of Output Data:** The resulting gas uptakes, along with input data and metadata from RASPA, are stored in a common `run<runID>.json` file.
+
+- **Data Transformation:** Output data can be converted into more user-friendly array-like tables, facilitating the plotting of isotherms.
+
+- **Data Merging:** Various workflow outputs can be merged, enabling the retrieval of isotherms based on group selections using both data and metadata.
+
+  
 <p align="center">
-  <img src="./figures/diagram_workflow.png" alt="Diagram of the workflow" width="600" height="400" />
+  <img src="./figures/diagram_workflow_v2.png" alt="Diagram of the workflow" width="1058" height="595" />
 </p>
-<p align="center"><i>Diagram of the workflow</i></p>
+<p align="center"><i>Figure 1: Diagram of the workflow. </i></p>
 
 ## Tests
 
-### Reconstruct isotherms from CSV : `--test-isotherm-csv`
+### Recover isotherms from CSV : `--test-isotherm-csv`
 
 It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in CSV files. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository. The geometrical features are also stored in a CSV format, and 
-To run it, use the `-t` flag : 
+To run it, use `-t` or `--test-isotherms-csv` flags: 
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py -t
 ```
+The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_csv/`.
 
-By default, a directory (`./<DATE>_<TIME>_test_output_csv`) with the tests outputs will be created in the current directory and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms_csv/input.json`).
-
-### Reconstruct isotherms from JSON : `--test-isotherm-json`
+### Recover isotherms from JSON : `--test-isotherm-json`
 
 It runs 20 simulations on RASPA then stores the results in a single JSON file. It then reconstructs the isotherms and store the results in JSON format.
 
-To run it, use the `-t2` flag : 
+To run it, use the `-t2` or `--test-isotherm-json` flag : 
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py -t2
 ```
+The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`.
 
-By default, a directory (`./<DATE>_<TIME>_test_output_json`) with the tests outputs will be created in the current directory and the input file is located in the github repository (`$PACKAGE_DIR/tests/test_isotherms_json/input.json`).
+### Merge and plot isotherms from two workflow runs : `--test-merge-json`
 
-
-## Development todo lists
-
-- [x] step 1 : Returns a set of directories with input and running files for RASPA. 
-Default directory : `./data/simulations/`.
-Internally, the program will search for the CIF files corresponding to the material name(s) in the MOFXDB database, and will choose the version corresponding to CoRE MOF 2019. 
-Default directory : `./data/cif/`
-
-- [x] step 2 : Run adsorption simulations
-    - [x] on a local machine : using the bash script `/data/job.sh`.
-
-    - [x] on a HPC machine : using a job manager (e.g.SLURM).
-    (to be discussed with SIMAP/GRICAD)
-    - [x] using a container
-
-- [x] step 3 : Generate isotherms and store them in `./data/isotherms/` as CSV files. Each isotherm is associated to a unique identifier `isokey` and corresponding information are given in `index.csv`.
-
-- [x] Find the cif file(s) in CoRE MOF from its six-letter CSD code
-e.g : `python src/download_cif_from_mofxdb.py KAXQIL`
-
-> Note : The search is fetched using the MOFX-DB API, it returns all mofs for which part of the name matches with the input keyword.
-- [x] Create a simple workflow in a python script `example_workflow_adsorption.py` based on RASPA2 python wrapper
-- [x] Create a json input file and document its format
-- [x] Parse the json input in the workflow and check the creation of the input files for RASPA
-- [x] Merge the two scripts that download for cif files and include them in the main program `example_workflow_adsorption.py`
-- [x] Calculate in a function the minimal supercell.
-- [x] Add an option to `src.wraspas2.create_script()` to write the result directly in a file 
-- [x] Python notebook for plotting an isotherm
-- [x] Add a function to check RASPA outputs `src.convert_data.output_isotherms_to_csv()`
-- [x] Add an index file created with the data directories, in order to store the parameters of each simulation
-- [x] Add a script to store isotherms in CSV format
-- [x] Step 4 : Compute Accessible Surface Are (ASA) from the crystallographic structure with Zeo++
-- [x] Add a test to verify the isotherms have been recovered from simulation outputs
-- [x] Convert simulation output to more flexible JSON data
-- [x] Add a test to check that isotherms can be extracted from JSON database : `python $PACKAGE_DIR/example_adsorption_workflow.py -t2`
-- [x] Update the notebook example for plotting (add plot from JSON)
-- [x] Add a function to merge JSON databases and then reconstruct all isotherms
-- [x] Add a test (test 3) for the last point
-- [ ] Rearrange the documentation in several pages
-- [ ] Prepare a test for HPC : must be reproducible (data found in the literature) and add benchmarks
-## To do (Optional)
-
-- [x] Optional : Download cif directly from the CSD database. It requires the installation of the CSD API in the environment.
-- [ ] Download all cifs files given a material name
-- [ ] Add to the workflow a step to select the minimum unit cell in order to avoid the bias from periodic boundary conditions. In practice, one runs a RASPA simulation with all defaults parameters and 0 steps, it then returns some basic information, like the perpendicular lengths which could be used to define the minimal supercell. 
-
-
-## For future development
-
-### CSD Python API
-
-> Note : A local installation of the CSD Python API (under license) is needed to go further. One need first to log in at :
-https://www.ccdc.cam.ac.uk/support-and-resources/csdsdownloads/
-then download the CSD Python API.
-
-The following commands allow to access the CSD API to the current python environment.
-
-
-Source : https://fd-test.ccdc.cam.ac.uk/media/Documentation/1DBA2AB9-9DC7-423C-8EC9-9291D9C220DA/2020_CSD_Python_API_installation.pdf
-* Add the `conda-forge` channel
-* Install using the absolute path where the ccdc API is located (downloaded through the entire suite as mentioned above)
-* Let your system read the installation paths
-```Bash
-conda config --add channels conda-forge
-conda config --set channel_priority strict
-conda install -c <PATH_TO_PYTHON_API> simple-adsorption-workflow #e.g.:/opt/CCDC/Python_API_2022/ccdc_conda_channel simple-adsorption-workflow
-conda env config vars set CSDHOME=<PATH_TO_CSD> #e.g.:/opt/CCDC/CSD_2022
-```
-
-> NOTE : solving the environment can take a few minutes due to the number of dependencies to satisfy.
-
-### Environment settings in fish shell
-
+To run it, use the `-t3` or `--test-merge-json` flag : 
 ```bash
-conda activate simple-adsorption-workflow
-source set_environment_fish
+python $PACKAGE_DIR/example_adsorption_workflow.py -t3
 ```
-
-To recover the environment variables at each activation of the conda environment :
-```bash
-mkdir -p $CONDA_PREFIX/etc/conda/activate.d/
-printf "%s\n" "source $PWD/set_environment_fish" > $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
-chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.fish
-```
+The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/simulations/`.

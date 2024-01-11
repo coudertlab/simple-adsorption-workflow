@@ -9,3 +9,5 @@ figures/.*
 .trash/*
 .ipynb_checkpoints/*
 .vscode/*
+README_dev.md
+CHECKLIST.md

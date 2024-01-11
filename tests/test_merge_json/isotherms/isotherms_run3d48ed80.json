@@ -1,0 +1,164 @@
+{
+    "isotherms": [
+        {
+            "pressure": [
+                10.0,
+                250007.5,
+                500005.0,
+                750002.5,
+                1000000.0
+            ],
+            "simkey": [
+                "simf71af235",
+                "simd81519c8",
+                "simc5dc022d",
+                "sim4c124f3a",
+                "sim4bf98a37"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                250008.0,
+                500005.0,
+                750002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                22.7593515764,
+                27.6479951132,
+                48.0173431828,
+                59.7500876709
+            ],
+            "cycles": 20.0,
+            "forcefield": "GenericMOFs",
+            "init_cycles": 10.0,
+            "molecule_name": "CO2",
+            "npoints": 5.0,
+            "print_every": 5.0,
+            "structure": "MIBQAR16_clean_coremof-2019",
+            "temperature": 298.15,
+            "unit_cells": "[2, 2, 2]",
+            "isokey": "isoad15dcc3"
+        },
+        {
+            "pressure": [
+                10.0,
+                250007.5,
+                500005.0,
+                750002.5,
+                1000000.0
+            ],
+            "simkey": [
+                "sim80abdf43",
+                "sim4676a865",
+                "simf493c18c",
+                "simbf7595e1",
+                "simc0fd8a7e"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                250008.0,
+                500005.0,
+                750002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                61.6056912115,
+                76.919105884,
+                77.799187187,
+                86.247967696
+            ],
+            "cycles": 20.0,
+            "forcefield": "GenericMOFs",
+            "init_cycles": 10.0,
+            "molecule_name": "CO2",
+            "npoints": 5.0,
+            "print_every": 5.0,
+            "structure": "VOGTIV_clean_h_coremof-2019",
+            "temperature": 298.15,
+            "unit_cells": "[4, 2, 2]",
+            "isokey": "isob67077e4"
+        },
+        {
+            "pressure": [
+                10.0,
+                250007.5,
+                500005.0,
+                750002.5,
+                1000000.0
+            ],
+            "simkey": [
+                "simeb923a72",
+                "sim754df339",
+                "sim24bf40dc",
+                "simc272386a",
+                "sim32787afb"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                250008.0,
+                500005.0,
+                750002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                7.0070557359,
+                9.0168314121,
+                20.6409393772,
+                24.8777637757
+            ],
+            "cycles": 20.0,
+            "forcefield": "GenericMOFs",
+            "init_cycles": 10.0,
+            "molecule_name": "N2",
+            "npoints": 5.0,
+            "print_every": 5.0,
+            "structure": "MIBQAR16_clean_coremof-2019",
+            "temperature": 298.15,
+            "unit_cells": "[2, 2, 2]",
+            "isokey": "isoc51a8f31"
+        },
+        {
+            "pressure": [
+                10.0,
+                250007.5,
+                500005.0,
+                750002.5,
+                1000000.0
+            ],
+            "simkey": [
+                "sim440d1ded",
+                "sim27568b5f",
+                "sim577916ef",
+                "sim16932a01",
+                "sim72e25c66"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                250008.0,
+                500005.0,
+                750002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                13.3772358059,
+                28.8666667391,
+                25.6983740482,
+                44.004065151
+            ],
+            "cycles": 20.0,
+            "forcefield": "GenericMOFs",
+            "init_cycles": 10.0,
+            "molecule_name": "N2",
+            "npoints": 5.0,
+            "print_every": 5.0,
+            "structure": "VOGTIV_clean_h_coremof-2019",
+            "temperature": 298.15,
+            "unit_cells": "[4, 2, 2]",
+            "isokey": "isof52e846a"
+        }
+    ]
+}
