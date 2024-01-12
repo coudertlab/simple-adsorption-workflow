@@ -42,6 +42,9 @@ def parse_json(filename,cifnames):
     npoints = dict_parameters["npoints"]
     dict_parameters["pressure"] = [Pmin + (Pmax - Pmin) * i / (npoints - 1) for i in range(npoints)]
 
+    # Check conistency of RASPA inputs
+    check_input_raspa(dict_parameters["molecule_name"])    
+    
     # Generate combinations
     combinations = list(product(*(value if isinstance(value, list) else [value] for value in dict_parameters.values())))
 
@@ -53,6 +56,14 @@ def parse_json(filename,cifnames):
         l_dict_parameters.append(dictionary)
     return l_dict_parameters
 
+def check_input_raspa(molecule_name_list):
+    '''
+    Look for the precence of parameters for the molecule in the TrAPPE force field.
+    '''
+    basenames = ([os.path.basename(filename).split('.def')[0] for filename in os.listdir(f"{os.environ.get('RASPA_PARENT_DIR')}/share/raspa/molecules/TraPPE/")])
+    for molecule_name in molecule_name_list: 
+        assert molecule_name in basenames, 'The molecule {molecule_name} is not found in TraPPE.'
+    
 def parse_json_2(filename):
     """
     Parse a JSON file containing default values and parameters, and generate combinations of parameter values.

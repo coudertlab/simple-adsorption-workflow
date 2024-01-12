@@ -81,6 +81,7 @@ In this example, the user can modify parameters and default parameters for RASPA
 
 > Note : `parameters` and `defaults` have been divided for the following purpose : if there are lists of parameters in the `parameters` field (e.g., multiple materials), the program will generate simulation folders for each unique combination of `parameters`.
 
+
 In this workflow, there are certain restrictions in order to keep the simulations simple and make some assumptions:
 - The material must be available in the CoreMOF database, accessible through the MOFXDB database (https://github.com/n8ta/mofdb-client).
 - The guest molecule should be a rare gas such as argon (Ar) or xenon (Xe), or it should have a spherical model, like nitrogen (N2), methane (CH4), or sulfur hexafluoride (SF6).
@@ -147,3 +148,66 @@ To run it, use the `-t3` or `--test-merge-json` flag :
 python $PACKAGE_DIR/example_adsorption_workflow.py -t3
 ```
 The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/simulations/`.
+
+### Documentation
+
+#### JSON input
+
+- `molecule_name` : the name of the gas molecule. 
+By default, the force field for small molecules is TraPPE. Therefore a file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
+- others parameters in section `defaults` : all other parameters that can be modified through a template.
+  The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file.
+template :
+```
+SimulationType                {simulation_type}
+NumberOfCycles                {cycles}
+NumberOfInitializationCycles  {init_cycles}
+PrintEvery                    {print_every}
+RestartFile                   no
+
+Forcefield                    {forcefield}
+CutOff                        12.8
+ChargeMethod                  Ewald
+EwaldPrecision                1e-6
+UseChargesFromMOLFile         {is_mol}
+
+Framework                     0
+FrameworkName                 {structure}
+InputFileType                 {input_file_type}
+UnitCells                     {a} {b} {c}
+HeliumVoidFraction            {helium_void_fraction}
+ExternalTemperature           {temperature}
+ExternalPressure              {pressure}
+
+Movies                        no
+WriteMoviesEvery              100
+
+Component 0 MoleculeName             {molecule_name}
+            StartingBead             0
+            MoleculeDefinition       TraPPE
+            IdealGasRosenbluthWeight 1.0
+            TranslationProbability   1.0
+            RotationProbability      1.0
+            ReinsertionProbability   1.0
+            SwapProbability          1.0
+            CreateNumberOfMolecules  0
+```
+Definitions :
+- `{molecule_name}`: The molecule to test for adsorption. A file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
+- `{temperature}`: The temperature of the simulation, in Kelvin.
+- `{pressure}`: The pressure of the simulation, in Pascals.
+- `{helium_void_fraction}`: The helium void fraction of the input structure. Required for excess adsorption back-calculation.
+- `{unit_cells}`: The number of unit cells to use, by dimension.
+- `{simulation_type}`: The type of simulation to run, defaults to "MonteCarlo".
+- `{cycles}`: The number of simulation cycles to run.
+- `{init_cycles}`: The number of initialization cycles to run. Defaults to the minimum of cycles / 2 and 10,000.
+- `{forcefield}`: The forcefield to use. Name must match a folder in `$RASPA_DIR/share/raspa/forcefield`, which contains the properly named `.def` files.
+- `{input_file_type}`: The type of input structure. Assumes cif.
+
+> Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
+
+### What can not be done (yet) with `simple-adsorption-workflow` ?
+
+- Use user-provided CIF structure files: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
+- Use partial charges (calculated automatically or found in MOF databases) to set the electrostatic interations between atoms. This is a major limitations, which will be solved in the close future.
+
