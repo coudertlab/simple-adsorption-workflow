@@ -211,11 +211,130 @@ Definitions :
 
 > Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
 
-### Output file
+#### JSON files
 
 In the first version of the workflow, the outputs were stored in CSV files. Since this format is not appropriate to store metadata, we added routines to export all simulation data in a more suitable format, a JSON format. We also add a routine that transform single-pressure-point adsorption to isotherms.
 
-In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperability between databases.
+##### Workflow database JSON file
+
+location : `./simulations/run<runID>.json`
+
+```
+{
+  "input": {
+    "parameters": {
+      "structure": ["MIBQAR", "VOGTIV"],
+      "molecule_name": ["N2", "CO2"],
+      "pressure": [10, 1000000.0],
+      "npoints": 5,
+      "temperature": [298.15]
+    },
+    "defaults": {
+      "unit_cells": [1, 1, 1],
+      "forcefield": "GenericMOFs",
+      "init_cycles": 10,
+      "cycles": 20,
+      "print_every": 5
+    }
+  },
+  "metadata": {
+    "timestamp": "2024-01-15 17:30:42",
+    "python_version": "3.9.16",
+    "python_compiler": "GCC 11.3.0",
+    "os_platform": "Linux-x86_64",
+    "os_version": "#40~22.04.1-Ubuntu",
+    "os_system": "Linux",
+    "os_release": "6.2.0-39-generic",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "workflow_package_git_hash": "b505d5e63fee21be57836e7041c429b48e7c26dc",
+    "cif_source": {
+      "database": "mofxdb",
+      "version": "dc8a0295db"
+    }
+  },
+  "results": [
+    {
+        "cycles": 20.0,
+        "forcefield": "GenericMOFs",
+        "init_cycles": 10.0,
+        "molecule_name": "N2",
+        "npoints": 5.0,
+        "pressure": 10.0,
+        "print_every": 5.0,
+        "simkey": "simca3ee227",
+        "structure": "MIBQAR16_clean_coremof-2019",
+        "temperature": 298.15,
+        "unit_cells": "[2, 2, 2]",
+        "Pressure(Pa)": 10.0,
+        "uptake(cm^3 (STP)/cm^3 framework)": 0.0
+    },
+    {
+        ...
+    }
+  ]
+}
+```
+
+
+##### isotherm JSON file
+
+location : `./simulations/isotherms.json`
+
+This is just a transformation in the way data is printed in JSON keys, all data are grouped by a set of identical parameters defined as follows : `Pressure(Pa)`, `uptake(cm^3 (STP)/cm^3 framework)`,`simkey`,`pressure`,`npoints` . 
+
+```
+{
+  "isotherms": [
+    {
+      "simkey": [
+        "sim36c5696b",
+        "sim50f808f6",
+        "simc4bc79e4",
+        "sim8d5c22ad",
+        "sim887bbdbe"
+      ],
+      "isokey": "iso191854b1",
+      "molecule_name": "CO2",
+      "structure": "MIBQAR16_clean_coremof-2019",
+      "unit_cells": "[2, 2, 2]",
+      "temperature": 298.15,
+      "cycles": 20.0,
+      "forcefield": "GenericMOFs",
+      "init_cycles": 10.0,
+      "npoints": 5.0,
+      "print_every": 5.0,
+      "pressure": [10.0, 250008.0, 500005.0, 750002.0, 1000000.0],
+      "Pressure(Pa)": [10.0, 250008.0, 500005.0, 750002.0, 1000000.0],
+      "uptake(cm^3 (STP)/cm^3 framework)": [0.0, 16.2411601942, 27.2677672825, 33.5143673572, 40.2498317856]
+    },
+    {
+      "simkey": [
+            ...
+      ],
+      ...
+    },
+    {
+        ...
+    }
+  ]
+}
+
+```
+
+> Notes : In this version of the workflow, the metadata are lost, so JSON isotherms can be used for quick plot but should not be used to store long-term data. For this purpose the database JSON file is appropriate.
+
+##### Further development
+
+In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperable operations between databases.
+
+What other data/metadata should be added  ? 
+- units
+- cif
+- identifiers (e.g. : common names for MOF; InChiKey for adsorbates)
+- all metadata from CSD (dois, authors, solvent, ...)
+- composition to deal with co-adsorption
+- more simulation-related parameters from RASPA (e.g. SimulationType, UseChargesFromCIFFile, RASPA warnings, ...)
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
