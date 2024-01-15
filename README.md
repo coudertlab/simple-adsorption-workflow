@@ -153,11 +153,16 @@ The json files containing the data to be merged (single pressure data points) ar
 
 #### JSON input
 
-- `molecule_name` : the name of the gas molecule. 
-By default, the force field for small molecules is TraPPE. Therefore a file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
+- `structure` :  a list of MOF crystal identifiers.
+  The input parser employs MOFXDB API, so for now the only structures that can be used are structures found in CoREMOF (2014 or 2019) and h-MOF. 
+  By default, the input parser reads only a 6-letter refcode (CSD format). It then filters out only the structures found in `coremof-2019` database. The CIF corresponding files will be downloaded in the `./cif` directory at the root of the output directory and will contains files suffixes that indicates the level of curation (e.g. in VOGTIV_clean_h_coremof-2019.cif, `_clean` refers to the deletion of adsorbates species from the original X-crystallography characterization, and `_h` refers to adjustment of the hydrogen atoms)
+
+> Note : one six-letter identifier may result in two structures in the original CORE-MOF database, then all corresponding structures will be added to the list of cifs for further calculations, e.g. : structure=["AHUTIH"] will generate calculations for both files AHUTIH01_clean_coremof-2019.cif  and AHUTIH_clean_coremof-2019.cif.
+
+- `molecule_name` : a list of gas molecule names. 
+By default, the force field for adsorbate molecules is TraPPE. Therefore a file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
 - others parameters in section `defaults` : all other parameters that can be modified through a template.
-  The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file.
-template :
+  The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file:
 ```
 SimulationType                {simulation_type}
 NumberOfCycles                {cycles}

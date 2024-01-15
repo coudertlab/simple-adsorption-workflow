@@ -279,7 +279,7 @@ def prepare_input_files(args):
     # Get CIF files from the structures provided in the JSON file
     cif_names = cif_from_json(args.input_file, args.output_dir,
                              database='mofxdb', substring="coremof-2019",
-                             verbose=False)
+                             verbose=True)
 
     # Parse the JSON file and extract input parameters
     l_dict_parameters = parse_json(args.input_file, cifnames=cif_names)
