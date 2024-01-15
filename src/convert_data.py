@@ -7,6 +7,7 @@ import platform
 import sys
 import datetime
 import subprocess
+from mofdb_client import fetch
 
 def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     """
@@ -315,6 +316,11 @@ def get_workflow_metadata():
     git_hash = get_git_commit_hash()
     metadata['workflow_package_git_hash'] = git_hash
 
+    # Metadata of structure source (e.g : MOFXDB version)
+    for mof in fetch():
+        mofdb_version = mof.json_repr['mofdb_version']
+        metadata['cif_source'] = {'database':'mofxdb','version':mofdb_version}
+        break
     return metadata
 
 def extract_properties(row,args):

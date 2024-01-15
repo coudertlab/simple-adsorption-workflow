@@ -279,7 +279,7 @@ def prepare_input_files(args):
     # Get CIF files from the structures provided in the JSON file
     cif_names = cif_from_json(args.input_file, args.output_dir,
                              database='mofxdb', substring="coremof-2019",
-                             verbose=True)
+                             verbose=False)
 
     # Parse the JSON file and extract input parameters
     l_dict_parameters = parse_json(args.input_file, cifnames=cif_names)
@@ -299,6 +299,7 @@ def prepare_input_files(args):
         shutil.copy(cif_path_filename, work_dir)
         create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
         create_run_script(path=work_dir, save=True)
+
     # Create a job script for all simulations (each using 1 CPU)
     create_job_script(args.output_dir, sim_dir_names)
 

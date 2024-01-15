@@ -211,6 +211,12 @@ Definitions :
 
 > Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
 
+### Output file
+
+In the first version of the workflow, the outputs were stored in CSV files. Since this format is not appropriate to store metadata, we added routines to export all simulation data in a more suitable format, a JSON format. We also add a routine that transform single-pressure-point adsorption to isotherms.
+
+In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperability between databases.
+
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
 - Use user-provided CIF structure files: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)

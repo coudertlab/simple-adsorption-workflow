@@ -131,17 +131,18 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     cifnames = []
     for mof in fetch(name=structure):
-        if verbose:
-            print(f"Mof with name {mof.name} from {mof.database} has {len(mof.isotherms)} isotherms stored in MOFX-DB.")
         cifname = os.path.join(f"{data_dir}/cif/{mof.name}_{mof.database.lower().replace(' ', '-')}.cif")
 
         # Filter using original database key
         if substring in cifname:
             with open(cifname, 'w') as f:
                 print(mof.cif, file=f)
-                if verbose:
-                    print(f'Cif has been written in {cifname}.')
+                print(f'Cif has been written in {cifname}.')
             cifnames.append(cifname)
+
+            # Indicate the number of isotherms found in MOFXDB (can be used for reproducibility purposes)
+            if verbose:
+                print(f"Mof with name {mof.name} from {mof.database} has already {len(mof.isotherms)} isotherms stored in MOFX-DB.")
 
     # Add a warning for the structure has no entry in the structural databases
     if len(cifnames)==0:
