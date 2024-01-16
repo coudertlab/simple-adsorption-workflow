@@ -364,6 +364,6 @@ What other data/metadata should be added  ?
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
 - Use a user-provided CIF structure file: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
-- Use partial charges (calculated automatically or found in MOF databases) to set the electrostatic interations between atoms. This is a major limitations, which will be solved in the close future.
+- Use partial charges (calculated automatically or found in MOF databases) to set the electrostatic interactions between atoms. This is a major limitations, which will be solved in the close future.
 - Use a user-defined force field
 

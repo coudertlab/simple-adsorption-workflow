@@ -4,6 +4,16 @@ import glob,os
 
 zeopp_dir = os.environ.get('ZEO_DIR')
 
+def get_geometrical_features(args,cif_names):
+    """
+    Calculate geometrical features of the porous crystals using Zeo++.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    run_zeopp_asa(args.output_dir,
+                cif_files=[f'{args.output_dir}/cif/{structure}.cif' for structure in cif_names])
+
 def run_zeopp_asa(data_dir,
                   cif_files=None,
                   chan_radius=1.2,

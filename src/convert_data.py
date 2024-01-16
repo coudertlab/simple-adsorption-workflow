@@ -281,6 +281,28 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json'):
 
     return len(all_isotherms['isotherms'])
 
+def reconstruct_isotherms_to_csv(args,sim_dir_names=None):
+    """
+    Check and process the results of gas adsorption simulations.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+        sim_dir_names (list, optional): List of simulation directory names.
+    """
+    check_simulations(args.output_dir,sim_dir_names, verbose=False)
+    output_isotherms_to_csv(args,sim_dir_names)
+
+def export_simulation_result_to_json(args,sim_dir_names=None,**kwargs):
+    """
+    Check and process the results of gas adsorption simulations.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+        sim_dir_names (list, optional): List of simulation directory names.
+    """
+    check_simulations(args.output_dir,sim_dir_names,**kwargs)
+    output_to_json(args,sim_dir_names,**kwargs)
+
 def get_git_commit_hash():
     try:
         # Get the current commit hash using git command

@@ -12,6 +12,11 @@ from textwrap import dedent
 from multiprocessing import Process, Pipe
 import argparse
 
+import os,shutil
+import time
+from src.input_parser import *
+from src.convert_data import *
+
 from .__init__ import __version__
 
 # Get the current directory
@@ -46,6 +51,78 @@ except ImportError:
     except ImportError:
         PYBEL_LOADED = False
 
+# NEW IN THIS WORKFLOW
+
+def prepare_input_files(args):
+    """
+    Prepare input files for gas adsorption simulations and generate simulation directories.
+
+    This function creates the necessary input files and directories for running gas adsorption simulations
+    using RASPA. It performs the following steps:
+    1. Creates the output directory if it doesn't exist.
+    2. Retrieves CIF files from the structures provided in the JSON input file.
+    3. Parses the JSON input file and extracts input parameters for simulations.
+    4. Generates simulation directories, copies CIF files, and creates input scripts for RASPA.
+    5. Creates job scripts for running simulations on multiple CPUs.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+
+    Returns:
+        list: List of simulation directory names.
+    """
+    try:
+        os.makedirs(args.output_dir, exist_ok=False)
+    except FileExistsError as e :
+        print("The existing folder cannot be overwritten!")
+        raise(e)
+    print(f"Storing data in {args.output_dir}\n")
+
+    # Get CIF files from the structures provided in the JSON file
+    cif_names = cif_from_json(args.input_file, args.output_dir,
+                             database='mofxdb', substring="coremof-2019",
+                             verbose=False)
+
+    # Parse the JSON file and extract input parameters
+    l_dict_parameters = parse_json(args.input_file, cifnames=cif_names)
+
+    # Create inputs for RASPA for each set of parameters
+    sim_dir_names = []
+    for dict_parameters in l_dict_parameters:
+        # Get CIF name
+        cif_path_filename = f'{args.output_dir}/cif/{dict_parameters["structure"]}.cif'
+
+        # Correct unit cell to avoid bias from periodic boundary conditions
+        dict_parameters["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
+
+        # Create a working directory, add CIF file, and generate input script
+        work_dir = create_dir(dict_parameters, args.output_dir)
+        sim_dir_names.append(dict_parameters["simkey"])
+        shutil.copy(cif_path_filename, work_dir)
+        create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
+        create_run_script(path=work_dir, save=True)
+
+    # Create a job script for all simulations (each using 1 CPU)
+    create_job_script(args.output_dir, sim_dir_names)
+
+    return cif_names, sim_dir_names
+
+def run_simulations(args,sim_dir_names):
+    """
+    Run gas adsorption simulations using prepared input files.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+        sim_dir_names (list): List of simulation directory names.
+    """
+    print(f"Running simulations on {len(sim_dir_names)} cpus ...")
+    os.chdir(args.output_dir)
+    start_time = time.time()
+    os.system("./job.sh > sim.log 2>&1")
+    execution_time = time.time()- start_time
+    print(f"Simulations completed in {execution_time:.2f} seconds.")
+
+# ADAPTED FROM WRASPA IN RASPA GITUB REPO
 
 def run(structure, molecule_name, temperature=273.15, pressure=101325,
         helium_void_fraction=1.0, unit_cells=(1, 1, 1),
@@ -144,7 +221,6 @@ def _script_subprocess(input_script, structure, raspa_dir, stream, conn):
     if stream:
         conn.send(cast(ptr, c_char_p).value[:].decode("utf-8"))
     conn.close()
-
 
 def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   helium_void_fraction=1.0, unit_cells=(1, 1, 1),
@@ -317,7 +393,6 @@ def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
                          """.format(**locals()))
     return parse(run_script(script, structure))
 
-
 def get_geometric_surface_area(structure, unit_cells=(1, 1, 1), cycles=500,
                                input_file_type="cif", units="m^2/g",
                                forcefield="CrystalGenerator"):
@@ -365,7 +440,6 @@ def get_geometric_surface_area(structure, unit_cells=(1, 1, 1), cycles=500,
     output = parse(run_script(script, structure))
     return output["Average Surface Area"]["[{}]".format(units)][0]
 
-
 def get_helium_void_fraction(structure, unit_cells=(1, 1, 1), cycles=2000,
                              input_file_type="cif",
                              forcefield="CrystalGenerator"):
@@ -409,7 +483,6 @@ def get_helium_void_fraction(structure, unit_cells=(1, 1, 1), cycles=2000,
 
     output = parse(run_script(script, structure))
     return output["Average Widom Rosenbluth factor"]["Widom"][0]
-
 
 def get_pore_size_distribution(structure, unit_cells=(1, 1, 1), cycles=500,
                                input_file_type="cif",
@@ -464,7 +537,6 @@ def get_pore_size_distribution(structure, unit_cells=(1, 1, 1), cycles=500,
             if r[0] != "#"]
     return [[i[0] for i in info], [i[2] for i in info]]
 
-
 def get_density(molecule_name, temperature=273.15, pressure=101325,
                 cycles=5000, init_cycles="auto",
                 forcefield="CrystalGenerator"):
@@ -512,7 +584,6 @@ def get_density(molecule_name, temperature=273.15, pressure=101325,
 
     output = parse(run_script(script))
     return output["Average Density"]["[kg/m^3]"][0]
-
 
 def json_to_pybel(data):
     """Converts a python data structure to pybel.Molecule.
@@ -572,7 +643,6 @@ def json_to_pybel(data):
 
     return mol
 
-
 def pybel_to_raspa_cif(structure):
     """Converts instances of `pybel.Molecule` to a RASPA charged cif format."""
     if not PYBEL_LOADED:
@@ -617,7 +687,6 @@ def pybel_to_raspa_cif(structure):
     cif += "\n_end\n"
 
     return cif
-
 
 def create_run_script(path,save=True):
     """
@@ -709,7 +778,6 @@ def run_command_line():
     else:
         run_script(args.input, args.crystal, args.stream)
 
-
 def get_raspa_dir():
     """Called by the `raspa-dir` command, enables easy directory switching."""
     parser = argparse.ArgumentParser(description="Returns the data directory "
@@ -719,7 +787,6 @@ def get_raspa_dir():
     parser.add_argument("-v", "--version", action="version",
                         version=__version__)
     print(os.path.join(raspa_dir, "share/raspa"))
-
 
 if __name__ == "__main__":
     run_command_line()
