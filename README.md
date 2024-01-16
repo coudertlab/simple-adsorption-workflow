@@ -57,8 +57,8 @@ This is the standard format of the `input.json` file to be provided by the user:
 {
     "parameters":
         {
-        "structure":["KAXQIL"],
-        "molecule_name": ["N2", "methane"],
+        "structure":["MIBQAR","VOGTIV"],
+        "molecule_name": ["N2", "CO2"],
         "pressure": [10,1E6],
         "npoints":5,
         "temperature": [298.15]
@@ -67,16 +67,19 @@ This is the standard format of the `input.json` file to be provided by the user:
     "defaults":
         {
             "unit_cells":[1,1,1],
-            "FF":"GenericMOFs"
+            "forcefield":"GenericMOFs",
+            "init_cycles":10,
+            "cycles":20,
+            "print_every":5
         }
 }
 ```
 In this example, the user can modify parameters and default parameters for RASPA simulations. The required specifications are as follows:
 
-- A six-letter CSD code to identify the material (e.g., `KAXQIL`).
-- Selection of a guest molecule using molecule_name (e.g., `methane`).
+- A six-letter CSD code to identify the material (e.g., `MIBQAR`).
+- Selection of a guest molecule using molecule_name (e.g., `N2`).
 - Setting the temperature (`temperature`).
-- Specifying a pressure range with two values (`pressures`): minimum and maximum pressure.
+- Specifying a pressure range with two values (`pressure`): minimum and maximum pressure.
 - Determining the number of points to calculate on the isotherm (`npoints`).
 
 > Note : `parameters` and `defaults` have been divided for the following purpose : if there are lists of parameters in the `parameters` field (e.g., multiple materials), the program will generate simulation folders for each unique combination of `parameters`.

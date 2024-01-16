@@ -63,7 +63,7 @@ def check_input_raspa(molecule_name_list):
     basenames = ([os.path.basename(filename).split('.def')[0] for filename in os.listdir(f"{os.environ.get('RASPA_PARENT_DIR')}/share/raspa/molecules/TraPPE/")])
     for molecule_name in molecule_name_list: 
         assert molecule_name in basenames, 'The molecule {molecule_name} is not found in TraPPE.'
-    
+
 def parse_json_2(filename):
     """
     Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
@@ -255,4 +255,3 @@ def create_dir(dict_parameters,data_dir,simulation_name_length=4,verbose=False):
         if verbose:
             print(f"New file '{index_file}' created.")
     return work_dir
-
