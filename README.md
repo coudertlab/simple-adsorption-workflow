@@ -161,6 +161,31 @@ The json files containing the data to be merged (single pressure data points) ar
 
 - `molecule_name` : a list of gas molecule names. 
 By default, the force field for adsorbate molecules is TraPPE. Therefore a file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
+- `forcefield` : the key name of the predefined force field in RASPA. The force field are stored in `$RASPA_PARENT_DIR/share/raspa/forcefield/` and here the list of possible key names :
+    - AmirjalayerSchmid
+    - CastilloVlugtCalero2009
+    - CoreShellCatlow
+    - CoreShellSastreGale2005
+    - CoreShellSchroderSauer
+    - CrystalGenerator
+    - Dubbeldam2007FlexibleIRMOF-1
+    - Dubbeldam2007FlexibleIRMOF-10
+    - Dubbeldam2007FlexibleIRMOF-16
+    - Dubbeldam2012MIL-100
+    - Dubbeldam2012MIL-101
+    - Dzubak2012-IRMOF-1
+    - Dzubak2012-MgMOF-74
+    - Dzubak2012-MgMOF-74-extended
+    - Dzubak2012-ZnMOF-74
+    - GarciaPerez2006
+    - GenericMOFs
+    - GenericZeolites
+    - MgMOF-74-Yazaydin
+    - Nicholas
+    - Pascual2004
+    - RigidIonKramer1991
+    - TraPPE
+
 - others parameters in section `defaults` : all other parameters that can be modified through a template.
   The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file:
 ```
@@ -338,6 +363,7 @@ What other data/metadata should be added  ?
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
-- Use user-provided CIF structure files: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
+- Use a user-provided CIF structure file: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
 - Use partial charges (calculated automatically or found in MOF databases) to set the electrostatic interations between atoms. This is a major limitations, which will be solved in the close future.
+- Use a user-defined force field
 
