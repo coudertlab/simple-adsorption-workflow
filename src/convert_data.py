@@ -237,7 +237,7 @@ def transform_grouped_data(grouped_data):
     
     return combined_result
 
-def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json'):
+def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isotherm_dir=None):
     '''
     Group data along the 'pressure' key.
 
@@ -249,7 +249,7 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json'):
     '''
 
     # Create isotherms directory if not already exist
-    isotherm_dir = f"{args.output_dir}/isotherms"
+    if isotherm_dir is None: isotherm_dir = f"{args.output_dir}/isotherms"
     os.makedirs(isotherm_dir,exist_ok=True)
 
     with open(file) as f:

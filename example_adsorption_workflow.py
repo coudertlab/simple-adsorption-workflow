@@ -21,12 +21,22 @@ def main():
         Run the script to execute the workflow based on provided input arguments.
     """
     args = parse_arguments()
-    cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
-    run_simulations(args,sim_dir_names)                     # STEP 2
-    output_isotherms_to_csv(args,sim_dir_names)             # STEP 3
-    export_simulation_result_to_json(args,sim_dir_names,verbose=False)
-    output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
-    get_geometrical_features(args,cif_names)                # STEP 4
+
+    # Run simulations
+    if args.command == "run": 
+        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
+        run_simulations(args,sim_dir_names)                     # STEP 2
+        output_isotherms_to_csv(args,sim_dir_names)             # STEP 3
+        export_simulation_result_to_json(args,sim_dir_names,verbose=False)
+        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
+        get_geometrical_features(args,cif_names)                # STEP 4
+
+    # Merge workflow outputs
+    elif args.command == "merge":
+        merged_json = merge_json(args,args.input_files[0],args.input_files[1])
+        nb_isotherms = output_isotherms_to_json(args,f'{args.output_dir}/run_merged.json',
+                                                isotherm_filename=f'isotherms.json',
+                                                isotherm_dir='./')
 
 if __name__ == "__main__":
     main()

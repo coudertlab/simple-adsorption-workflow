@@ -14,17 +14,25 @@ def parse_arguments():
     """
     default_directory = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_data"
     parser = argparse.ArgumentParser(description="Simple workflow to calculate gas adsorption in porous crystals.")
-    parser.add_argument("-i", "--input-file", help="path to a json input file") #default=f"{default_directory}/input.json",
-    parser.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
-    
-    # Tests
-    parser.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
-    parser.add_argument("-t2","--test-output-json"  , action="store_true", help="run test to create JSON outputs")
-    parser.add_argument("-t3","--test-merge-json"   , action="store_true", help="run test to merge json databases")
+    subparsers = parser.add_subparsers(dest='command')
+
+    # create the parser for the run command
+    parser_run = subparsers.add_parser('run', help='Run molecular simulations.')
+    parser_run.add_argument("-i", "--input-file", help="path to a json input file") #default=f"{default_directory}/input.json",
+    parser_run.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
+    parser_run.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
+    parser_run.add_argument("-t2","--test-output-json", action="store_true", help="run test to create JSON outputs")
+
+    # create the parser for the merge command
+    parser_merge = subparsers.add_parser('merge', help='Merge workflow outputs.')
+    parser_merge.add_argument("-i", "--input-files", nargs=2, help="path to two JSON workflow outputs")
+    parser_merge.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
+    parser_merge.add_argument("-t3","--test-merge-json", action="store_true", help="run test to merge json databases")
 
     # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
 
+    # Parse the command-line arguments
     args = parser.parse_args()
 
     # Create a dictionary mapping flags to test functions
@@ -34,33 +42,30 @@ def parse_arguments():
         'test_merge_json':    run_test_merge_json
     }
 
-    # Input file tests
-    if (args.input_file is not None and not os.path.exists(args.input_file)):
-        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
-        parser.print_help()
-        exit(1)
-    if args.input_file is not None and not os.path.isabs(args.input_file):
-        args.input_file = os.path.abspath(args.input_file)
-
-    # Test with no input files
-    if args.input_file == None:
-        nb_tests = 0
-        for arg_name, test_func in test_functions.items():
-            if getattr(args, arg_name):
-                nb_tests+=1
-        if nb_tests == 0 :
-            print(f"Input file not provided. Provide a correct input file using -i option.")
-            parser.print_help()
-            exit(1)
-
-    # Execute corresponding tests
-    for arg_name, test_func in test_functions.items():
-        if getattr(args, arg_name):
+    # Execute tests
+    for arg_name,value in vars(args).items():
+        if arg_name in test_functions.keys() and value==True:
             # Change the name of the output directory to identify a test
             if args.output_dir == default_directory:
                 args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{arg_name}"
-            test_func(args)
-            nb_test+=1
+            test_functions[arg_name](args)
+
+    # Check input files
+    if args.command=='run' and args.input_file is not None and not os.path.exists(args.input_file):
+        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
+        parser.print_help()
+        exit(1)
+
+    # Change relative paths to absolute paths
+    if args.command=='run' and args.input_file is not None:  # run
+        args.input_file = os.path.abspath(args.input_file)
+    elif args.command=='merge' and args.input_files is not None: # merge
+        for i in range(len(args.input_files)):
+            args.input_files[i] = os.path.abspath(args.input_files[i])
+    else :
+        print(f"Input file not provided. Provide a correct input file using -i option.")
+        parser.print_help()
+        exit(1)
 
     return args
 

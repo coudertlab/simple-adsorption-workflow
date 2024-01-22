@@ -93,15 +93,28 @@ In this workflow, there are certain restrictions in order to keep the simulation
 These restrictions and assumptions aim to streamline the simulations and simplify the modeling process.
 
 ## Workflow example
+
+### Run simulations
 ```Bash
-python $PACKAGE_DIR/example_adsorption_workflow.py
+python $PACKAGE_DIR/example_adsorption_workflow.py run
 ```
 To specify input and output locations :
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py -i path/to/myinput.json -o path/to/data/directory
+python $PACKAGE_DIR/example_adsorption_workflow.py run -i <path/to/myinput>.json -o <path/to/data/directory>
 ```
 By default, when the flag `-o` is not provided,   a new directory will be created with the following formatting name : `./<Date>_<Time>_<Runtype>/` .
 The run type <Runtype> is `data` for normal runs and `<name_of_test>` for tests cases.
+
+### Merge outputs from two independent runs
+
+```
+python $PACKAGE_DIR/example_adsorption_workflow.py merge -i run<index1>.json run<index2>.json -o ./
+```
+Two files will be created :
+- `run_merged.json` : the workflow file with all single-point outputs
+- `isotherms.json` : the isotherms file
+
+## Workflow diagram
 
 The schematic diagram (Fig. 1) outlines the primary functions executed within the workflow:
 
@@ -119,7 +132,7 @@ The schematic diagram (Fig. 1) outlines the primary functions executed within th
 
   
 <p align="center">
-  <img src="./figures/diagram_workflow_v2.png" alt="Diagram of the workflow" width="1058" height="595" />
+  <img src="./figures/diagram_workflow_v2.png" alt="Diagram of the workflow" width="800" />
 </p>
 <p align="center"><i>Figure 1: Diagram of the workflow. </i></p>
 
@@ -130,7 +143,7 @@ The schematic diagram (Fig. 1) outlines the primary functions executed within th
 It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in CSV files. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository. The geometrical features are also stored in a CSV format, and 
 To run it, use `-t` or `--test-isotherms-csv` flags: 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py -t
+python $PACKAGE_DIR/example_adsorption_workflow.py run -t
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_csv/`.
 
@@ -140,7 +153,7 @@ It runs 20 simulations on RASPA then stores the results in a single JSON file. I
 
 To run it, use the `-t2` or `--test-isotherm-json` flag : 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py -t2
+python $PACKAGE_DIR/example_adsorption_workflow.py run -t2
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`.
 
@@ -148,7 +161,7 @@ The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`
 
 To run it, use the `-t3` or `--test-merge-json` flag : 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py -t3
+python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3
 ```
 The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/simulations/`.
 
