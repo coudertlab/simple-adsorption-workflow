@@ -22,6 +22,8 @@ def parse_arguments():
     parser_run.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
     parser_run.add_argument("-t", "--test-isotherms-csv", action="store_true", help="run test to create isotherms in CSV format")
     parser_run.add_argument("-t2","--test-output-json", action="store_true", help="run test to create JSON outputs")
+    parser_run.add_argument("-t4","--test-charges", action="store_true", help="run test to create CIFs with EQeq partial charges")
+
 
     # create the parser for the merge command
     parser_merge = subparsers.add_parser('merge', help='Merge workflow outputs.')
@@ -39,7 +41,8 @@ def parse_arguments():
     test_functions = {
         'test_isotherms_csv': run_test_isotherms_csv,
         'test_output_json':   run_test_output_json,
-        'test_merge_json':    run_test_merge_json
+        'test_merge_json':    run_test_merge_json,
+        'test_charges'   :     run_test_charges,
     }
 
     # Execute tests

@@ -28,7 +28,7 @@ def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     errors_one_output={}
     sim_dir = f"{data_dir}/simulations/"
     if sim_dir_names is not None :
-        all_dirs = sim_dir_names    
+        all_dirs = sim_dir_names
     else :
         all_dirs = [ name for name in os.listdir(sim_dir) if os.path.isdir(os.path.join(sim_dir, name))]
     for dir in all_dirs:

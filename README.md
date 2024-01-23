@@ -17,16 +17,28 @@ Part of the code presented here was heavily inspired by [RASPA python wrapper](h
 ```bash
 conda create -n simple-adsorption-workflow python=3.9
 ```
-
+- Use conda to install Openbabel (>=3.1)
+```
+conda activate simple-adsorption-workflow
+conda install openbabel
+```
 - Use pip to install the libraries listed in `requirements.txt` in the conda environment:
 ```bash
-conda activate simple-adsorption-workflow
 pip install -r requirements.txt
 ```
 
-- Download and compile Zeo++ at [http://www.zeoplusplus.org/download.html](http://www.zeoplusplus.org/download.html). To inform the workflow of the executable `network`s path, modify the corresponding line in `set_environment`:
+- Download and compile Zeo++ at [http://www.zeoplusplus.org/download.html](http://www.zeoplusplus.org/download.html). To inform the workflow of the executable `network` path, modify the corresponding line in `set_environment`:
 ```
 export ZEO_DIR=/opt/zeo++-0.3
+```
+
+- Install the EQeq python wrapper
+  - Clone [EQeq](https://github.com/ahardiag/EQeq) repo and modify the corresponding line in `set_environment` file.
+  - Compile the shared C++ library :
+```
+g++ -c -fPIC main.cpp -O3 -o eqeq.o
+g++ -shared -Wl,-soname,libeqeq.so -O3 -o libeqeq.so eqeq.o
+sudo cp libeqeq.so /usr/lib
 ```
 
 - Define the environment variables:
@@ -138,8 +150,7 @@ The schematic diagram (Fig. 1) outlines the primary functions executed within th
 
 ## Tests
 
-### Recover isotherms from CSV : `--test-isotherm-csv`
-
+### Recover isotherms from CSV
 It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in CSV files. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository. The geometrical features are also stored in a CSV format, and 
 To run it, use `-t` or `--test-isotherms-csv` flags: 
 ```bash
@@ -147,7 +158,7 @@ python $PACKAGE_DIR/example_adsorption_workflow.py run -t
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_csv/`.
 
-### Recover isotherms from JSON : `--test-isotherm-json`
+### Recover isotherms from JSON
 
 It runs 20 simulations on RASPA then stores the results in a single JSON file. It then reconstructs the isotherms and store the results in JSON format.
 
@@ -157,13 +168,19 @@ python $PACKAGE_DIR/example_adsorption_workflow.py run -t2
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`.
 
-### Merge and plot isotherms from two workflow runs : `--test-merge-json`
+### Merge and plot isotherms from two workflow runs
 
 To run it, use the `-t3` or `--test-merge-json` flag : 
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3
 ```
 The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/simulations/`.
+
+
+### Calculate the partial charges using the EQeq method
+```bash
+python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges
+```
 
 ### Documentation
 

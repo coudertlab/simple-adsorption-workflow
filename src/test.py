@@ -6,6 +6,7 @@ from src.input_parser import *
 from src.convert_data import *
 from src.zeopp import *
 from src.plot import *
+from src.charge import *
 
 def run_test_isotherms_csv(args):
     """
@@ -150,3 +151,24 @@ def compare_json_subtrees(file1, file2, subtree):
     if unique_key_names != {"'uptake(cm^3 (STP)/cm^3 framework)'","'simkey'"}:
         print(unique_key_names)
         raise ValueError(f"The '{subtree}' section differs between files {file1} and file {file2}.")
+
+def run_test_charges(args):
+    """
+    Run a test that parse the JSON file, and run EQeq calculations on all structures.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+
+    print(f"------------------------ Running tests ------------------------\n")
+    try:
+        if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
+        print(f"Reading input file in {args.input_file}")
+        cif_names, sim_dir_names = prepare_input_files(args)
+        run_EQeq(args.output_dir+'/cif')
+        print("Tests succeeded")
+    except Exception as e:
+        print(traceback.format_exc())
+        print("Tests NOT succeeded")
+    print(f"------------------------ End of tests ------------------------\n")
+    exit(0)
