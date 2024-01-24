@@ -8,6 +8,7 @@ from math import ceil
 import pandas as pd
 import secrets
 import warnings
+from src.charge import *
 
 try:
     from ccdc import io
@@ -21,10 +22,11 @@ def parse_json(filename,cifnames):
 
     Args:
         filename (str): The name of the JSON file to parse.
-        cifnames (list): List of CIF names. For a input structure in the input file, one can find several CIFs in a database.
+        cifnames (list): A subset of CIF filenames (useful when we want select 
+                         the CIFs post-processed in the workflow, e.g. with charges)
 
     Returns:
-        list: A list of dictionaries, each representing a combination of parameter values.
+        l_dict_parameters (list): A list of dictionaries, each representing a combination of parameter values.
     """
 
     with open(filename, 'r') as f:
@@ -42,9 +44,9 @@ def parse_json(filename,cifnames):
     npoints = dict_parameters["npoints"]
     dict_parameters["pressure"] = [Pmin + (Pmax - Pmin) * i / (npoints - 1) for i in range(npoints)]
 
-    # Check conistency of RASPA inputs
-    check_input_raspa(dict_parameters["molecule_name"])    
-    
+    # Check consistency of RASPA inputs
+    check_input_raspa(dict_parameters["molecule_name"])
+
     # Generate combinations
     combinations = list(product(*(value if isinstance(value, list) else [value] for value in dict_parameters.values())))
 
@@ -100,7 +102,8 @@ def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
     structures = data["parameters"]["structure"]
     
     # Create directory where CIF files are stored
-    os.makedirs(f"{data_dir}/cif/",exist_ok=True)
+    cif_dir = f"{data_dir}/cif/"
+    os.makedirs(cif_dir,exist_ok=True)
 
     # Download CIF files from databases
     cifnames_nested = []
@@ -112,9 +115,35 @@ def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
         else:
             raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
 
+    # Charge assignment
+    try :
+        charge_method = data["parameters"]["charge_method"]
+    except Exception as e:
+        charge_method = None
+    if charge_method is not None:
+        cifnames_nested = cif_with_charges(cif_dir,method=charge_method)
+
     # Get only the basename of CIF files
     cifnames = [item for sublist in cifnames_nested for item in sublist]
     cifnames = [path.split('/')[-1].split('.cif')[0] for path in cifnames]
+    return cifnames
+
+def cif_with_charges(cif_dir,method='EQeq'):
+    '''
+    Returns only the subset of cif filenames containing partial charges.
+
+    Args:
+        cif_dir (str): The absolute path of the directory where CIFs are stored
+        method (str) : A keyword to select the charge assignment method;
+                        possible values : 'EQeq'
+    Returns:
+        cifnames (list): A list CIF filenames
+    '''
+    if method == 'EQeq':
+        print('Running EQeq calculations ...')
+        run_EQeq(cif_dir,output_type="files")
+        cifnames = glob.glob(f"{cif_dir}/*EQeq*.cif")
+        print(f'Partial charges with method {method} have been calculated for {len(cifnames)} structures.')
     return cifnames
 
 def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=False):

@@ -165,6 +165,7 @@ def run_test_charges(args):
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)
+        print(cif_names)
         run_EQeq(args.output_dir+'/cif')
         print("Tests succeeded")
     except Exception as e:

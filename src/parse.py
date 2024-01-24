@@ -48,27 +48,15 @@ def parse_arguments():
     # Execute tests
     for arg_name,value in vars(args).items():
         if arg_name in test_functions.keys() and value==True:
+            # Check if input file exists; if no inputs provided, default ones are defined in each test
+            if args.input_file is not None : _check_input_file(parser,args)
             # Change the name of the output directory to identify a test
             if args.output_dir == default_directory:
                 args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{arg_name}"
             test_functions[arg_name](args)
 
-    # Check input files
-    if args.command=='run' and args.input_file is not None and not os.path.exists(args.input_file):
-        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
-        parser.print_help()
-        exit(1)
-
-    # Change relative paths to absolute paths
-    if args.command=='run' and args.input_file is not None:  # run
-        args.input_file = os.path.abspath(args.input_file)
-    elif args.command=='merge' and args.input_files is not None: # merge
-        for i in range(len(args.input_files)):
-            args.input_files[i] = os.path.abspath(args.input_files[i])
-    else :
-        print(f"Input file not provided. Provide a correct input file using -i option.")
-        parser.print_help()
-        exit(1)
+    # Check if the input file exists
+    _check_input_file(parser,args)
 
     return args
 
@@ -86,3 +74,21 @@ def check_environment_variables(env_var_list):
     missing_variables = [var for var in env_var_list if var not in os.environ]
     if missing_variables:
         raise EnvironmentError(f"The following required environment variables are missing: {', '.join(missing_variables)}")
+
+def _check_input_file(parser,args):
+    # Check input files
+    if args.command=='run' and args.input_file is not None and not os.path.exists(args.input_file):
+        print(f"Input file '{args.input_file}' does not exist. Provide a correct input file using -i option.")
+        parser.print_help()
+        exit(1)
+
+    # Change relative paths to absolute paths
+    if args.command=='run' and args.input_file is not None:  # run
+        args.input_file = os.path.abspath(args.input_file)
+    elif args.command=='merge' and args.input_files is not None: # merge
+        for i in range(len(args.input_files)):
+            args.input_files[i] = os.path.abspath(args.input_files[i])
+    else :
+        print(f"Input file not provided. Provide a correct input file using -i option.")
+        parser.print_help()
+        exit(1)
