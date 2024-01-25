@@ -9,6 +9,7 @@ import pandas as pd
 import secrets
 import warnings
 from src.charge import run_EQeq
+import numpy as np
 
 # Careful with these lines, since bugs might appear with C++ shared library call
 try:
@@ -124,7 +125,7 @@ def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
         charge_method = data["parameters"]["charge_method"]
     except Exception as e:
         charge_method = None
-    if charge_method is not None:
+    if charge_method not in ["None","",None]:
         cifnames = cif_with_charges(cif_dir=cif_dir,method=charge_method)
 
     cifnames = [os.path.splitext(path)[0].split('/')[-1] for path in cifnames]
@@ -177,6 +178,8 @@ def cif_with_charges(cif_dir,method='EQeq'):
     '''
     if method == 'EQeq':
         cifnames = run_EQeq(cif_dir,verbose=False)
+    else :
+        raise ValueError('Invalid charge method keyword. Expected values : "None","" or "EQeq"')
     return cifnames
 
 def cif_from_csd(structure, data_dir, search_by="identifier"):

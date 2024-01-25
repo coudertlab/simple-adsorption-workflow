@@ -9,6 +9,10 @@ import datetime
 import subprocess
 from mofdb_client import fetch
 
+
+# List of parameters to adjust to group data and define isotherm arrays
+ISOTHERM_VARS = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
+
 def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     """
     Returns statistics of warning, errors in simulations.
@@ -116,8 +120,8 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     df = pd.read_csv(f'{args.output_dir}/simulations/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
-    param_columns = df.columns.difference(['pressure', 'simkey']).to_list()
-    grouped = df.groupby(param_columns)
+    param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
+    grouped = df.groupby(param_columns,dropna=False)
 
     # Create an index file for isotherms
     df_isot = pd.DataFrame()
@@ -127,6 +131,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         series_metadata_isot["simkeys"] = simkeys.to_numpy()
         series_metadata_isot["isokey"] = "iso" + secrets.token_hex(4)
         df_isot = df_isot.append(series_metadata_isot)
+
     if  os.path.isfile(f'{isotherm_dir}/index.csv'):
         df_isot.to_csv(f'{isotherm_dir}/index.csv',index=False,header=False,mode = 'a')
     else :
@@ -265,10 +270,8 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isothe
     df.sort_values(by="Pressure(Pa)",inplace=True)
 
     if debug==True : print(df)
-    # This choice of columns is crucial to properly set the group splitting
-    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints','charge_method']
-    param_columns = df.columns.difference(columns_to_ignore).to_list()
-    grouped = df.groupby(param_columns)
+    param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
+    grouped = df.groupby(param_columns,dropna=False)
 
     all_isotherms = {"isotherms":[]}
     for group,data_group in grouped:
@@ -278,7 +281,7 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isothe
         isotherm_dict["isokey"] = isokey
         all_isotherms["isotherms"].append(isotherm_dict)
     #print(json.dumps(all_isotherms,indent=4))
-    with open(f'{isotherm_dir}/{isotherm_filename}', 'a') as f:
+    with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
         json.dump(all_isotherms, f, indent=4)
     print(f"Data for {len(all_isotherms['isotherms'])} isotherms have been saved in {isotherm_dir}/{isotherm_filename}")
 
