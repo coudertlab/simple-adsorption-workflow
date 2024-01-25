@@ -16,12 +16,9 @@ Part of the code presented here was heavily inspired by [RASPA python wrapper](h
 - Create a conda environment with Python 3.9:
 ```bash
 conda create -n simple-adsorption-workflow python=3.9
-```
-- Use conda to install Openbabel (>=3.1)
-```
 conda activate simple-adsorption-workflow
-conda install openbabel
 ```
+
 - Use pip to install the libraries listed in `requirements.txt` in the conda environment:
 ```bash
 pip install -r requirements.txt
@@ -30,15 +27,6 @@ pip install -r requirements.txt
 - Download and compile Zeo++ at [http://www.zeoplusplus.org/download.html](http://www.zeoplusplus.org/download.html). To inform the workflow of the executable `network` path, modify the corresponding line in `set_environment`:
 ```
 export ZEO_DIR=/opt/zeo++-0.3
-```
-
-- Install the EQeq python wrapper
-  - Clone [EQeq](https://github.com/ahardiag/EQeq) repo and modify the corresponding line in `set_environment` file.
-  - Compile the shared C++ library :
-```
-g++ -c -fPIC main.cpp -O3 -o eqeq.o
-g++ -shared -Wl,-soname,libeqeq.so -O3 -o libeqeq.so eqeq.o
-sudo cp libeqeq.so /usr/lib
 ```
 
 - Define the environment variables:
@@ -181,6 +169,7 @@ The json files containing the data to be merged (single pressure data points) ar
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges
 ```
+The output of the EQeq code should appear with the atom types and the atomic experimental properties used for the calibration of the method.
 
 ### Documentation
 
@@ -381,6 +370,23 @@ This is just a transformation in the way data is printed in JSON keys, all data 
 ```
 
 > Notes : In this version of the workflow, the metadata are lost, so JSON isotherms can be used for quick plot but should not be used to store long-term data. For this purpose the database JSON file is appropriate.
+
+#### Charge Assignment
+
+The partial charges can be calculated automatically given the atomic positions. To use this option ,add the following key with the corresponding keyword in the JSON input : 
+```
+...
+    "parameters":
+        {
+        ...
+        "charge_method":<keyword>
+        }
+...
+```
+##### EQeq
+keyword : `"EQeq"`
+It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from this [python wrapper](https://github.com/lsmo-epfl/EQeq).
+It will duplicate the CIF files present in `./cif` directory with a suffix name related to the method, e.g. `MIBQAR16_clean_coremof-2019.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 and -2 as the hydrogen electron affinity.
 
 ##### Further development
 

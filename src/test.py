@@ -1,6 +1,6 @@
 from deepdiff import DeepDiff
 import traceback
-import os
+import os,glob
 from src.wraspa2 import *
 from src.input_parser import *
 from src.convert_data import *
@@ -159,14 +159,12 @@ def run_test_charges(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-
     print(f"------------------------ Running tests ------------------------\n")
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)
-        print(cif_names)
-        run_EQeq(args.output_dir+'/cif')
+        run_EQeq(f'{args.output_dir}/cif',verbose=True)
         print("Tests succeeded")
     except Exception as e:
         print(traceback.format_exc())

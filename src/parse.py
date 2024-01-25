@@ -49,7 +49,11 @@ def parse_arguments():
     for arg_name,value in vars(args).items():
         if arg_name in test_functions.keys() and value==True:
             # Check if input file exists; if no inputs provided, default ones are defined in each test
-            if args.input_file is not None : _check_input_file(parser,args)
+            try:
+                if args.input_file is not None :
+                    _check_input_file(parser,args)
+            except Exception as e:
+                pass
             # Change the name of the output directory to identify a test
             if args.output_dir == default_directory:
                 args.output_dir = f"{os.getcwd()}/{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{arg_name}"

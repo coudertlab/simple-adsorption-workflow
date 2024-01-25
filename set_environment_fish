@@ -3,7 +3,6 @@
 # Modify the following lines to reflect the accurate paths to the libraries on your system
 set -gx RASPA_PARENT_DIR /opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 set -gx ZEO_DIR /opt/zeo++-0.3
-set -gx EQEQ /opt/EQeq
 
 # Fill with the python executable with the correct environment (satisfying requirements.txt)
 #set -gx PACKAGE_PYTHON_DIR $CONDA_PREFIX/bin/python
@@ -15,6 +14,3 @@ set -gx LD_LIBRARY_PATH $RASPA_DIR/lib
 
 # Make visible the path to all python scripts
 set -gx PACKAGE_DIR (realpath (dirname (status -f)))
-
-# Make visible the python wrapper and libraries of EQeq
-set -gx PYTHONPATH $EQEQ/.. $EQEQ

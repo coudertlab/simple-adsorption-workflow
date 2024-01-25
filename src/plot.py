@@ -4,7 +4,7 @@ import warnings
 import json
 import pandas as pd
 
-def plot_isotherm(isotherm_json,suptitle=None):
+def plot_isotherm(isotherm_json,suptitle=None,figsize=(10,6)):
     '''
     Plot all isotherms with a default settings for legend, colors and markers.
 
@@ -22,7 +22,7 @@ def plot_isotherm(isotherm_json,suptitle=None):
     cmap = plt.colormaps['tab20']
     colors  = [cmap(i) for i in range(n_isotherms)]
     ms = list(markers.MarkerStyle.markers)[:n_isotherms]
-    fig,ax = plt.subplots()
+    fig,ax = plt.subplots(figsize=figsize)
     x = "Pressure(Pa)"
     y = "uptake(cm^3 (STP)/cm^3 framework)"
     for i,row in df_json.iterrows():
