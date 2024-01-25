@@ -237,7 +237,8 @@ def transform_grouped_data(grouped_data):
     
     return combined_result
 
-def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isotherm_dir=None):
+def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isotherm_dir=None,
+                             debug=False):
     '''
     Group data along the 'pressure' key.
 
@@ -263,13 +264,15 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isothe
     # This step helps plotting the data
     df.sort_values(by="Pressure(Pa)",inplace=True)
 
+    if debug==True : print(df)
     # This choice of columns is crucial to properly set the group splitting
-    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
+    columns_to_ignore = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints','charge_method']
     param_columns = df.columns.difference(columns_to_ignore).to_list()
     grouped = df.groupby(param_columns)
 
     all_isotherms = {"isotherms":[]}
     for group,data_group in grouped:
+        if debug==True :print(group)
         isokey = "iso" + secrets.token_hex(4)
         isotherm_dict = transform_grouped_data(data_group)
         isotherm_dict["isokey"] = isokey
