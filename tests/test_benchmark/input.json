@@ -1,0 +1,23 @@
+{
+    "parameters":
+        {
+        "structure":[ "ABAVIJ",
+                      "ABAYIO",
+                      "ABAYOU",
+                      "ABEFUL",
+                      "ABESUX"],
+        "molecule_name": ["N2","methane"],
+        "pressure": [10,1E6],
+        "npoints":10,
+        "temperature": [298.15,77]
+        }
+        ,
+    "defaults":
+        {
+            "unit_cells":[1,1,1],
+            "forcefield":"GenericMOFs",
+            "init_cycles":10000,
+            "cycles":10000,
+            "print_every":5000
+        }
+}
