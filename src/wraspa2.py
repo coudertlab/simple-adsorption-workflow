@@ -60,33 +60,35 @@ def prepare_input_files(args):
     This function creates the necessary input files and directories for running gas adsorption simulations
     using RASPA. It performs the following steps:
     1. Creates the output directory if it doesn't exist.
-    2. Retrieves CIF files from the structures provided in the JSON input file.
-    3. Parses the JSON input file and extracts input parameters for simulations.
-    4. Generates simulation directories, copies CIF files, and creates input scripts for RASPA.
-    5. Creates job scripts for running simulations on multiple CPUs.
+    2. Parses the JSON input file and extracts input parameters for simulations.
+    3. Fetch the cif files from a database and get partial charges.
+    4. Generates the simulation directories, copies CIF files, and creates the input scripts for RASPA.
+    5. Creates the job scripts for running simulations on multiple CPUs.
 
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
 
     Returns:
-        list: List of simulation directory names.
+        cifnames (list) : List of structure names from the database
+        sim_dir_names (list): List of simulation directory names.
     """
+    # 1. Creates the output directory if it doesn't exist.
     try:
         os.makedirs(args.output_dir, exist_ok=False)
     except FileExistsError as e :
         print("The existing folder cannot be overwritten!")
         raise(e)
-    print(f"Storing data in {args.output_dir}\n")
+    print(f"Output directory : {args.output_dir}")
 
-    # Get CIF files from the structures provided in the JSON file
-    cif_names = cif_from_json(args.input_file, args.output_dir,
-                             database='mofxdb', substring="coremof-2019",
-                             verbose=False)
+    # 2. Parses the JSON input file and extracts input parameters for simulations.
+    l_dict_parameters = parse_json(args.input_file)#, cifnames=cif_names)
 
-    # Parse the JSON file and extract input parameters
-    l_dict_parameters = parse_json(args.input_file, cifnames=cif_names)
+    # 3. Fetch the cif files from a database and get partial charges.
+    cifnames,l_dict_parameters = get_cifs(l_dict_parameters,args.output_dir,
+                                 database='mofxdb', substring="coremof-2019",
+                                 verbose=False)
 
-    # Create inputs for RASPA for each set of parameters
+    # 4. Generates the simulation directories, copies CIF files, and creates the input scripts for RASPA.
     sim_dir_names = []
     for dict_parameters in l_dict_parameters:
         # Get CIF name
@@ -102,10 +104,10 @@ def prepare_input_files(args):
         create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
         create_run_script(path=work_dir, save=True)
 
-    # Create a job script for all simulations (each using 1 CPU)
+    # 5. Creates the job scripts for running simulations on multiple CPUs.
     create_job_script(args.output_dir, sim_dir_names)
 
-    return cif_names, sim_dir_names
+    return cifnames,sim_dir_names
 
 def run_simulations(args,sim_dir_names):
     """

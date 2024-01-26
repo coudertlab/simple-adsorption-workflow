@@ -8,7 +8,7 @@ from math import ceil
 import pandas as pd
 import secrets
 import warnings
-from src.charge import run_EQeq
+from src.charge import *
 import numpy as np
 
 # Careful with these lines, since bugs might appear with C++ shared library call
@@ -18,7 +18,10 @@ try:
 except Exception as e:
     print(e)
 
-def parse_json(filename,cifnames):
+# Allowed keywords for charge method
+CHARGE_METHOD = ["EQeq","None","",None,"QMOF"]
+
+def parse_json(filename):#,cifnames):
     """
     Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
 
@@ -35,9 +38,6 @@ def parse_json(filename,cifnames):
         data = json.load(f)
     dict_default = data["defaults"]
     dict_parameters = data["parameters"]
-
-    # Correct structure names to be compatible with the cif search
-    dict_parameters["structure"] = cifnames
 
     # Check if 'pressure' has exactly two values
     if len(dict_parameters['pressure']) != 2:
@@ -84,6 +84,8 @@ def parse_json_2(filename):
 
 def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
     """
+    DEPRECATED.
+
     Generate CIF files from a JSON file containing structures.
 
     Args:
@@ -117,19 +119,99 @@ def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
         else:
             raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
 
+def get_cifs(l_dict_parameters, data_dir, database='mofxdb', **kwargs):
+    """
+    Generate CIF files from a JSON file containing structures.
+
+    Args:
+        l_dict_parameters (list) : a list of dictionaries containing each set of simulation parameters.
+        data_dir (str) : the root path for outputs
+        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','csd'}.
+        **kwargs: Additional keyword arguments passed to cif_from_mofxdb or cif_from_csd.
+
+    Raises:
+        ValueError: If an invalid database name is provided.
+
+    Returns:
+        cifnames_database (list) : a list of structure names from the database
+        l_dict_parameters (list) : a list of dictionaries containing each the set of simulation parameters
+    """
+
+    # Create directory where CIF files are stored
+    cif_dir = f"{data_dir}/cif/"
+    os.makedirs(cif_dir,exist_ok=True)
+
+    # Get all CIF names and assign charge method if not
+    structures = []
+    for dict_params in l_dict_parameters:
+        structures.append(dict_params["structure"])
+        try :
+            _ = dict_params["charge_method"]
+        except Exception as e:
+            dict_params["charge_method"]=None
+    structures = set(structures)
+
+    # Download CIF files from databases
+    cifnames_nested = []
+    for structure in structures:
+        if database == 'mofxdb':
+            cifnames_nested.append(cif_from_mofxdb(structure, data_dir, **kwargs))
+        elif database == 'csd':
+            cifnames_nested.append(cif_from_csd(structure, data_dir, **kwargs))
+        else:
+            raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
+
     # Flat lists
-    cifnames = [item for sublist in cifnames_nested for item in sublist]
+    cifnames_database = [item for sublist in cifnames_nested for item in sublist]
 
-    # Charge assignment
-    try :
-        charge_method = data["parameters"]["charge_method"]
-    except Exception as e:
-        charge_method = None
-    if charge_method not in ["None","",None]:
-        cifnames = cif_with_charges(cif_dir=cif_dir,method=charge_method)
+    print(f"Cif files fetched from {database} : {[cif for cif in _get_basename(cifnames_database)]}")
+    # Charge assignment : first get all charge methods, then compute charges if charges are needed
+    charge_methods = []
+    for dict_params in l_dict_parameters:
+        charge_methods.append(dict_params["charge_method"])
+    charge_methods = set(charge_methods)
 
-    cifnames = [os.path.splitext(path)[0].split('/')[-1] for path in cifnames]
-    return cifnames
+    for charge_method in charge_methods :
+        if charge_method not in ["None","",None]:
+            _ = cif_with_charges(cif_dir=cif_dir,cifnames_input=cifnames_database,
+                                 method=charge_method)
+
+    # Assign the correct CIF file depending on the charge method
+    for dict_params in l_dict_parameters:
+        charge_method = dict_params["charge_method"]
+        structure = dict_params["structure"]
+        if charge_method not in ["None","",None]:
+            # CIF name from charge assignment
+            dict_params["structure"] = _get_cifname_matching(cif_dir,
+                                                             f"*{structure}*{charge_method}*.cif")
+        else:
+            # CIF name from the original database
+            dict_params["structure"] = _get_cifname_matching(cif_dir,f"*{structure}*.cif",
+                                                             exclude_pattern=[el for el in CHARGE_METHOD if el not in ["None","",None]])
+    cifnames_database = _get_basename(cifnames_database)
+    return cifnames_database,l_dict_parameters
+
+def _get_cifname_matching(cif_dir,pattern,exclude_pattern=None):
+    """
+    Sample of a list using match and exclusion terms.
+    """
+    cifs_matched =glob.glob(f'{cif_dir}/{pattern}')
+    if exclude_pattern is None:
+        assert len(cifs_matched) == 1, f'cif name with pattern {pattern} is not unique'
+    elif isinstance(exclude_pattern, str):
+        cifs_matched = [cif for cif in cifs_matched if exclude_pattern not in cif]
+        assert len(cifs_matched) == 1, f'cif name with pattern {exclude_pattern} and exclusion pattern {exclude_pattern} is not unique'
+    elif isinstance(exclude_pattern, list):
+        cifs_matched = [cif for cif in cifs_matched if not any(pattern in cif for pattern in exclude_pattern)]
+        assert len(cifs_matched) == 1, f'cif name with pattern {exclude_pattern} and exclusion patterns {exclude_pattern} is not unique'
+    cifs_matched = _get_basename(cifs_matched)
+    return cifs_matched[0]
+
+def _get_basename(filenames):
+    '''
+    Get basename of a list of files without path and extension.
+    '''
+    return [os.path.splitext(path)[0].split('/')[-1] for path in filenames]
 
 def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=False):
     """
@@ -137,10 +219,10 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     Args:
         structure (str): Name of the structure.
-        data_dir (str): Parent directory
+        data_dir (str): Parent directory.
 
     Returns:
-        None
+        cifnames (list) : A list of cif names with absolute path fetched from the database.
     """
 
     cifnames = []
@@ -151,7 +233,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
         if substring in cifname:
             with open(cifname, 'w') as f:
                 print(mof.cif, file=f)
-                print(f'Cif has been written in {cifname}.')
+                if verbose : print(f'Cif has been written in {cifname}.')
             cifnames.append(cifname)
 
             # Indicate the number of isotherms found in MOFXDB (can be used for reproducibility purposes)
@@ -164,7 +246,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     return cifnames
 
-def cif_with_charges(cif_dir,method='EQeq'):
+def cif_with_charges(cif_dir,cifnames_input,method='EQeq'):
 
     '''
     Returns only the subset of cif filenames containing partial charges.
@@ -177,9 +259,11 @@ def cif_with_charges(cif_dir,method='EQeq'):
         cifnames (list): A list CIF absolute filenames
     '''
     if method == 'EQeq':
-        cifnames = run_EQeq(cif_dir,verbose=False)
-    else :
-        raise ValueError('Invalid charge method keyword. Expected values : "None","" or "EQeq"')
+        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=False)
+    elif method == 'QMOF':
+        cifnames = fetch_QMOF(cifnames_input,verbose=False)
+    else:
+        raise ValueError(f'Invalid charge method keyword. Expected values : {[el for el in CHARGE_METHOD]}')
     return cifnames
 
 def cif_from_csd(structure, data_dir, search_by="identifier"):
@@ -195,7 +279,7 @@ def cif_from_csd(structure, data_dir, search_by="identifier"):
         ValueError: If an invalid search criteria is provided or no entries found for the given search criteria.
 
     Returns:
-        None
+        cifnames (list) : A list of cif names fetched from the database.
     """
 
     search = TextNumericSearch()
@@ -222,23 +306,6 @@ def cif_from_csd(structure, data_dir, search_by="identifier"):
             print(f'Cif has been written in {cifname}.')
         cifnames.append(cifname)
     return cifnames
-
-def get_cifnames(data_dir, substring=""):
-    """
-    Get a list of CIF filenames in a data_dir that match a given substring.
-
-    Args:
-        data_dir (str, optional): Parent directory.
-        substring (str, optional): Substring to match in the filenames. Default is an empty string.
-
-    Returns:
-        list: A list of CIF filenames.
-    """
-    cif_filenames = []
-    for filename in os.listdir(f"{data_dir}/cif/"):
-        if filename.endswith('.cif') and substring in filename:
-            cif_filenames.append(os.path.splitext(filename)[0])
-    return cif_filenames
 
 def get_minimal_unit_cells(cif_path_filename):
     """
