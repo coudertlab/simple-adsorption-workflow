@@ -15,7 +15,7 @@ def run_test_isotherms_csv(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    print(f"------------------------ Running tests ------------------------\n")
+    print(f"------------------------ Running test ---------------------------\n")
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
@@ -25,11 +25,11 @@ def run_test_isotherms_csv(args):
         test_isotherms(args)
         get_geometrical_features(args,cif_names)                # STEP 4
         test_zeopp(args)
-        print("Tests succeeded")
+        print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
-        print("Tests NOT succeeded")
-    print(f"------------------------ End of tests ------------------------\n")
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
     exit(0)
 
 def run_test_output_json(args):
@@ -39,7 +39,7 @@ def run_test_output_json(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    print(f"------------------------ Running tests ------------------------\n")
+    print(f"------------------------ Running test ---------------------------\n")
     try:
         if not args.input_file : args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
         output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/run398c565d.json"
@@ -49,11 +49,11 @@ def run_test_output_json(args):
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
         compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
         output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
-        print("Tests succeeded")
+        print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
-        print("Tests NOT succeeded")
-    print(f"------------------------ End of tests ------------------------\n")
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
     exit(0)
 
 def run_test_merge_json(args):
@@ -66,7 +66,7 @@ def run_test_merge_json(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    print(f"------------------------ Running tests ------------------------\n")
+    print(f"------------------------ Running test ---------------------------\n")
     try:
         json1,json2 =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/simulations/*")
         merged_json = merge_json(args,json1,json2)
@@ -77,11 +77,11 @@ def run_test_merge_json(args):
             plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle)
         assert nb_isotherms == 10,'The number of isotherms after the merge must be 10.'
         print("Found 10 isotherms (< 12  = total number of isotherms in separated JSON files.)")
-        print("Tests succeeded")
+        print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
-        print("Tests NOT succeeded")
-    print(f"------------------------ End of tests ------------------------\n")
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
     exit(0)
 
 def test_zeopp(args):
@@ -159,15 +159,15 @@ def run_test_charges(args):
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
     """
-    print(f"------------------------ Running tests ------------------------\n")
+    print(f"------------------------ Running test ---------------------------\n")
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)
         run_EQeq(f'{args.output_dir}/cif',verbose=True)
-        print("Tests succeeded")
+        print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
-        print("Tests NOT succeeded")
-    print(f"------------------------ End of tests ------------------------\n")
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
     exit(0)

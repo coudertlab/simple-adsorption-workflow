@@ -12,11 +12,11 @@ from src.charge import *
 import numpy as np
 
 # Careful with these lines, since bugs might appear with C++ shared library call
-try:
-    from ccdc import io
-    from ccdc.search import TextNumericSearch
-except Exception as e:
-    print(e)
+#try:
+#    from ccdc import io
+#    from ccdc.search import TextNumericSearch
+#except Exception as e:
+#    print(e)
 
 # Allowed keywords for charge method
 CHARGE_METHOD = ["EQeq","None","",None,"QMOF"]
@@ -164,7 +164,11 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', **kwargs):
     # Flat lists
     cifnames_database = [item for sublist in cifnames_nested for item in sublist]
 
-    print(f"Cif files fetched from {database} : {[cif for cif in _get_basename(cifnames_database)]}")
+    # Stdout
+    print(f"Cif files fetched from {database}")
+    for cif in [cif for cif in _get_basename(cifnames_database)]:
+        print(cif)
+
     # Charge assignment : first get all charge methods, then compute charges if charges are needed
     charge_methods = []
     for dict_params in l_dict_parameters:
@@ -242,7 +246,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     # Add a warning for the structure has no entry in the structural databases
     if len(cifnames)==0:
-        warnings.warn(f"{structure} not found in MOFXDB subset {substring}")
+        raise ValueError(f"{structure} not found in MOFXDB subset {substring}")
 
     return cifnames
 
@@ -259,7 +263,7 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq'):
         cifnames (list): A list CIF absolute filenames
     '''
     if method == 'EQeq':
-        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=False)
+        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=True)
     elif method == 'QMOF':
         cifnames = fetch_QMOF(cifnames_input,verbose=False)
     else:

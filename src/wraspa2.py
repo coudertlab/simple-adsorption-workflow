@@ -81,7 +81,7 @@ def prepare_input_files(args):
     print(f"Output directory : {args.output_dir}")
 
     # 2. Parses the JSON input file and extracts input parameters for simulations.
-    l_dict_parameters = parse_json(args.input_file)#, cifnames=cif_names)
+    l_dict_parameters = parse_json(args.input_file)
 
     # 3. Fetch the cif files from a database and get partial charges.
     cifnames,l_dict_parameters = get_cifs(l_dict_parameters,args.output_dir,
@@ -89,6 +89,7 @@ def prepare_input_files(args):
                                  verbose=False)
 
     # 4. Generates the simulation directories, copies CIF files, and creates the input scripts for RASPA.
+    print("Writing input/running files for RASPA ...")
     sim_dir_names = []
     for dict_parameters in l_dict_parameters:
         # Get CIF name
@@ -111,13 +112,13 @@ def prepare_input_files(args):
 
 def run_simulations(args,sim_dir_names):
     """
-    Run gas adsorption simulations using prepared input files.
+    Run gas adsorption simulations with RASPA using prepared input files.
 
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
         sim_dir_names (list): List of simulation directory names.
     """
-    print(f"Running simulations on {len(sim_dir_names)} cpus ...")
+    print(f"Running {len(sim_dir_names)} jobs with RASPA ...")
     os.chdir(args.output_dir)
     start_time = time.time()
     os.system("./job.sh > sim.log 2>&1")

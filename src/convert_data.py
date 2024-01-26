@@ -50,10 +50,11 @@ def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     non_empty_warnings = {key:value for key,value in warnings_one_output.items() if isinstance(value, list) and len(value) > 0}
     non_empty_errors = {key:value for key,value in errors_one_output.items() if isinstance(value, list) and len(value) > 0}
     
-    if sim_dir_names is not None:
-        print(f'{len(all_dirs)} directories selected in {sim_dir}:')
-    else:
-        print(f'{len(all_dirs)} directories found in {sim_dir}:')
+    if verbose :
+        if sim_dir_names is not None:
+            print(f'{len(all_dirs)} directories selected in {sim_dir}:')
+        else:
+            print(f'{len(all_dirs)} directories found in {sim_dir}:')
 
     print(f"One       output found in {len(dir_one_output):5d} directories.")
     if verbose is True : print(dir_no_outputs);print()
@@ -111,6 +112,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     Returns:
         None
     """
+    print("Parsing RASPA outputs and writing CSV isotherm files ...")
 
     # Create isotherms directory if not already exist
     isotherm_dir = f"{args.output_dir}/isotherms"
@@ -139,7 +141,6 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         if verbose :
             print(f'A new file {isotherm_dir}/index.csv have been created.\n'
                     'A key have been assigned to each isotherms.\n')
-    print(f'Created {df_isot.shape[0]} new isotherms in {isotherm_dir}.')
 
     # Create a CSV file for each isotherms
     df_isot = pd.read_csv(f'{isotherm_dir}/index.csv', skipinitialspace=False)
@@ -161,7 +162,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         df_iso['pressure(bar)'] = df_iso['pressure(Pa)']/100000
         file_out = f'{isotherm_dir}/{row["isokey"]}.csv'
         df_iso.to_csv(file_out,index=False)
-    print(f'Total number of isotherms in {isotherm_dir} : {df_isot.shape[0]}')
+    print(f'Total number of isotherms written in {isotherm_dir} : {df_isot.shape[0]}')
 
 def output_to_json(args,sim_dir_names=None,verbose=False):
     '''
@@ -295,7 +296,10 @@ def reconstruct_isotherms_to_csv(args,sim_dir_names=None):
         args (argparse.Namespace): Parsed command-line arguments.
         sim_dir_names (list, optional): List of simulation directory names.
     """
+    print("Parsing RASPA output files for warnings and errors ...")
     check_simulations(args.output_dir,sim_dir_names, verbose=False)
+
+    print("Parsing RASPA output files and writing a JSON database file ...")
     output_isotherms_to_csv(args,sim_dir_names)
 
 def export_simulation_result_to_json(args,sim_dir_names=None,**kwargs):
@@ -306,7 +310,10 @@ def export_simulation_result_to_json(args,sim_dir_names=None,**kwargs):
         args (argparse.Namespace): Parsed command-line arguments.
         sim_dir_names (list, optional): List of simulation directory names.
     """
+    print("Parsing RASPA output files for warnings and errors ...")
     check_simulations(args.output_dir,sim_dir_names,**kwargs)
+
+    print("Parsing RASPA output files and writing a JSON database file ...")
     output_to_json(args,sim_dir_names,**kwargs)
 
 def get_git_commit_hash():
