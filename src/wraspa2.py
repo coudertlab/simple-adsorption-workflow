@@ -226,7 +226,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   helium_void_fraction=1.0, unit_cells=(1, 1, 1),
                   simulation_type="MonteCarlo", cycles=2000,
                   init_cycles="auto", forcefield="CrystalGenerator",
-                  input_file_type="cif",
+                  charge_method=None,input_file_type="cif",
                   save=False,filename='simulation.input', **kwargs):
     """Creates a RASPA simulation input file from parameters.
 
@@ -258,7 +258,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
     In these cases, look into loading your own simulation input file and
     passing it to `RASPA.run_script`.
     """
-    is_mol = "yes" if input_file_type.lower() == "mol" else "no"
+    charges_from_cif = "yes" if charge_method not in [None,"",""] else "no"
     print_every = cycles // 10
     a, b, c = unit_cells
     if init_cycles == "auto":
@@ -275,7 +275,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   CutOff                        12.8
                   ChargeMethod                  Ewald
                   EwaldPrecision                1e-6
-                  UseChargesFromMOLFile         {is_mol}
+                  UseChargesFromCIFFile         {charges_from_cif}
 
                   Framework                     0
                   FrameworkName                 {structure}
