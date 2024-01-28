@@ -311,20 +311,63 @@ def cif_from_csd(structure, data_dir, search_by="identifier"):
         cifnames.append(cifname)
     return cifnames
 
-def get_minimal_unit_cells(cif_path_filename):
+def get_minimal_unit_cells(cif_path_filename,cutoff=12):
     """
-    Get the minimal supercell multipliers to avoid periodic boundary conditions bias.
-    This is an approximate method that is only valid for the rectangular cell.
-    TODO : implement the extended method for triclinic box, using the output of RASPA simulation with 0 steps.
+    Get the minimal supercell to avoid pbc artifacts in energy calculations.
+    By default, the cutoff is 12 Angstroms. 
+    
+    TODO : change the cutoff if specified in JSON input. 
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=UserWarning, message="crystal system 'triclinic' is not interpreted")
         atoms = read(cif_path_filename)
-    a, b, c, _,_,_ = atoms.cell.cellpar()
-    n_a = ceil(24/ a)
-    n_b = ceil(24/ b)
-    n_c = ceil(24/ c)
-    return [n_a,n_b,n_c]
+    a, b, c, alpha, beta, gamma = atoms.cell.cellpar()
+    mat = mat_from_parameters(a, b, c, alpha, beta, gamma)
+    
+    cx,cy,cz = perpendicular_lengths(mat[0],mat[1],mat[2])
+    nx = ceil(cutoff*2/ cx)
+    ny = ceil(cutoff*2/ cy)
+    nz = ceil(cutoff*2/ cz)    
+    return nx,ny,ny
+
+def mat_from_parameters(a, b, c, alpha, beta, gamma):
+    cos_alpha = np.cos(np.radians(alpha))
+    cos_beta = np.cos(np.radians(beta))
+    sin_gamma = np.sin(np.radians(gamma))
+    cos_gamma = np.cos(np.radians(gamma))
+    
+    omega = np.sqrt(1 - cos_alpha**2 - cos_beta**2 - cos_gamma**2 + 2*cos_alpha*cos_beta*cos_gamma)
+    
+    matrix = np.array([
+        [a, 0, 0],
+        [b*cos_gamma, b*sin_gamma, 0],
+        [c*cos_beta, c*(cos_alpha - cos_beta*cos_gamma)/sin_gamma, c*omega/sin_gamma]
+    ])
+    
+    return matrix
+
+def perpendicular_lengths(a, b, c):
+    axb1 = a[1]*b[2] - a[2]*b[1]
+    axb2 = a[2]*b[0] - a[0]*b[2]
+    axb3 = a[0]*b[1] - a[1]*b[0]
+    axb = np.array([axb1, axb2, axb3])
+    
+    bxc1 = b[1]*c[2] - b[2]*c[1]
+    bxc2 = b[2]*c[0] - b[0]*c[2]
+    bxc3 = b[0]*c[1] - b[1]*c[0]
+    bxc = np.array([bxc1, bxc2, bxc3])
+    
+    cxa1 = c[1]*a[2] - c[2]*a[1]
+    cxa2 = c[2]*a[0] - c[0]*a[2]
+    cxa3 = c[0]*a[1] - c[1]*a[0]
+    cxa = np.array([cxa1, cxa2, cxa3])
+    
+    volume = np.abs(np.dot(a, bxc))
+    cx = volume / np.linalg.norm(bxc)
+    cy = volume / np.linalg.norm(cxa)
+    cz = volume / np.linalg.norm(axb)
+    
+    return [cx, cy, cz]
 
 def create_dir(dict_parameters,data_dir,simulation_name_length=4,verbose=False):
     """
