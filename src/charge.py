@@ -1,4 +1,5 @@
 import os,glob,sys,shutil
+from openbabel import openbabel
 from pyeqeq import run_on_cif
 from io import StringIO
 
@@ -21,28 +22,31 @@ def run_EQeq(cif_dir,cifnames,verbose=False,output_type="files",**kwargs):
     print('Running EQeq calculations ...')
 
     # Capture current stdout
-    original_stdout,original_stderr = sys.stdout,sys.stderr
-    captured_output,captured_error = StringIO(),StringIO()
-    sys.stdout,sys.stderr = captured_output,captured_error
+    if verbose == False :
+        original_stdout,original_stderr = sys.stdout,sys.stderr
+        captured_output,captured_error = StringIO(),StringIO()
+        sys.stdout,sys.stderr = captured_output,captured_error
 
+    # Input filenames must be absolute
+    cifnames = [ _to_absolute_path(cif_dir,cifname,'.cif') for cifname in cifnames]
+    
     # Run EQeq with defaults parameters
     for file in cifnames:
-        if "EQeq" not in file:
-            _ = run_on_cif(file,output_type=output_type,method="ewald",**kwargs)
+        if "EQeq" not in file and "openbabel" not in file:
+            if verbose : print(f"Converting file {file} into Openbabel CIF standard format and running charge equilibration.")
+            new_cif = _convert_cif_standard_format(file)
+            _ = run_on_cif(new_cif, output_type="files", method="ewald")
+    # Clean the directory
+    _clean_cif_directory(cif_dir)
 
-    # Delete other format
-    for file in glob.glob(f'{cif_dir}/*'):
-        if not file.endswith('.cif'):
-            os.remove(file)
     cifnames_new = glob.glob(f"{cif_dir}/*EQeq*.cif")
     print(f'Partial charges with method EQeq have been calculated for {len(cifnames)} structures.')
 
     # Restore stdout
-    sys.stdout,sys.stderr = original_stdout,original_stderr
-    output_text,error_text = captured_output.getvalue(),captured_error.getvalue()
-
-    if verbose == True :
-        print(output_text,error_text)
+    if verbose == False:
+        sys.stdout,sys.stderr = original_stdout,original_stderr
+        output_text,error_text = captured_output.getvalue(),captured_error.getvalue()
+#        print(output_text,error_text)
 
     return cifnames_new
 
@@ -68,3 +72,44 @@ def fetch_QMOF(cifnames,verbose=False):
         cifnames_new.append(cifname_qmof)
     print("\n")
     return cifnames_new
+
+def _convert_cif_standard_format(input_cif,output_type="file"):
+    '''
+    A local function to convert a CIF file using Obenbabel CIF standard format.
+    '''
+    print(input_cif)
+    conv = openbabel.OBConversion()
+    conv.SetInAndOutFormats("cif", "cif")
+    mol = openbabel.OBMol()
+    conv.ReadFile(mol, input_cif)
+    if output_type == "stream" :
+        return conv.WriteString(mol).strip()
+    elif output_type == "file":
+        output_standard_format = f"{os.path.splitext(input_cif)[0]}_openbabel.cif"
+        conv.WriteFile(mol,output_standard_format)
+        return output_standard_format
+    else :
+        raise ValueError('Output type must be "file" or "stream".')
+    
+def _clean_cif_directory(cif_dir):
+    '''
+    A local function to remove files with extension different than '.cif'.
+    '''
+    for file in glob.glob(f'{cif_dir}/*'):
+        if not file.endswith('.cif'):
+            os.remove(file)
+
+def _to_absolute_path(root_directory, file_path, extension):
+    # Check if the file path is already absolute
+    if os.path.isabs(file_path):
+        return file_path
+
+    # If not absolute, construct the absolute path
+    base_name = os.path.basename(file_path)
+    absolute_path = os.path.join(root_directory, base_name)
+
+    # Add the extension if it's not already there
+    if not absolute_path.endswith(extension):
+        absolute_path += extension
+
+    return absolute_path

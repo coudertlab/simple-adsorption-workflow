@@ -18,6 +18,10 @@ Part of the code presented here was heavily inspired by [RASPA python wrapper](h
 conda create -n simple-adsorption-workflow python=3.9
 conda activate simple-adsorption-workflow
 ```
+- Install Openbabel using conda
+```bash
+conda install -c conda-forge openbabel
+```
 
 - Use pip to install the libraries listed in `requirements.txt` in the conda environment:
 ```bash
@@ -258,7 +262,7 @@ Definitions :
 
 > Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
 
-#### JSON files
+#### JSON outputs
 
 In the first version of the workflow, the outputs were stored in CSV files. Since this format is not appropriate to store metadata, we added routines to export all simulation data in a more suitable format, a JSON format. We also add a routine that transform single-pressure-point adsorption to isotherms.
 
@@ -371,6 +375,18 @@ This is just a transformation in the way data is printed in JSON keys, all data 
 
 > Notes : In this version of the workflow, the metadata are lost, so JSON isotherms can be used for quick plot but should not be used to store long-term data. For this purpose the database JSON file is appropriate.
 
+##### Further development
+
+In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperable operations between databases.
+
+What other data/metadata should be added  ? 
+- units
+- cif
+- identifiers (e.g. : common names for MOF; InChiKey for adsorbates)
+- all metadata from CSD (dois, authors, solvent, ...)
+- composition to deal with co-adsorption
+- more simulation-related parameters from RASPA (e.g. SimulationType, UseChargesFromCIFFile, RASPA warnings, ...)
+
 #### Charge Assignment
 
 The partial charges can be calculated automatically given the atomic positions. To use this option ,add the following key with the corresponding keyword in the JSON input : 
@@ -386,23 +402,11 @@ The partial charges can be calculated automatically given the atomic positions. 
 ##### EQeq
 keyword : `"EQeq"`
 It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from this [python wrapper](https://github.com/lsmo-epfl/EQeq).
-It will duplicate the CIF files present in `./cif` directory with a suffix name related to the method, e.g. `MIBQAR16_clean_coremof-2019.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 and -2 as the hydrogen electron affinity.
-
-##### Further development
-
-In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperable operations between databases.
-
-What other data/metadata should be added  ? 
-- units
-- cif
-- identifiers (e.g. : common names for MOF; InChiKey for adsorbates)
-- all metadata from CSD (dois, authors, solvent, ...)
-- composition to deal with co-adsorption
-- more simulation-related parameters from RASPA (e.g. SimulationType, UseChargesFromCIFFile, RASPA warnings, ...)
+First each CIF file is passed through Openbabel to correct format not compatible with EQeq (e.g. CIFs with columns in wrong order). A file with `_openbabel` prefix is written in the same directory.
+It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 the hydrogen electron affinity is -2.
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
 - Use a user-provided CIF structure file: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
-- Use partial charges (calculated automatically or found in MOF databases) to set the electrostatic interactions between atoms. This is a major limitations, which will be solved in the close future.
 - Use a user-defined force field
 
