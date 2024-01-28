@@ -6,10 +6,11 @@
                       "ABAYOU",
                       "ABEFUL",
                       "ABESUX"],
-        "molecule_name": ["N2","methane"],
+        "molecule_name": ["N2","CO2"],
         "pressure": [10,1E6],
         "npoints":10,
-        "temperature": [298.15,77]
+        "temperature": [298.15,77],
+        "charge_method":["None","EQeq"]
         }
         ,
     "defaults":

@@ -190,8 +190,10 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', **kwargs):
                                                              f"*{structure}*{charge_method}*.cif")
         else:
             # CIF name from the original database
+            exclude_list = [el for el in CHARGE_METHOD if el not in ["None","",None]]
+            exclude_list.append("openbabel")
             dict_params["structure"] = _get_cifname_matching(cif_dir,f"*{structure}*.cif",
-                                                             exclude_pattern=[el for el in CHARGE_METHOD if el not in ["None","",None]])
+                                                             exclude_pattern=exclude_list)
     cifnames_database = _get_basename(cifnames_database)
     return cifnames_database,l_dict_parameters
 
@@ -263,7 +265,7 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq'):
         cifnames (list): A list CIF absolute filenames
     '''
     if method == 'EQeq':
-        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=True)
+        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=False)
     elif method == 'QMOF':
         cifnames = fetch_QMOF(cifnames_input,verbose=False)
     else:
