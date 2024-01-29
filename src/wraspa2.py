@@ -81,13 +81,47 @@ def prepare_input_files(args):
     print(f"Output directory : {args.output_dir}")
 
     # 2. Parses the JSON input file and extracts input parameters for simulations.
-    l_dict_parameters = parse_json(args.input_file)
-
+    l_dict_parameters = parse_json_to_list(args.input_file)
+    
     # 3. Fetch the cif files from a database and get partial charges.
     cifnames,l_dict_parameters = get_cifs(l_dict_parameters,args.output_dir,
                                  database='mofxdb', substring="coremof-2019",
                                  verbose=False)
+    
+    # 4. Generate grids for GCMC calculations
+    dict_parameters = parse_json_to_dict(args.input_file)["parameters"]
+    try :
+       grid_use = dict_parameters["grid_use"]
+    except Exception as e:
+       dict_parameters["grid_use"] = "no"  
+    if dict_parameters["grid_use"] == "yes":
+        molecules = dict_parameters["molecule_name"]
+        for cifname in cifnames:
+            cif_path_filename = f'{args.output_dir}/cif/{cifname}.cif'
+            
+            # Read adsorbate atom types
+            grid_atoms, grid_n_atoms = _read_atom_types(f"{os.getenv('PACKAGE_DIR')}/parameters/molecules.csv",molecules)
+            
+            # Update keywords
+            dict_parameters["structure"] = cifname
+            dict_parameters["cycles"] = 0
+            dict_parameters["init_cycles"] = 0
+            dict_parameters["temperature"] = 300                                    # to avoid errors
+            dict_parameters["pressure"] = 10                                        # idem
+            dict_parameters["molecule_name"] = dict_parameters["molecule_name"][0]  # idem
+            dict_parameters["simulation_type"] = "MakeGrid"
+            dict_parameters["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
+            dict_parameters["grid_atoms"] = grid_atoms
+            dict_parameters["grid_n_atoms"] = grid_n_atoms
 
+            # Create a directory, add cif and input for grid calculations
+            work_dir = f"{args.output_dir}/grids/{cifname}"
+            os.makedirs(work_dir,exist_ok=True)
+            shutil.copy(cif_path_filename, work_dir)
+            create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
+            create_run_script(path=work_dir, save=True)
+        create_job_script(args.output_dir, cifnames,type='grids')
+    
     # 4. Generates the simulation directories, copies CIF files, and creates the input scripts for RASPA.
     print("Writing input/running files for RASPA ...")
     sim_dir_names = []
@@ -110,7 +144,16 @@ def prepare_input_files(args):
 
     return cifnames,sim_dir_names
 
-def run_simulations(args,sim_dir_names):
+def _read_atom_types(molecules_path,molecules):
+    df_mol = pd.read_csv(molecules_path, encoding='utf-8')
+    if not all([molecule in list(df_mol['MOLECULE']) for molecule in molecules]):
+        raise ValueError('One of the molecules %s not in adsorbent list defined in %s'%(' '.join(molecules), molecules_path))
+    mol2atoms = {row['MOLECULE']: row['ATOMS'] for index,row in df_mol.iterrows()}
+    ATOMS = ' '.join([mol2atoms[molecule] for molecule in molecules])
+    N_ATOMS = len(ATOMS.split())
+    return ATOMS,N_ATOMS
+
+def run_simulations(args,sim_dir_names,type="simulations"):
     """
     Run gas adsorption simulations with RASPA using prepared input files.
 
@@ -121,7 +164,7 @@ def run_simulations(args,sim_dir_names):
     print(f"Running {len(sim_dir_names)} jobs with RASPA ...")
     os.chdir(args.output_dir)
     start_time = time.time()
-    os.system("./job.sh > sim.log 2>&1")
+    os.system(f"./job_{type}.sh > sim.log 2>&1")
     execution_time = time.time()- start_time
     print(f"Simulations completed in {execution_time:.2f} seconds.")
 
@@ -230,7 +273,9 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   simulation_type="MonteCarlo", cycles=2000,
                   init_cycles="auto", forcefield="CrystalGenerator",
                   charge_method=None,input_file_type="cif",
-                  save=False,filename='simulation.input', **kwargs):
+                  save=False,filename="simulation.input",
+                  grid_use="no",grid_spacing=0.1,grid_n_atoms=2,grid_atoms="C_co2 O_co2",
+                  **kwargs):
     """Creates a RASPA simulation input file from parameters.
 
     Args:
@@ -290,6 +335,12 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
 
                   Movies                        no
                   WriteMoviesEvery              100
+
+                  NumberOfGrids                 {grid_n_atoms}
+                  GridTypes                     {grid_atoms}
+                  SpacingVDWGrid                {grid_spacing}
+                  SpacingCoulombGrid            {grid_spacing}
+                  UseTabularGrid                {grid_use}
 
                   Component 0 MoleculeName             {molecule_name}
                               StartingBead             0
@@ -715,13 +766,12 @@ def create_run_script(path,save=True):
     else:
         return run_string
 
-def create_job_script(path,sim_dir_names):
+def create_job_script(path,sim_dir_names,type="simulations"):
     """
     Returns the job script in bash.
     """
 
-    sim_dir_names_string = './simulations/'+ ' ./simulations/'.join(sim_dir_names)
-#$(find simulations/ -mindepth 1 -type d)
+    sim_dir_names_string = f'./{type}/'+ f' ./{type}/'.join(sim_dir_names)
     job_string = dedent(f"""
                 #!/bin/bash
                 for dir in {sim_dir_names_string} ; do
@@ -729,11 +779,11 @@ def create_job_script(path,sim_dir_names):
                 ./run.sh &
                 cd ../..
                 done
-                echo "Simulations running ..."
+                echo "Simulations {type} running ..."
                 wait  # Wait for all background jobs to finish
                 echo "All jobs completed"
                  """).strip()
-    file_path = f"{path}/job.sh"
+    file_path = f"{path}/job_{type}.sh"
     with open(file_path,'w') as f:
         f.write(job_string)
     os.chmod(file_path, stat.S_IRWXU) # Read, write, and execute by owner

@@ -181,7 +181,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     dict_results = {}
     
     # Add run inputs of the whole workflow in the output file
-    dict_input = parse_json_2(args.input_file)
+    dict_input = parse_json_to_dict(args.input_file)
     dict_results.update({"input":dict_input})
 
     # Add running metadata

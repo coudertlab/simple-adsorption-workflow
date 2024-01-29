@@ -21,7 +21,7 @@ import numpy as np
 # Allowed keywords for charge method
 CHARGE_METHOD = ["EQeq","None","",None,"QMOF"]
 
-def parse_json(filename):#,cifnames):
+def parse_json_to_list(filename):#,cifnames):
     """
     Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
 
@@ -68,7 +68,7 @@ def check_input_raspa(molecule_name_list):
     for molecule_name in molecule_name_list: 
         assert molecule_name in basenames, 'The molecule {molecule_name} is not found in TraPPE.'
 
-def parse_json_2(filename):
+def parse_json_to_dict(filename):
     """
     Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
 

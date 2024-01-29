@@ -1,0 +1,22 @@
+{
+    "parameters":
+        {
+        "structure":["MIBQAR"],
+        "molecule_name": ["N2", "CO2"],
+        "pressure": [10,1E6],
+        "npoints":5,
+        "temperature": [298.15],
+        "charge_method":["EQeq"],
+        "grid_use":"yes",
+        "grid_spacing":1.0
+        }
+        ,
+    "defaults":
+        {
+            "unit_cells":[1,1,1],
+            "forcefield":"GenericMOFs",
+            "init_cycles":10,
+            "cycles":20,
+            "print_every":5
+        }
+}

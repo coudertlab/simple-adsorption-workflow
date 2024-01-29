@@ -164,10 +164,28 @@ def run_test_charges(args):
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_charges/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names = prepare_input_files(args)
-        #cif_with_charges(cif_dir=f'{args.output_dir}/cif',
-        #                 cifnames_input=cif_names,
-        #                 method='EQeq'):
-        #run_EQeq(f'{args.output_dir}/cif',cif_names,verbose=True)
+        print("\nTest successful :)")
+    except Exception as e:
+        print(traceback.format_exc())
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
+    exit(0)
+
+def run_test_grids(args):
+    """
+    Run a test that parse the JSON file, generate input files for creating grid in RASPA,
+    compute the grid and return .
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    print(f"------------------------ Running test ---------------------------\n")
+    try:
+        if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_grids/input.json"
+        print(f"Reading input file in {args.input_file}")
+        cif_names, sim_dir_names = prepare_input_files(args)
+        run_simulations(args,sim_dir_names,type="grids")
+        #export_simulation_result_to_json(args,sim_dir_names,verbose=False)
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
