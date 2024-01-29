@@ -281,10 +281,10 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isothe
         isotherm_dict = transform_grouped_data(data_group)
         isotherm_dict["isokey"] = isokey
         all_isotherms["isotherms"].append(isotherm_dict)
-    #print(json.dumps(all_isotherms,indent=4))
+
     with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
         json.dump(all_isotherms, f, indent=4)
-    print(f"Data for {len(all_isotherms['isotherms'])} isotherms have been saved in {isotherm_dir}/{isotherm_filename}")
+    print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
 
     return len(all_isotherms['isotherms'])
 

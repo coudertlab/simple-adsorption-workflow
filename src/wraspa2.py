@@ -53,7 +53,7 @@ except ImportError:
 
 # NEW IN THIS WORKFLOW
 
-def prepare_input_files(args):
+def prepare_input_files(args,verbose=False):
     """
     Prepare input files for gas adsorption simulations and generate simulation directories.
 
@@ -86,7 +86,7 @@ def prepare_input_files(args):
     # 3. Fetch the cif files from a database and get partial charges.
     cifnames,l_dict_parameters = get_cifs(l_dict_parameters,args.output_dir,
                                  database='mofxdb', substring="coremof-2019",
-                                 verbose=False)
+                                 verbose=verbose)
     
     # 4. Generate grids for GCMC calculations
     dict_parameters = parse_json_to_dict(args.input_file)["parameters"]

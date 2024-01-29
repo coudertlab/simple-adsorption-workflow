@@ -17,13 +17,13 @@ def run_test_isotherms_csv(args):
     """
     print(f"------------------------ Running test ---------------------------\n")
     try:
-        if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
+        if not args.input_file : args.input_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
-        run_simulations(args,sim_dir_names)                     # STEP 2
-        reconstruct_isotherms_to_csv(args,sim_dir_names)        # STEP 3
+        cif_names, sim_dir_names = prepare_input_files(args)
+        run_simulations(args,sim_dir_names)
+        reconstruct_isotherms_to_csv(args,sim_dir_names)
         test_isotherms(args)
-        get_geometrical_features(args,cif_names)                # STEP 4
+        get_geometrical_features(args,cif_names)
         test_zeopp(args)
         print("\nTest successful :)")
     except Exception as e:
@@ -42,13 +42,15 @@ def run_test_output_json(args):
     print(f"------------------------ Running test ---------------------------\n")
     try:
         if not args.input_file : args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
-        output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/run398c565d.json"
+        output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/runtest.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
-        run_simulations(args,sim_dir_names)                     # STEP 2
-        export_simulation_result_to_json(args,sim_dir_names,verbose=False)    # STEP 3
-        compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
+        cif_names, sim_dir_names = prepare_input_files(args)
+        run_simulations(args,sim_dir_names)
+        reconstruct_isotherms_to_csv(args,sim_dir_names)
+        export_simulation_result_to_json(args,sim_dir_names,verbose=False)
         output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
+        compare_csv_json(args)
+        compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
@@ -139,18 +141,30 @@ def compare_json_subtrees(file1, file2, subtree):
     data2_subtree = json_data2.get(subtree, {})
 
     # Use DeepDiff to get a dictionary with changed and deleted values
-    result = DeepDiff(data1_subtree,data2_subtree)
+    result = DeepDiff(data1_subtree,data2_subtree,)
 
-    # Extract unique key names from the "values_changed" section
+    # Extract unique keywords from the "values_changed" section
     unique_key_names = set()
     for key in result["values_changed"]:
         key_split = key.split("[")[2].split("]")[0]  # Extract the key name between square brackets
         unique_key_names.add(key_split)
 
-    # Return an error if the unique keys are different from the ones expected.
-    if unique_key_names != {"'uptake(cm^3 (STP)/cm^3 framework)'","'simkey'"}:
-        print(unique_key_names)
+    # Return an error if keywords differ from the expected set
+    expected_features_set = {"'uptake(cm^3 (STP)/cm^3 framework)'","'simkey'"} 
+    if unique_key_names != expected_features_set:
+        print(f"\nKeywords which differs from the expected set: {unique_key_names.difference(expected_features_set)}\n")
         raise ValueError(f"The '{subtree}' section differs between files {file1} and file {file2}.")
+
+def compare_csv_json(args):
+    """
+    Check that teh number of isotherms in CSV formats matches with the number of isotherms listed in the JSON output.
+    """
+    df = pd.read_csv(f'{args.output_dir}/isotherms/index.csv')
+    n_csv = df.shape[0]
+    with open((f'{args.output_dir}/isotherms/isotherms.json'), 'r') as json_file:
+        data = json.load(json_file)
+    n_json = len([isot for isot in data["isotherms"]])
+    assert n_json == n_csv, "Test error: The number of isotherms in CSV and JSON outputs must be equal."
 
 def run_test_charges(args):
     """
@@ -163,7 +177,7 @@ def run_test_charges(args):
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_charges/input.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)
+        cif_names, sim_dir_names = prepare_input_files(args,verbose=True)
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())

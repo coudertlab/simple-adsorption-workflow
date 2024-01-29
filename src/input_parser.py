@@ -119,7 +119,7 @@ def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
         else:
             raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
 
-def get_cifs(l_dict_parameters, data_dir, database='mofxdb', **kwargs):
+def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwargs):
     """
     Generate CIF files from a JSON file containing structures.
 
@@ -178,7 +178,7 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', **kwargs):
     for charge_method in charge_methods :
         if charge_method not in ["None","",None]:
             _ = cif_with_charges(cif_dir=cif_dir,cifnames_input=cifnames_database,
-                                 method=charge_method)
+                                 method=charge_method,verbose=verbose)
 
     # Assign the correct CIF file depending on the charge method
     for dict_params in l_dict_parameters:
@@ -252,7 +252,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     return cifnames
 
-def cif_with_charges(cif_dir,cifnames_input,method='EQeq'):
+def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=True):
 
     '''
     Returns only the subset of cif filenames containing partial charges.
@@ -265,9 +265,9 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq'):
         cifnames (list): A list CIF absolute filenames
     '''
     if method == 'EQeq':
-        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=False)
+        cifnames = run_EQeq(cif_dir,cifnames_input,verbose=verbose)
     elif method == 'QMOF':
-        cifnames = fetch_QMOF(cifnames_input,verbose=False)
+        cifnames = fetch_QMOF(cifnames_input,verbose=verbose)
     else:
         raise ValueError(f'Invalid charge method keyword. Expected values : {[el for el in CHARGE_METHOD]}')
     return cifnames

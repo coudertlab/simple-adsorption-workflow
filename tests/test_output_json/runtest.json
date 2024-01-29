@@ -31,20 +31,25 @@
         }
     },
     "metadata": {
-        "timestamp": "2023-12-22 12:53:45",
+        "timestamp": "2024-01-29 13:57:50",
         "python_version": "3.9.16 | packaged by conda-forge | (main, Feb  1 2023, 21:39:03) \n[GCC 11.3.0]",
         "python_compiler": "GCC 11.3.0",
         "python_implementation": "CPython",
-        "os_platform": "Linux-6.2.0-37-generic-x86_64-with-glibc2.35",
-        "os_version": "#38~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov  2 18:01:13 UTC 2",
+        "os_platform": "Linux-6.2.0-39-generic-x86_64-with-glibc2.35",
+        "os_version": "#40~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov 16 10:53:04 UTC 2",
         "os_system": "Linux",
-        "os_release": "6.2.0-37-generic",
+        "os_release": "6.2.0-39-generic",
         "machine": "x86_64",
         "processor": "x86_64",
-        "workflow_package_git_hash": "cff1942a0c8835dfc3ba31fbafa91dfe656deace"
+        "workflow_package_git_hash": "6d0914afbf61f8416ee6cc8580ad03ed551b55e0",
+        "cif_source": {
+            "database": "mofxdb",
+            "version": "dc8a0295db"
+        }
     },
     "results": [
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -52,14 +57,15 @@
             "npoints": 5.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sim2c7644c1",
+            "simkey": "sim56662678",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 10.0,
             "uptake(cm^3 (STP)/cm^3 framework)": 0.0
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -67,14 +73,15 @@
             "npoints": 5.0,
             "pressure": 250007.5,
             "print_every": 5.0,
-            "simkey": "sim96b3fd51",
+            "simkey": "simec04b98e",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 250008.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 7.0070557359
+            "uptake(cm^3 (STP)/cm^3 framework)": 7.8218296587
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -82,14 +89,15 @@
             "npoints": 5.0,
             "pressure": 500005.0,
             "print_every": 5.0,
-            "simkey": "sim43b9a198",
+            "simkey": "sim91824f7a",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 500005.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 13.5795653797
+            "uptake(cm^3 (STP)/cm^3 framework)": 15.0461584408
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -97,14 +105,15 @@
             "npoints": 5.0,
             "pressure": 750002.5,
             "print_every": 5.0,
-            "simkey": "sim0c997865",
+            "simkey": "simb4cb6add",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 750002.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 10.2118331656
+            "uptake(cm^3 (STP)/cm^3 framework)": 16.2954784557
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -112,14 +121,15 @@
             "npoints": 5.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "simc3cb4db3",
+            "simkey": "simde7ea84a",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 1000000.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 16.6757062863
+            "uptake(cm^3 (STP)/cm^3 framework)": 21.0211672078
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -127,14 +137,15 @@
             "npoints": 5.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sim55ff0b8f",
+            "simkey": "simf9188a15",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 10.0,
             "uptake(cm^3 (STP)/cm^3 framework)": 0.0
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -142,14 +153,15 @@
             "npoints": 5.0,
             "pressure": 250007.5,
             "print_every": 5.0,
-            "simkey": "sim7a147bf4",
+            "simkey": "sim5276a7cb",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 250008.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 13.4166105952
+            "uptake(cm^3 (STP)/cm^3 framework)": 15.1004767023
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -157,14 +169,15 @@
             "npoints": 5.0,
             "pressure": 500005.0,
             "print_every": 5.0,
-            "simkey": "sim0ee7e2a4",
+            "simkey": "sim9124d7cf",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 500005.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 18.9570732701
+            "uptake(cm^3 (STP)/cm^3 framework)": 29.9293620969
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -172,14 +185,15 @@
             "npoints": 5.0,
             "pressure": 750002.5,
             "print_every": 5.0,
-            "simkey": "sim8cd68948",
+            "simkey": "sim13ba2961",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 750002.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 37.0450543559
+            "uptake(cm^3 (STP)/cm^3 framework)": 42.4225622463
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -187,14 +201,15 @@
             "npoints": 5.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "sim2076b52e",
+            "simkey": "sim393e4d98",
             "structure": "MIBQAR16_clean_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[2, 2, 2]",
+            "unit_cells": "(2, 2, 2)",
             "Pressure(Pa)": 1000000.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 46.9309779524
+            "uptake(cm^3 (STP)/cm^3 framework)": 52.3084858428
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -202,14 +217,15 @@
             "npoints": 5.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sim7cb47a93",
+            "simkey": "sim8ad6071d",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 10.0,
             "uptake(cm^3 (STP)/cm^3 framework)": 0.0
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -217,14 +233,15 @@
             "npoints": 5.0,
             "pressure": 250007.5,
             "print_every": 5.0,
-            "simkey": "sim0e946aae",
+            "simkey": "simc48c0f11",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 250008.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 11.1770325484
+            "uptake(cm^3 (STP)/cm^3 framework)": 11.8810975908
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -232,14 +249,15 @@
             "npoints": 5.0,
             "pressure": 500005.0,
             "print_every": 5.0,
-            "simkey": "sim339c2027",
+            "simkey": "sim6711b386",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 500005.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 19.9778455786
+            "uptake(cm^3 (STP)/cm^3 framework)": 28.6026423482
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -247,14 +265,15 @@
             "npoints": 5.0,
             "pressure": 750002.5,
             "print_every": 5.0,
-            "simkey": "sim362561b0",
+            "simkey": "sim4ea12554",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 750002.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 34.1471545572
+            "uptake(cm^3 (STP)/cm^3 framework)": 30.2747968239
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -262,14 +281,15 @@
             "npoints": 5.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "sim7bf74f14",
+            "simkey": "simc274b9ad",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 1000000.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 37.4914635087
+            "uptake(cm^3 (STP)/cm^3 framework)": 35.2032521208
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -277,14 +297,15 @@
             "npoints": 5.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sim5906017a",
+            "simkey": "simb5f63f39",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 10.0,
             "uptake(cm^3 (STP)/cm^3 framework)": 0.0
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -292,14 +313,15 @@
             "npoints": 5.0,
             "pressure": 250007.5,
             "print_every": 5.0,
-            "simkey": "simb6822bae",
+            "simkey": "sim3fe544c7",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 250008.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 52.1888212691
+            "uptake(cm^3 (STP)/cm^3 framework)": 61.4296749508
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -307,14 +329,15 @@
             "npoints": 5.0,
             "pressure": 500005.0,
             "print_every": 5.0,
-            "simkey": "sim67c2b8d8",
+            "simkey": "simf4447fd0",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 500005.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 56.1491871327
+            "uptake(cm^3 (STP)/cm^3 framework)": 76.2150408416
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -322,14 +345,15 @@
             "npoints": 5.0,
             "pressure": 750002.5,
             "print_every": 5.0,
-            "simkey": "simf0dcc77d",
+            "simkey": "sim6248a37a",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 750002.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 79.4713416628
+            "uptake(cm^3 (STP)/cm^3 framework)": 74.6308944962
         },
         {
+            "charge_method": NaN,
             "cycles": 20.0,
             "forcefield": "GenericMOFs",
             "init_cycles": 10.0,
@@ -337,12 +361,12 @@
             "npoints": 5.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "sim723276aa",
+            "simkey": "sim69da8fe5",
             "structure": "VOGTIV_clean_h_coremof-2019",
             "temperature": 298.15,
-            "unit_cells": "[4, 2, 2]",
+            "unit_cells": "(4, 2, 2)",
             "Pressure(Pa)": 1000000.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 77.0951221446
+            "uptake(cm^3 (STP)/cm^3 framework)": 94.9607725959
         }
     ]
 }
