@@ -13,9 +13,9 @@ def main():
 
     This workflow comprises the following steps:
     1. Prepare input files.
-    2. Run simulations.
-    3. Check and process isotherms.def plot_isotherm(isotherm_json,suptitle=None)
-    4. Compute geometrical features
+    2. Run simulations with RASPA.
+    3. Convert outputs, check errors and process isotherms.
+    4. Compute geometrical features with Zeo++.
 
     Usage:
         Run the script to execute the workflow based on provided input arguments.
@@ -24,12 +24,12 @@ def main():
 
     # Run simulations
     if args.command == "run": 
-        cif_names, sim_dir_names = prepare_input_files(args)    # STEP 1
-        run_simulations(args,sim_dir_names)                     # STEP 2
-        output_isotherms_to_csv(args,sim_dir_names)             # STEP 3
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args)
+        run_simulations(args,sim_dir_names,grid_use=grid_use)                                           # 1.
+        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")     # 2.
+        output_isotherms_to_csv(args,sim_dir_names)                                                     # 3.
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)
-        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
-        get_geometrical_features(args,cif_names)                # STEP 4
+        get_geometrical_features(args,cif_names)                                                        # 4.
 
     # Merge workflow outputs
     elif args.command == "merge":

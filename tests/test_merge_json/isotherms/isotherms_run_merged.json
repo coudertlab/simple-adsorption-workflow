@@ -26,7 +26,7 @@
                 71.0991951573
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "CO2",
             "npoints": 4.0,
@@ -62,7 +62,7 @@
                 54.4872336719
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "CO2",
             "npoints": 4.0,
@@ -102,7 +102,7 @@
                 59.7500876709
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "CO2",
             "npoints": 5.0,
@@ -169,7 +169,7 @@
                 118.1949189957
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "CO2",
             "print_every": 5.0,
@@ -204,7 +204,7 @@
                 110.1861791382
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "CO2",
             "npoints": 4.0,
@@ -240,7 +240,7 @@
                 36.4355688579
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "N2",
             "npoints": 4.0,
@@ -276,7 +276,7 @@
                 29.9569038786
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "N2",
             "npoints": 4.0,
@@ -316,7 +316,7 @@
                 24.8777637757
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "N2",
             "npoints": 5.0,
@@ -383,7 +383,7 @@
                 58.5254066509
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "N2",
             "print_every": 5.0,
@@ -418,7 +418,7 @@
                 45.148170845
             ],
             "cycles": 20.0,
-            "forcefield": "GenericMOFs",
+            "forcefield": "ExampleMOFsForceField",
             "init_cycles": 10.0,
             "molecule_name": "N2",
             "npoints": 4.0,

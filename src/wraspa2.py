@@ -28,7 +28,7 @@ sys.path.append(current_dir)
 # Now you can import and use the local module
 from output_parser import parse
 
-raspa_dir = os.environ.get('RASPA_PARENT_DIR')
+raspa_dir = os.environ.get('RASPA_DIR')
 libraspa_dir = os.environ.get('LD_LIBRARY_PATH').split(":")[0]
 libraspa_file = os.listdir(libraspa_dir)[0]
 
@@ -71,6 +71,7 @@ def prepare_input_files(args,verbose=False):
     Returns:
         cifnames (list) : List of structure names from the database
         sim_dir_names (list): List of simulation directory names.
+        grid_use (bool) : if True, GCMC use grid calculations
     """
     # 1. Creates the output directory if it doesn't exist.
     try:
@@ -91,9 +92,11 @@ def prepare_input_files(args,verbose=False):
     # 4. Generate grids for GCMC calculations
     dict_parameters = parse_json_to_dict(args.input_file)["parameters"]
     try :
-       grid_use = dict_parameters["grid_use"]
+        grid_use = dict_parameters["grid_use"]
     except Exception as e:
-       dict_parameters["grid_use"] = "no"  
+        dict_parameters["grid_use"] = "no"
+        grid_use = dict_parameters["grid_use"]
+    grid_use = grid_use == "yes"
     if dict_parameters["grid_use"] == "yes":
         molecules = dict_parameters["molecule_name"]
         for cifname in cifnames:
@@ -142,7 +145,7 @@ def prepare_input_files(args,verbose=False):
     # 5. Creates the job scripts for running simulations on multiple CPUs.
     create_job_script(args.output_dir, sim_dir_names)
 
-    return cifnames,sim_dir_names
+    return cifnames,sim_dir_names,grid_use
 
 def _read_atom_types(molecules_path,molecules):
     df_mol = pd.read_csv(molecules_path, encoding='utf-8')
@@ -153,7 +156,18 @@ def _read_atom_types(molecules_path,molecules):
     N_ATOMS = len(ATOMS.split())
     return ATOMS,N_ATOMS
 
-def run_simulations(args,sim_dir_names,type="simulations"):
+def run_simulations(args,sim_dir_names,grid_use=False):
+    '''
+    Run different simulation type with RASPA.
+    '''
+    # Compute grids before GCMC
+    if grid_use == True:
+        _run_simulations(args,sim_dir_names,type="grids")
+
+    # By default, always run GCMC
+    _run_simulations(args,sim_dir_names,type="simulations")
+
+def _run_simulations(args,sim_dir_names,type="simulations"):
     """
     Run gas adsorption simulations with RASPA using prepared input files.
 
@@ -161,7 +175,7 @@ def run_simulations(args,sim_dir_names,type="simulations"):
         args (argparse.Namespace): Parsed command-line arguments.
         sim_dir_names (list): List of simulation directory names.
     """
-    print(f"Running {len(sim_dir_names)} jobs with RASPA ...")
+    print(f"Running {len(sim_dir_names)} jobs type {type} with RASPA ...")
     os.chdir(args.output_dir)
     start_time = time.time()
     os.system(f"./job_{type}.sh > sim.log 2>&1")
@@ -173,7 +187,7 @@ def run_simulations(args,sim_dir_names,type="simulations"):
 def run(structure, molecule_name, temperature=273.15, pressure=101325,
         helium_void_fraction=1.0, unit_cells=(1, 1, 1),
         framework_name="streamed", simulation_type="MonteCarlo", cycles=2000,
-        init_cycles="auto", forcefield="CrystalGenerator",
+        init_cycles="auto", forcefield="ExampleMOFsForceField",
         input_file_type="cif"):
     """Runs a simulation with the specified parameters.
 
@@ -181,7 +195,7 @@ def run(structure, molecule_name, temperature=273.15, pressure=101325,
         structure: The structure to test for adsorption, as a string of type
             `input_file_type` (default is "cif").
         molecule_name: The molecule to test for adsorption. A file of the same
-            name must exist in `$RASPA_DIR/share/raspa/molecules/TraPPE`.
+            name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
         temperature: (Optional) The temperature of the simulation, in Kelvin.
         pressure: (Optional) The pressure of the simulation, in Pascals.
         helium_void_fraction: (Optional) The helium void fraction of the input
@@ -271,7 +285,7 @@ def _script_subprocess(input_script, structure, raspa_dir, stream, conn):
 def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   helium_void_fraction=1.0, unit_cells=(1, 1, 1),
                   simulation_type="MonteCarlo", cycles=2000,
-                  init_cycles="auto", forcefield="CrystalGenerator",
+                  init_cycles="auto", forcefield="ExampleMOFsForceField",
                   charge_method=None,input_file_type="cif",
                   save=False,filename="simulation.input",
                   grid_use="no",grid_spacing=0.1,grid_n_atoms=2,grid_atoms="C_co2 O_co2",
@@ -280,7 +294,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
 
     Args:
         molecule_name: The molecule to test for adsorption. A file of the same
-            name must exist in `$RASPA_DIR/share/raspa/molecules/TraPPE`.
+            name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
         temperature: (Optional) The temperature of the simulation, in Kelvin.
         pressure: (Optional) The pressure of the simulation, in Pascals.
         helium_void_fraction: (Optional) The helium void fraction of the input
@@ -344,7 +358,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
 
                   Component 0 MoleculeName             {molecule_name}
                               StartingBead             0
-                              MoleculeDefinition       TraPPE
+                              MoleculeDefinition       ExampleDefinitions
                               IdealGasRosenbluthWeight 1.0
                               TranslationProbability   1.0
                               RotationProbability      1.0
@@ -362,7 +376,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
 def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
                 pressure=101325, helium_void_fraction=1.0,
                 unit_cells=(1, 1, 1), simulation_type="MonteCarlo",
-                cycles=2000, init_cycles="auto", forcefield="CrystalGenerator",
+                cycles=2000, init_cycles="auto", forcefield="ExampleMOFsForceField",
                 input_file_type="cif"):
     """Runs a simulation with mixture of gases.
 
@@ -370,7 +384,7 @@ def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
         structure: The structure to test for adsorption, as a string of type
             `input_file_type` (default is "cif").
         molecules: The molecules to test for adsorption. Files of the same
-            names must exist in `$RASPA_DIR/share/raspa/molecules/TraPPE`.
+            names must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
         mol_fractions: The mol fractions of each gas that you want to separate.
             Corresponds to the `molecules` list.
         temperature: (Optional) The temperature of the simulation, in Kelvin.
@@ -433,7 +447,7 @@ def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
         script += dedent("""
                       Component {i} MoleculeName                 {molecule}
                                   StartingBead                 0
-                                  MoleculeDefinition           TraPPE
+                                  MoleculeDefinition           ExampleDefinitions
                                   MolFraction                  {fraction}
                                   IdentityChangeProbability    1.0
                                   NumberOfIdentityChanges      {molecule_count}
@@ -449,7 +463,7 @@ def run_mixture(structure, molecules, mol_fractions, temperature=273.15,
 
 def get_geometric_surface_area(structure, unit_cells=(1, 1, 1), cycles=500,
                                input_file_type="cif", units="m^2/g",
-                               forcefield="CrystalGenerator"):
+                               forcefield="ExampleMOFsForceField"):
     """Calculates the geometric surface area of an inputted structure.
 
     Args:
@@ -486,7 +500,7 @@ def get_geometric_surface_area(structure, unit_cells=(1, 1, 1), cycles=500,
 
                     Component 0 MoleculeName             N2
                                 StartingBead             0
-                                MoleculeDefinition       TraPPE
+                                MoleculeDefinition       ExampleDefinitions
                                 SurfaceAreaProbability   1.0
                                 CreateNumberOfMolecules  0
                     """.format(**locals())).strip()
@@ -496,7 +510,7 @@ def get_geometric_surface_area(structure, unit_cells=(1, 1, 1), cycles=500,
 
 def get_helium_void_fraction(structure, unit_cells=(1, 1, 1), cycles=2000,
                              input_file_type="cif",
-                             forcefield="CrystalGenerator"):
+                             forcefield="ExampleMOFsForceField"):
     """Calculates the helium void fraction of the inputted structure.
 
     Args:
@@ -530,7 +544,7 @@ def get_helium_void_fraction(structure, unit_cells=(1, 1, 1), cycles=2000,
                     ExternalTemperature           298.0
 
                     Component 0 MoleculeName             helium
-                                MoleculeDefinition       TraPPE
+                                MoleculeDefinition       ExampleDefinitions
                                 WidomProbability         1.0
                                 CreateNumberOfMolecules  0
                     """.format(**locals())).strip()
@@ -540,7 +554,7 @@ def get_helium_void_fraction(structure, unit_cells=(1, 1, 1), cycles=2000,
 
 def get_pore_size_distribution(structure, unit_cells=(1, 1, 1), cycles=500,
                                input_file_type="cif",
-                               forcefield="CrystalGenerator",
+                               forcefield="ExampleMOFsForceField",
                                bins=50):
     """Calculates the pore size distribution of the inputted structure.
 
@@ -593,12 +607,12 @@ def get_pore_size_distribution(structure, unit_cells=(1, 1, 1), cycles=500,
 
 def get_density(molecule_name, temperature=273.15, pressure=101325,
                 cycles=5000, init_cycles="auto",
-                forcefield="CrystalGenerator"):
+                forcefield="ExampleMOFsForceField"):
     """Calculates the density of a gas through an NPT ensemble.
 
     Args:
         molecule_name: The molecule to test for adsorption. A file of the same
-            name must exist in `$RASPA_DIR/share/raspa/molecules/TraPPE`.
+            name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
         temperature: (Optional) The temperature of the simulation, in Kelvin.
         pressure: (Optional) The pressure of the simulation, in Pascals.
         cycles: (Optional) The number of simulation cycles to run.
@@ -630,7 +644,7 @@ def get_density(molecule_name, temperature=273.15, pressure=101325,
                     VolumeChangeProbability       0.25
 
                     Component 0 MoleculeName             {molecule_name}
-                                MoleculeDefinition       TraPPE
+                                MoleculeDefinition       ExampleDefinitions
                                 TranslationProbability   0.5
                                 ReinsertionProbability   0.5
                                 CreateNumberOfMolecules  256
@@ -659,7 +673,7 @@ def json_to_pybel(data):
     As RASPA makes no use of bond information, this field is ignored.
 
     The labels are stripped and replaced with "MOF_{element}", in accordance
-    with the CrystalGenerator forcefield notation. Therefore, labels are also
+    with the ExampleMOFsForceField forcefield notation. Therefore, labels are also
     ignored.
 
     Args:
@@ -756,7 +770,7 @@ def create_run_script(path,save=True):
                 export DYLD_LIBRARY_PATH={dyld_dir}
                 export LD_LIBRARY_PATH={ld_dir}
 
-                $(which simulate) 'simulation.input'
+                $RASPA_DIR/bin/simulate 'simulation.input'
                  """.format(**locals())).strip()
     if save is True :
         file_path = f"{path}/run.sh"

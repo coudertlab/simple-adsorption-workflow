@@ -28,7 +28,7 @@ Stage: final
 
 %environment
     export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
-    export RASPA_DIR=$RASPA_PARENT_DIR/simulations
+    export RASPA_DIR=$RASPA_DIR/simulations
     export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
     export LD_LIBRARY_PATH=$RASPA_DIR/lib
     export ZEO_DIR=/home/app/zeo++-0.3

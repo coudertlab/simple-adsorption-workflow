@@ -11,7 +11,7 @@
     "defaults":
         {
             "unit_cells":[1,1,1],
-            "forcefield":"GenericMOFs",
+            "forcefield":"ExampleMOFsForceField",
             "init_cycles":10,
             "cycles":20,
             "print_every":5

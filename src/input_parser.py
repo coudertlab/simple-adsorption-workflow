@@ -62,11 +62,11 @@ def parse_json_to_list(filename):#,cifnames):
 
 def check_input_raspa(molecule_name_list):
     '''
-    Look for the precence of parameters for the molecule in the TrAPPE force field.
+    Look for the presence of parameters for the molecule in the ExampleDefinitions force field.
     '''
-    basenames = ([os.path.basename(filename).split('.def')[0] for filename in os.listdir(f"{os.environ.get('RASPA_PARENT_DIR')}/share/raspa/molecules/TraPPE/")])
+    basenames = ([os.path.basename(filename).split('.def')[0] for filename in os.listdir(f"{os.environ.get('RASPA_DIR')}/share/raspa/molecules/ExampleDefinitions/")])
     for molecule_name in molecule_name_list: 
-        assert molecule_name in basenames, 'The molecule {molecule_name} is not found in TraPPE.'
+        assert molecule_name in basenames, 'The molecule {molecule_name} is not found in ExampleDefinitions.'
 
 def parse_json_to_dict(filename):
     """
@@ -175,9 +175,10 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
         charge_methods.append(dict_params["charge_method"])
     charge_methods = set(charge_methods)
 
+    cifnames_modified = cifnames_database
     for charge_method in charge_methods :
         if charge_method not in ["None","",None]:
-            _ = cif_with_charges(cif_dir=cif_dir,cifnames_input=cifnames_database,
+            cifnames_modified = cif_with_charges(cif_dir=cif_dir,cifnames_input=cifnames_database,
                                  method=charge_method,verbose=verbose)
 
     # Assign the correct CIF file depending on the charge method
@@ -195,7 +196,8 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
             dict_params["structure"] = _get_cifname_matching(cif_dir,f"*{structure}*.cif",
                                                              exclude_pattern=exclude_list)
     cifnames_database = _get_basename(cifnames_database)
-    return cifnames_database,l_dict_parameters
+    cifnames_modified = _get_basename(cifnames_modified)
+    return cifnames_modified,l_dict_parameters
 
 def _get_cifname_matching(cif_dir,pattern,exclude_pattern=None):
     """

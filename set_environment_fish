@@ -1,14 +1,10 @@
 #/bin/false
 
 # Modify the following lines to reflect the accurate paths to the libraries on your system
-set -gx RASPA_PARENT_DIR /opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 set -gx ZEO_DIR /opt/zeo++-0.3
 
-# Fill with the python executable with the correct environment (satisfying requirements.txt)
-#set -gx PACKAGE_PYTHON_DIR $CONDA_PREFIX/bin/python
-
 # The following lines should not be modified (unless you know what you are doing).
-set -gx RASPA_DIR $RASPA_PARENT_DIR/simulations
+set -gx RASPA_DIR /opt/raspa_v2.0.48
 set -gx DYLD_LIBRARY_PATH $RASPA_DIR/lib
 set -gx LD_LIBRARY_PATH $RASPA_DIR/lib
 

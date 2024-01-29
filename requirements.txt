@@ -1,5 +1,4 @@
 mofdb_client==0.10.0
-RASPA2
 #openbabel-wheel==3.1.1.17 (not necessary, just to avoid warnings from original wrapspa)
 ase
 matplotlib

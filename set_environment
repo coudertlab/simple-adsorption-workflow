@@ -1,14 +1,10 @@
 #/bin/false
 
 # Modify the following lines to reflect the accurate paths to the libraries on your system.
-export RASPA_PARENT_DIR=/opt/.conda/envs/simple-adsorption-workflow/lib/python3.9/site-packages/RASPA2
 export ZEO_DIR=/opt/zeo++-0.3
 
-# Fill with the python executable with the correct environment (satisfying requirements.txt)
-#export PACKAGE_PYTHON_DIR=$CONDA_PREFIX/bin/python
-
 # The following lines should not be modified (unless you know what you are doing).
-export RASPA_DIR=$RASPA_PARENT_DIR/simulations
+export RASPA_DIR=$RASPA_DIR/bin
 export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
 export LD_LIBRARY_PATH=$RASPA_DIR/lib
 

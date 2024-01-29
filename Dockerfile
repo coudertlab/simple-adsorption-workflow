@@ -25,7 +25,7 @@ RUN make
 
 # Set environment variables
 ENV RASPA_PARENT_DIR /usr/local/lib/python3.9/site-packages/RASPA2
-ENV RASPA_DIR $RASPA_PARENT_DIR/simulations
+ENV RASPA_DIR $RASPA_DIR/simulations
 ENV DYLD_LIBRARY_PATH $RASPA_DIR/lib
 ENV LD_LIBRARY_PATH $RASPA_DIR/lib
 ENV ZEO_DIR /usr/src/app/zeo++-0.3

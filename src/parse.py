@@ -3,7 +3,7 @@ import argparse
 import time,datetime
 from src.test import *
 
-ENV_VAR_LIST = ["RASPA_PARENT_DIR","RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR","PACKAGE_DIR"]
+ENV_VAR_LIST = ["RASPA_DIR","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","ZEO_DIR","PACKAGE_DIR"]
 
 def parse_arguments():
     """

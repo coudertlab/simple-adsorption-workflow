@@ -19,7 +19,7 @@ def run_test_isotherms_csv(args):
     try:
         if not args.input_file : args.input_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_isotherms_csv/input.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args)
         run_simulations(args,sim_dir_names)
         reconstruct_isotherms_to_csv(args,sim_dir_names)
         test_isotherms(args)
@@ -44,7 +44,7 @@ def run_test_output_json(args):
         if not args.input_file : args.input_file  = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/input.json"
         output_test_file = f"{os.getenv('PACKAGE_DIR')}/tests/test_output_json/runtest.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args)
         run_simulations(args,sim_dir_names)
         reconstruct_isotherms_to_csv(args,sim_dir_names)
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)
@@ -177,7 +177,7 @@ def run_test_charges(args):
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_charges/input.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args,verbose=True)
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args,verbose=True)
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
@@ -197,8 +197,8 @@ def run_test_grids(args):
     try:
         if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_grids/input.json"
         print(f"Reading input file in {args.input_file}")
-        cif_names, sim_dir_names = prepare_input_files(args)
-        run_simulations(args,sim_dir_names,type="grids")
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args)
+        run_simulations(args,sim_dir_names,grid_use = grid_use)
         #export_simulation_result_to_json(args,sim_dir_names,verbose=False)
         print("\nTest successful :)")
     except Exception as e:

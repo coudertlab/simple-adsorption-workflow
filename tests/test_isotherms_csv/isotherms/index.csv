@@ -1,5 +1,5 @@
 cycles,forcefield,init_cycles,isokey,molecule_name,npoints,pressure,print_every,simkeys,structure,temperature,unit_cells
-20.0,GenericMOFs,10.0,iso087e9eda,CO2,5.0,10.0,5.0,['simc8b6a2d2' 'simcb1fb4d2' 'sim0aa77719' 'simf26de987' 'sima6a004eb'],MIBQAR16_clean_coremof-2019,298.15,"[2, 2, 2]"
-20.0,GenericMOFs,10.0,isoa5c678da,CO2,5.0,10.0,5.0,['simaf11f1f6' 'simc6f701e1' 'sim96dab5ba' 'simc4c480b2' 'simb00f2782'],VOGTIV_clean_h_coremof-2019,298.15,"[4, 2, 2]"
-20.0,GenericMOFs,10.0,isoe8c790c1,N2,5.0,10.0,5.0,['simd30da6b9' 'sim103bd119' 'sim9dd05809' 'sim27decff6' 'sim9134fa55'],MIBQAR16_clean_coremof-2019,298.15,"[2, 2, 2]"
-20.0,GenericMOFs,10.0,iso9ea5455a,N2,5.0,10.0,5.0,['simcef45c37' 'sim57509327' 'sim557365dc' 'sim3ec8b92d' 'simaf2a5d88'],VOGTIV_clean_h_coremof-2019,298.15,"[4, 2, 2]"
+20.0,ExampleMOFsForceField,10.0,iso087e9eda,CO2,5.0,10.0,5.0,['simc8b6a2d2' 'simcb1fb4d2' 'sim0aa77719' 'simf26de987' 'sima6a004eb'],MIBQAR16_clean_coremof-2019,298.15,"[2, 2, 2]"
+20.0,ExampleMOFsForceField,10.0,isoa5c678da,CO2,5.0,10.0,5.0,['simaf11f1f6' 'simc6f701e1' 'sim96dab5ba' 'simc4c480b2' 'simb00f2782'],VOGTIV_clean_h_coremof-2019,298.15,"[4, 2, 2]"
+20.0,ExampleMOFsForceField,10.0,isoe8c790c1,N2,5.0,10.0,5.0,['simd30da6b9' 'sim103bd119' 'sim9dd05809' 'sim27decff6' 'sim9134fa55'],MIBQAR16_clean_coremof-2019,298.15,"[2, 2, 2]"
+20.0,ExampleMOFsForceField,10.0,iso9ea5455a,N2,5.0,10.0,5.0,['simcef45c37' 'sim57509327' 'sim557365dc' 'sim3ec8b92d' 'simaf2a5d88'],VOGTIV_clean_h_coremof-2019,298.15,"[4, 2, 2]"

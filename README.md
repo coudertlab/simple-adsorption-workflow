@@ -18,12 +18,19 @@ Part of the code presented here was heavily inspired by [RASPA python wrapper](h
 conda create -n simple-adsorption-workflow python=3.9
 conda activate simple-adsorption-workflow
 ```
+- Build and install RASPA from source (using version 2.0.48)
+```
+git clone https://github.com/iRASPA/RASPA2.git
+git checkout v2.0.48
+```
+See the install section in the original [documentation](https://github.com/iRASPA/RASPA2) to install from source.
+
 - Install Openbabel using conda
 ```bash
 conda install -c conda-forge openbabel
 ```
 
-- Use pip to install the libraries listed in `requirements.txt` in the conda environment:
+- Use pip to install the rest of the libraries listed in `requirements.txt` into the conda environment:
 ```bash
 pip install -r requirements.txt
 ```
@@ -71,7 +78,7 @@ This is the standard format of the `input.json` file to be provided by the user:
     "defaults":
         {
             "unit_cells":[1,1,1],
-            "forcefield":"GenericMOFs",
+            "forcefield":"ExampleMOFsForceField",
             "init_cycles":10,
             "cycles":20,
             "print_every":5
@@ -186,14 +193,14 @@ The output of the EQeq code should appear with the atom types and the atomic exp
 > Note : one six-letter identifier may result in two structures in the original CORE-MOF database, then all corresponding structures will be added to the list of cifs for further calculations, e.g. : structure=["AHUTIH"] will generate calculations for both files AHUTIH01_clean_coremof-2019.cif  and AHUTIH_clean_coremof-2019.cif.
 
 - `molecule_name` : a list of gas molecule names. 
-By default, the force field for adsorbate molecules is TraPPE. Therefore a file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
-- `forcefield` : the key name of the predefined force field in RASPA. The force field are stored in `$RASPA_PARENT_DIR/share/raspa/forcefield/` and here the list of possible key names :
+By default, the force field for adsorbate molecules is ExampleDefinitions. Therefore a file of the same name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
+- `forcefield` : the key name of the predefined force field in RASPA. The force field are stored in `$RASPA_DIR/share/raspa/forcefield/` and here the list of possible key names :
     - AmirjalayerSchmid
     - CastilloVlugtCalero2009
     - CoreShellCatlow
     - CoreShellSastreGale2005
     - CoreShellSchroderSauer
-    - CrystalGenerator
+    - ExampleMOFsForceField
     - Dubbeldam2007FlexibleIRMOF-1
     - Dubbeldam2007FlexibleIRMOF-10
     - Dubbeldam2007FlexibleIRMOF-16
@@ -204,13 +211,13 @@ By default, the force field for adsorbate molecules is TraPPE. Therefore a file 
     - Dzubak2012-MgMOF-74-extended
     - Dzubak2012-ZnMOF-74
     - GarciaPerez2006
-    - GenericMOFs
+    - ExampleMOFsForceField
     - GenericZeolites
     - MgMOF-74-Yazaydin
     - Nicholas
     - Pascual2004
     - RigidIonKramer1991
-    - TraPPE
+    - ExampleDefinitions
 
 - others parameters in section `defaults` : all other parameters that can be modified through a template.
   The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file:
@@ -240,7 +247,7 @@ WriteMoviesEvery              100
 
 Component 0 MoleculeName             {molecule_name}
             StartingBead             0
-            MoleculeDefinition       TraPPE
+            MoleculeDefinition       ExampleDefinitions
             IdealGasRosenbluthWeight 1.0
             TranslationProbability   1.0
             RotationProbability      1.0
@@ -249,7 +256,7 @@ Component 0 MoleculeName             {molecule_name}
             CreateNumberOfMolecules  0
 ```
 Definitions :
-- `{molecule_name}`: The molecule to test for adsorption. A file of the same name must exist in `$RASPA_PARENT_DIR/share/raspa/molecules/TraPPE`.
+- `{molecule_name}`: The molecule to test for adsorption. A file of the same name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
 - `{temperature}`: The temperature of the simulation, in Kelvin.
 - `{pressure}`: The pressure of the simulation, in Pascals.
 - `{helium_void_fraction}`: The helium void fraction of the input structure. Required for excess adsorption back-calculation.
@@ -282,7 +289,7 @@ location : `./simulations/run<runID>.json`
     },
     "defaults": {
       "unit_cells": [1, 1, 1],
-      "forcefield": "GenericMOFs",
+      "forcefield": "ExampleMOFsForceField",
       "init_cycles": 10,
       "cycles": 20,
       "print_every": 5
@@ -307,7 +314,7 @@ location : `./simulations/run<runID>.json`
   "results": [
     {
         "cycles": 20.0,
-        "forcefield": "GenericMOFs",
+        "forcefield": "ExampleMOFsForceField",
         "init_cycles": 10.0,
         "molecule_name": "N2",
         "npoints": 5.0,
@@ -351,7 +358,7 @@ This is just a transformation in the way data is printed in JSON keys, all data 
       "unit_cells": "[2, 2, 2]",
       "temperature": 298.15,
       "cycles": 20.0,
-      "forcefield": "GenericMOFs",
+      "forcefield": "ExampleMOFsForceField",
       "init_cycles": 10.0,
       "npoints": 5.0,
       "print_every": 5.0,
