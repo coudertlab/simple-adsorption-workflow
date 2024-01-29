@@ -165,9 +165,9 @@ def run_simulations(args,sim_dir_names,grid_use=False):
         _run_simulations(args,sim_dir_names,type="grids")
 
     # By default, always run GCMC
-    _run_simulations(args,sim_dir_names,type="simulations")
+    _run_simulations(args,sim_dir_names,type="gcmc")
 
-def _run_simulations(args,sim_dir_names,type="simulations"):
+def _run_simulations(args,sim_dir_names,type="gcmc"):
     """
     Run gas adsorption simulations with RASPA using prepared input files.
 
@@ -780,7 +780,7 @@ def create_run_script(path,save=True):
     else:
         return run_string
 
-def create_job_script(path,sim_dir_names,type="simulations"):
+def create_job_script(path,sim_dir_names,type="gcmc"):
     """
     Returns the job script in bash.
     """

@@ -28,7 +28,7 @@ def main():
         run_simulations(args,sim_dir_names,grid_use=grid_use)                                           # 2.
         output_isotherms_to_csv(args,sim_dir_names)                                                     # 3.
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)
-        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
+        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}")
         get_geometrical_features(args,cif_names)                                                        # 4.
 
     # Merge workflow outputs

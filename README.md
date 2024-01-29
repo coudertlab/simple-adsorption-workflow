@@ -173,7 +173,7 @@ To run it, use the `-t3` or `--test-merge-json` flag :
 ```bash
 python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3
 ```
-The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/simulations/`.
+The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/gcmc/`.
 
 
 ### Calculate the partial charges using the EQeq method
@@ -275,7 +275,7 @@ In the first version of the workflow, the outputs were stored in CSV files. Sinc
 
 ##### Workflow database JSON file
 
-location : `./simulations/run<runID>.json`
+location : `./gcmc/run<runID>.json`
 
 ```
 {
@@ -337,7 +337,7 @@ location : `./simulations/run<runID>.json`
 
 ##### isotherm JSON file
 
-location : `./simulations/isotherms.json`
+location : `./gcmc/isotherms.json`
 
 This is just a transformation in the way data is printed in JSON keys, all data are grouped by a set of identical parameters defined as follows : `Pressure(Pa)`, `uptake(cm^3 (STP)/cm^3 framework)`,`simkey`,`pressure`,`npoints` . 
 

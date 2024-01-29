@@ -48,9 +48,9 @@ def run_test_output_json(args):
         run_simulations(args,sim_dir_names)
         reconstruct_isotherms_to_csv(args,sim_dir_names)
         export_simulation_result_to_json(args,sim_dir_names,verbose=False)
-        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}")
+        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}")
         compare_csv_json(args)
-        compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/simulations/run*json')[0]}",output_test_file,"results")
+        compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}",output_test_file,"results")
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())
@@ -70,7 +70,7 @@ def run_test_merge_json(args):
     """
     print(f"------------------------ Running test ---------------------------\n")
     try:
-        json1,json2 =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/simulations/*")
+        json1,json2 =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/gcmc/*")
         merged_json = merge_json(args,json1,json2)
         jsons = {'isotherms from json 1':json1,'isotherms from json 2':json2, 'Isotherms from merged JSON':merged_json}
         for suptitle,file in jsons.items():

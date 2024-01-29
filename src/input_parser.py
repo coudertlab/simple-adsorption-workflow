@@ -384,11 +384,11 @@ def create_dir(dict_parameters,data_dir,simulation_name_length=4,verbose=False):
     Returns:
         str: The path to the newly created directory.
     """
-    os.makedirs(f'{data_dir}/simulations/',exist_ok=True)
+    os.makedirs(f'{data_dir}/gcmc/',exist_ok=True)
     dict_parameters["simkey"] = "sim" + secrets.token_hex(simulation_name_length)
-    work_dir = f'{data_dir}/simulations/{dict_parameters["simkey"]}'
+    work_dir = f'{data_dir}/gcmc/{dict_parameters["simkey"]}'
     os.makedirs(work_dir,exist_ok=True)
-    index_file = f"{data_dir}/simulations/index.csv"
+    index_file = f"{data_dir}/gcmc/index.csv"
 
     df = pd.DataFrame()
     

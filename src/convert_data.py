@@ -30,13 +30,13 @@ def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     dir_many_outputs=[]
     warnings_one_output={}
     errors_one_output={}
-    sim_dir = f"{data_dir}/simulations/"
+    sim_dir = f"{data_dir}/gcmc/"
     if sim_dir_names is not None :
         all_dirs = sim_dir_names
     else :
         all_dirs = [ name for name in os.listdir(sim_dir) if os.path.isdir(os.path.join(sim_dir, name))]
     for dir in all_dirs:
-        l_data_files = glob.glob(f'{data_dir}/simulations/{dir}/Output/System_0/*.data')
+        l_data_files = glob.glob(f'{data_dir}/gcmc/{dir}/Output/System_0/*.data')
         if len(l_data_files)==1:
             filename = l_data_files[0]
             warnings_one_output[filename] = get_lines_with_match('WARNING',filename)
@@ -119,7 +119,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     os.makedirs(isotherm_dir,exist_ok=True)
 
     # Find the restored results based on the list of simulation directories
-    df = pd.read_csv(f'{args.output_dir}/simulations/index.csv')
+    df = pd.read_csv(f'{args.output_dir}/gcmc/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
     param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
@@ -147,7 +147,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     for index,row in df_isot.iterrows():
         results =[]
         simkeys = eval(row['simkeys'].replace(' ',','))
-        paths = [f'{args.output_dir}/simulations/{simkey}/Output/System_0/' for simkey in simkeys]
+        paths = [f'{args.output_dir}/gcmc/{simkey}/Output/System_0/' for simkey in simkeys]
         filenames = [os.listdir(path)[0] for path in paths]
         for filename,path in zip(filenames,paths):
             with open(os.path.join(path,filename),'r') as f:
@@ -189,7 +189,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     dict_results.update({"metadata":dict_metadata})
 
     # Add parameters for each simulation
-    df = pd.read_csv(f'{args.output_dir}/simulations/index.csv')
+    df = pd.read_csv(f'{args.output_dir}/gcmc/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
     df = df.apply(lambda row: extract_properties(row,args), axis=1)
@@ -200,7 +200,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     runkey = 'run' + secrets.token_hex(4)
 
     # Write the dictionary in a JSON file
-    with open(f'{args.output_dir}/simulations/{runkey}.json', 'a') as f:
+    with open(f'{args.output_dir}/gcmc/{runkey}.json', 'a') as f:
         json.dump(dict_results, f, indent=4)
 
     # Write the output for debugging
@@ -373,7 +373,7 @@ def extract_properties(row,args):
 
     '''
     simkey = row['simkey']
-    path = f'{args.output_dir}/simulations/{simkey}/Output/System_0/'
+    path = f'{args.output_dir}/gcmc/{simkey}/Output/System_0/'
     filename = os.listdir(path)[0]
     with open(os.path.join(path,filename),'r') as f:
         string_output = f.read()
