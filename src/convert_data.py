@@ -243,14 +243,16 @@ def transform_grouped_data(grouped_data):
     
     return combined_result
 
-def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',isotherm_dir=None,
-                             debug=False):
+def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
+                             isotherm_dir=None,debug=False):
     '''
     Group data along the 'pressure' key.
 
     Parameters:
         args (argparse.Namespace): Parsed command-line arguments
         file (str) : path to the database json file
+        isotherm_filename (str) : name of the JSON file with isotherm tabulated data
+        isotherm_dir (str) : path to the JSON file with isotherm tabulated data
     Returns:
         None
     '''
