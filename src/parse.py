@@ -46,6 +46,9 @@ def parse_arguments():
         'test_grids'   :      run_test_grids,
     }
 
+    # Absolute paths 
+    args.output_dir = os.path.abspath(args.output_dir)
+
     # Execute tests
     for arg_name,value in vars(args).items():
         if arg_name in test_functions.keys() and value==True:
