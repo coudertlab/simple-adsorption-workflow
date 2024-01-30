@@ -57,6 +57,9 @@ def parse_json_to_list(filename):#,cifnames):
     for combo in combinations:
         dictionary = {key: value for key, value in zip(dict_parameters.keys(), combo)}
         dictionary.update(data['defaults'])
+        # Add defaults parameters for RASPA
+        for key,value in dict_default.items():
+            dictionary[key] = value
         l_dict_parameters.append(dictionary)
     return l_dict_parameters
 
@@ -70,7 +73,7 @@ def check_input_raspa(molecule_name_list):
 
 def parse_json_to_dict(filename):
     """
-    Parse a JSON file containing default values and parameters, and generate combinations of parameter values.
+    Parse a JSON file containing specific workflow parameters and defaut parameters for the other programs.
 
     Args:
         filename (str): The name of the JSON file to parse.
@@ -80,7 +83,9 @@ def parse_json_to_dict(filename):
 
     with open(filename, 'r') as f:
         data = json.load(f)
-    return data
+    data_flat = data["parameters"]
+    data_flat.update(data["defaults"])
+    return data_flat
 
 def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
     """

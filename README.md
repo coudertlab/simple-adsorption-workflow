@@ -21,6 +21,7 @@ conda activate simple-adsorption-workflow
 - Build and install RASPA from source (using version 2.0.48)
 ```
 git clone https://github.com/iRASPA/RASPA2.git
+cd RASPA2
 git checkout v2.0.48
 ```
 See the install section in the original [documentation](https://github.com/iRASPA/RASPA2) to install from source.
@@ -72,26 +73,29 @@ This is the standard format of the `input.json` file to be provided by the user:
         "molecule_name": ["N2", "CO2"],
         "pressure": [10,1E6],
         "npoints":5,
-        "temperature": [298.15]
+        "temperature": [298.15],
+        "charge_method":["EQeq"]
         }
-        ,
     "defaults":
         {
-            "unit_cells":[1,1,1],
             "forcefield":"ExampleMOFsForceField",
             "init_cycles":10,
             "cycles":20,
-            "print_every":5
+            "print_every":5,
+            "grid_use":"yes"
         }
 }
 ```
-In this example, the user can modify parameters and default parameters for RASPA simulations. The required specifications are as follows:
+In the field `parameters`, the keywords refer to the specific workflow inputs :
 
-- A six-letter CSD code to identify the material (e.g., `MIBQAR`).
-- Selection of a guest molecule using molecule_name (e.g., `N2`).
-- Setting the temperature (`temperature`).
-- Specifying a pressure range with two values (`pressure`): minimum and maximum pressure.
-- Determining the number of points to calculate on the isotherm (`npoints`).
+- `structure` : six-letter CSD codes to identify the material (e.g., `MIBQAR`)
+- `molecule_name` : guest molecules (e.g., N2).
+- `temperature` : temperatures in K
+- `pressure` : a pressure range, minimum and maximum pressures
+- `npoints` : number of pressure points linearly distributed in the pressure range
+- `charge_method` : methods for charge assignment (actual : 'None' or 'EQeq')
+
+In the field `defaults`, the keywords refer to RASPA default parameters, see more details about RASPA input file in a further section.
 
 > Note : `parameters` and `defaults` have been divided for the following purpose : if there are lists of parameters in the `parameters` field (e.g., multiple materials), the program will generate simulation folders for each unique combination of `parameters`.
 
@@ -195,65 +199,56 @@ The output of the EQeq code should appear with the atom types and the atomic exp
 - `molecule_name` : a list of gas molecule names. 
 By default, the force field for adsorbate molecules is ExampleDefinitions. Therefore a file of the same name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
 - `forcefield` : the key name of the predefined force field in RASPA. The force field are stored in `$RASPA_DIR/share/raspa/forcefield/` and here the list of possible key names :
-    - AmirjalayerSchmid
-    - CastilloVlugtCalero2009
-    - CoreShellCatlow
-    - CoreShellSastreGale2005
     - CoreShellSchroderSauer
-    - ExampleMOFsForceField
     - Dubbeldam2007FlexibleIRMOF-1
     - Dubbeldam2007FlexibleIRMOF-10
     - Dubbeldam2007FlexibleIRMOF-16
-    - Dubbeldam2012MIL-100
-    - Dubbeldam2012MIL-101
-    - Dzubak2012-IRMOF-1
-    - Dzubak2012-MgMOF-74
-    - Dzubak2012-MgMOF-74-extended
-    - Dzubak2012-ZnMOF-74
-    - GarciaPerez2006
     - ExampleMOFsForceField
-    - GenericZeolites
-    - MgMOF-74-Yazaydin
+    - ExampleMoleculeForceField
+    - ExampleZeolitesForceField
     - Nicholas
-    - Pascual2004
-    - RigidIonKramer1991
-    - ExampleDefinitions
 
 - others parameters in section `defaults` : all other parameters that can be modified through a template.
   The workflow uses by default the following template for RASPA inputs, all keys in brackets can be modified from JSON input file:
 ```
-SimulationType                {simulation_type}
-NumberOfCycles                {cycles}
-NumberOfInitializationCycles  {init_cycles}
-PrintEvery                    {print_every}
-RestartFile                   no
+    SimulationType                {simulation_type}
+    NumberOfCycles                {cycles}
+    NumberOfInitializationCycles  {init_cycles}
+    PrintEvery                    {print_every}
+    RestartFile                   no
 
-Forcefield                    {forcefield}
-CutOff                        12.8
-ChargeMethod                  Ewald
-EwaldPrecision                1e-6
-UseChargesFromMOLFile         {is_mol}
+    Forcefield                    {forcefield}
+    CutOff                        12
+    ChargeMethod                  Ewald
+    EwaldPrecision                1e-6
+    UseChargesFromCIFFile         {charges_from_cif}
 
-Framework                     0
-FrameworkName                 {structure}
-InputFileType                 {input_file_type}
-UnitCells                     {a} {b} {c}
-HeliumVoidFraction            {helium_void_fraction}
-ExternalTemperature           {temperature}
-ExternalPressure              {pressure}
+    Framework                     0
+    FrameworkName                 {structure}
+    InputFileType                 {input_file_type}
+    UnitCells                     {a} {b} {c}
+    HeliumVoidFraction            {helium_void_fraction}
+    ExternalTemperature           {temperature}
+    ExternalPressure              {pressure}
 
-Movies                        no
-WriteMoviesEvery              100
+    Movies                        no
+    WriteMoviesEvery              100
 
-Component 0 MoleculeName             {molecule_name}
-            StartingBead             0
-            MoleculeDefinition       ExampleDefinitions
-            IdealGasRosenbluthWeight 1.0
-            TranslationProbability   1.0
-            RotationProbability      1.0
-            ReinsertionProbability   1.0
-            SwapProbability          1.0
-            CreateNumberOfMolecules  0
+    NumberOfGrids                 {grid_n_atoms}
+    GridTypes                     {grid_atoms}
+    SpacingVDWGrid                {grid_spacing}
+    SpacingCoulombGrid            {grid_spacing}
+    UseTabularGrid                {grid_use}
+
+    Component 0 MoleculeName             {molecule_name}
+                StartingBead             0
+                MoleculeDefinition       ExampleDefinitions
+                IdealGasRosenbluthWeight 1.0
+                TranslationProbability   1.0
+                RotationProbability      1.0
+                ReinsertionProbability   1.0
+                SwapProbability          1.0
+                CreateNumberOfMolecules  0
 ```
 Definitions :
 - `{molecule_name}`: The molecule to test for adsorption. A file of the same name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
@@ -266,6 +261,7 @@ Definitions :
 - `{init_cycles}`: The number of initialization cycles to run. Defaults to the minimum of cycles / 2 and 10,000.
 - `{forcefield}`: The forcefield to use. Name must match a folder in `$RASPA_DIR/share/raspa/forcefield`, which contains the properly named `.def` files.
 - `{input_file_type}`: The type of input structure. Assumes cif.
+- `{grid_}` : All parameters which refer to pre-calculation of energies on grids.
 
 > Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
 
@@ -411,6 +407,23 @@ keyword : `"EQeq"`
 It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from this [python wrapper](https://github.com/lsmo-epfl/EQeq).
 First each CIF file is passed through Openbabel to correct format not compatible with EQeq (e.g. CIFs with columns in wrong order). A file with `_openbabel` prefix is written in the same directory.
 It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 the hydrogen electron affinity is -2.
+
+#### Grid Calculation
+
+In RASPA, one can speed up GCMC calculations by computing energy grids. It stores energies (Van der Waals and electrostatic) of all host atoms for a given framework in `$RASPA_DIR/share/raspa/grids/`. The position of a randomly inserted host molecule during GCMC is marked in the grid, then the energy of the host molecule is interpolated from the energy values on the neighboring grid nodes. 
+It can speed up calculations if a consequent number of simulations use the same framework-host (different pressures, temperatures).
+To use this option, one can to pass these parameters in the `default` fields :
+```
+...
+    "default":
+        {
+        ...
+        "grid_use":<yes/no>
+        "grid_spacing":<value_in_angstrom>
+        }
+...
+```
+If `grid_use` is set to 'yes', all GCMC simulations runnning in the workflow will use grids, these latter are calculated in a previous step during the workflow.
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 

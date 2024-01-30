@@ -15,10 +15,12 @@
         ,
     "defaults":
         {
-            "unit_cells":[1,1,1],
+            
             "forcefield":"ExampleMOFsForceField",
             "init_cycles":10000,
             "cycles":10000,
-            "print_every":5000
+            "print_every":5000,
+            "grid_use":"yes",
+            "grid_spacing":0.1
         }
 }

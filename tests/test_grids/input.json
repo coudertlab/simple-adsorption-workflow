@@ -6,17 +6,17 @@
         "pressure": [10,1E6],
         "npoints":5,
         "temperature": [298.15],
-        "charge_method":["EQeq"],
-        "grid_use":"yes",
-        "grid_spacing":1.0
+        "charge_method":["EQeq"]
         }
         ,
     "defaults":
         {
-            "unit_cells":[1,1,1],
+            
             "forcefield":"ExampleMOFsForceField",
             "init_cycles":10,
             "cycles":20,
-            "print_every":5
+            "print_every":5,
+            "grid_use":"yes",
+            "grid_spacing":1.0
         }
 }

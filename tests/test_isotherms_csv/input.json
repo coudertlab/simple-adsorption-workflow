@@ -10,7 +10,7 @@
         ,
     "defaults":
         {
-            "unit_cells":[1,1,1],
+            
             "forcefield":"ExampleMOFsForceField",
             "init_cycles":10,
             "cycles":20,

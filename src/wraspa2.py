@@ -82,64 +82,62 @@ def prepare_input_files(args,verbose=False):
     print(f"Output directory : {args.output_dir}")
 
     # 2. Parses the JSON input file and extracts input parameters for simulations.
-    l_dict_parameters = parse_json_to_list(args.input_file)
+    l_params = parse_json_to_list(args.input_file)
     
     # 3. Fetch the cif files from a database and get partial charges.
-    cifnames,l_dict_parameters = get_cifs(l_dict_parameters,args.output_dir,
+    cifnames,l_params = get_cifs(l_params,args.output_dir,
                                  database='mofxdb', substring="coremof-2019",
                                  verbose=verbose)
     
     # 4. Generate grids for GCMC calculations
-    dict_parameters = parse_json_to_dict(args.input_file)["parameters"]
-    try :
-        grid_use = dict_parameters["grid_use"]
-    except Exception as e:
-        dict_parameters["grid_use"] = "no"
-        grid_use = dict_parameters["grid_use"]
-    grid_use = grid_use == "yes"
-    if dict_parameters["grid_use"] == "yes":
-        molecules = dict_parameters["molecule_name"]
+    params = parse_json_to_dict(args.input_file)
+    params["grid_use"] = params.get("grid_use", "no")
+    grid_use = params["grid_use"] == "yes"
+    if params["grid_use"] == "yes":
+        molecules = params["molecule_name"]
+        # Delete useless keywords for grids
+        for keyword in  ["temperature","pressure","molecule_name"]:
+            params.pop(keyword)
+        
+        # Loop on each unique structure file
         for cifname in cifnames:
             cif_path_filename = f'{args.output_dir}/cif/{cifname}.cif'
-            
+           
             # Read adsorbate atom types
             grid_atoms, grid_n_atoms = _read_atom_types(f"{os.getenv('PACKAGE_DIR')}/parameters/molecules.csv",molecules)
             
             # Update keywords
-            dict_parameters["structure"] = cifname
-            dict_parameters["cycles"] = 0
-            dict_parameters["init_cycles"] = 0
-            dict_parameters["temperature"] = 300                                    # to avoid errors
-            dict_parameters["pressure"] = 10                                        # idem
-            dict_parameters["molecule_name"] = dict_parameters["molecule_name"][0]  # idem
-            dict_parameters["simulation_type"] = "MakeGrid"
-            dict_parameters["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
-            dict_parameters["grid_atoms"] = grid_atoms
-            dict_parameters["grid_n_atoms"] = grid_n_atoms
+            params["structure"] = cifname
+            params["cycles"] = 0
+            params["init_cycles"] = 0
+            params["simulation_type"] = "MakeGrid"
+            params["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
+            params["grid_atoms"] = grid_atoms
+            params["grid_n_atoms"] = grid_n_atoms
 
             # Create a directory, add cif and input for grid calculations
             work_dir = f"{args.output_dir}/grids/{cifname}"
             os.makedirs(work_dir,exist_ok=True)
             shutil.copy(cif_path_filename, work_dir)
-            create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
+            create_script(**params, save=True, filename=f'{work_dir}/simulation.input')
             create_run_script(path=work_dir, save=True)
         create_job_script(args.output_dir, cifnames,type='grids')
     
     # 4. Generates the simulation directories, copies CIF files, and creates the input scripts for RASPA.
     print("Writing input/running files for RASPA ...")
     sim_dir_names = []
-    for dict_parameters in l_dict_parameters:
+    for params in l_params:
         # Get CIF name
-        cif_path_filename = f'{args.output_dir}/cif/{dict_parameters["structure"]}.cif'
+        cif_path_filename = f'{args.output_dir}/cif/{params["structure"]}.cif'
 
         # Correct unit cell to avoid bias from periodic boundary conditions
-        dict_parameters["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
+        params["unit_cells"] = get_minimal_unit_cells(cif_path_filename)
 
         # Create a working directory, add CIF file, and generate input script
-        work_dir = create_dir(dict_parameters, args.output_dir)
-        sim_dir_names.append(dict_parameters["simkey"])
+        work_dir = create_dir(params, args.output_dir)
+        sim_dir_names.append(params["simkey"])
         shutil.copy(cif_path_filename, work_dir)
-        create_script(**dict_parameters, save=True, filename=f'{work_dir}/simulation.input')
+        create_script(**params, save=True, filename=f'{work_dir}/simulation.input')
         create_run_script(path=work_dir, save=True)
 
     # 5. Creates the job scripts for running simulations on multiple CPUs.
@@ -282,7 +280,7 @@ def _script_subprocess(input_script, structure, raspa_dir, stream, conn):
         conn.send(cast(ptr, c_char_p).value[:].decode("utf-8"))
     conn.close()
 
-def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
+def create_script(structure,molecule_name="N2", temperature=273.15, pressure=101325,
                   helium_void_fraction=1.0, unit_cells=(1, 1, 1),
                   simulation_type="MonteCarlo", cycles=2000,
                   init_cycles="auto", forcefield="ExampleMOFsForceField",
@@ -334,7 +332,7 @@ def create_script(structure,molecule_name, temperature=273.15, pressure=101325,
                   RestartFile                   no
 
                   Forcefield                    {forcefield}
-                  CutOff                        12.8
+                  CutOff                        12
                   ChargeMethod                  Ewald
                   EwaldPrecision                1e-6
                   UseChargesFromCIFFile         {charges_from_cif}
