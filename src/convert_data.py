@@ -324,8 +324,15 @@ def get_git_commit_hash():
         commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).strip().decode('utf-8')
         return commit_hash
     except Exception as e:
-        print(f"Error getting commit hash: {e}")
-        return None
+        commit_hash = os.environ.get("SA_WORKFLOW_COMMIT_HASH")
+        if commit_hash is None :
+            print(f"Could neither get the commit hash from git: {e}")
+            print("nor from the SA_WORKFLOW_COMMIT_HASH environment variable.")
+            return None
+        else :
+            return commit_hash
+
+        
 
 def get_workflow_metadata():
     metadata = {}

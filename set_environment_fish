@@ -10,3 +10,12 @@ set -gx LD_LIBRARY_PATH $RASPA_DIR/lib
 
 # Make visible the path to all python scripts
 set -gx PACKAGE_DIR (realpath (dirname (status -f)))
+
+# Specifies the current commit hash
+{   
+    export SA_WORKFLOW_COMMIT_HASH=$(git rev-parse HEAD)
+    # Runs if git is available and the current repo has bee obtained through git
+} || {
+    export SA_WORKFLOW_COMMIT_HASH="91ced2d29bbadf8ad5e186ceb4142df5842381d9"
+    # If git is unavailable or the current repo has been obtainer otherwise (eg. tar archive), need to specify by hand
+}
