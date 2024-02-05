@@ -4,12 +4,11 @@
         "structure":[ "ABAVIJ",
                       "ABAYIO",
                       "ABAYOU",
-                      "ABEFUL",
-                      "ABESUX"],
-        "molecule_name": ["N2","CO2"],
+                      "ABETIN"],
+    "molecule_name": ["CO2","N2"],
         "pressure": [10,1E6],
-        "npoints":10,
-        "temperature": [298.15,77],
+        "npoints":8,
+        "temperature": [298.15],
         "charge_method":["None","EQeq"]
         }
         ,
@@ -17,10 +16,10 @@
         {
             
             "forcefield":"ExampleMOFsForceField",
-            "init_cycles":10000,
-            "cycles":10000,
-            "print_every":5000,
-            "grid_use":"yes",
+            "init_cycles":5,
+            "cycles":5,
+            "print_every":1,
+            "grid_use":"no",
             "grid_spacing":0.1
         }
 }
