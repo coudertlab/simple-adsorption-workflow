@@ -336,8 +336,8 @@ def get_minimal_unit_cells(cif_path_filename,cutoff=12):
     cx,cy,cz = perpendicular_lengths(mat[0],mat[1],mat[2])
     nx = ceil(cutoff*2/ cx)
     ny = ceil(cutoff*2/ cy)
-    nz = ceil(cutoff*2/ cz)    
-    return nx,ny,ny
+    nz = ceil(cutoff*2/ cz)
+    return nx,ny,nz
 
 def mat_from_parameters(a, b, c, alpha, beta, gamma):
     cos_alpha = np.cos(np.radians(alpha))
