@@ -1,8 +1,7 @@
 mofdb_client==0.10.0
-#openbabel-wheel==3.1.1.17 (not necessary, just to avoid warnings from original wrapspa)
+openbabel-wheel==3.1.1.17
 ase
 matplotlib
 pandas==1.2
 DeepDiff
 pyeqeq
-#openbabel (to be tested)
