@@ -404,9 +404,10 @@ The partial charges can be calculated automatically given the atomic positions. 
 ```
 ##### EQeq
 keyword : `"EQeq"`
-It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from this [python wrapper](https://github.com/lsmo-epfl/EQeq).
+It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from the python wrapper [pyeqeq](https://github.com/lsmo-epfl/EQeq).
 First each CIF file is passed through Openbabel to correct format not compatible with EQeq (e.g. CIFs with columns in wrong order). A file with `_openbabel` prefix is written in the same directory.
-It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 the hydrogen electron affinity is -2.
+It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 and the hydrogen electron affinity is -2.
+Other default parameters can be found in the original code [page](https://github.com/lsmo-epfl/EQeq). For instance, one important implementation of EQeq (with respect to the Rappé and Goddard method) is the use of non-zero centered charge (parameter `chargecenters`), the charges are hence equilibrated around its number of oxidation and the **oxidation number of the atom are fixed by default**. If you use the same default parameters for the whole screening, a wrong oxidation number could be assign, and the calculation of the partial charges will be affected. To solve this, one can recaplculate oxidation numbers from the structure file using see [ref1](https://www.nature.com/articles/s41557-021-00717-y) or ref2 (MOSAEC code by Woo et al., not available yet).
 
 #### Grid Calculation
 
