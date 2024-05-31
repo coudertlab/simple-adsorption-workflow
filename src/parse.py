@@ -27,7 +27,7 @@ def parse_arguments():
 
     # create the parser for the merge command
     parser_merge = subparsers.add_parser('merge', help='Merge workflow outputs.')
-    parser_merge.add_argument("-i", "--input-files", nargs=2, help="path to two JSON workflow outputs")
+    parser_merge.add_argument("-i", "--input-files", nargs='+', help="list of JSON workflow outputs runfiles")
     parser_merge.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
     parser_merge.add_argument("-t3","--test-merge-json", action="store_true", help="run test to merge json databases")
 

@@ -80,7 +80,7 @@ def run_test_merge_json(args):
             nb_isotherms = output_isotherms_to_json(args,file,isotherm_filename=f'isotherms_{basename}')
             if suptitle != 'Isotherms from merged JSON':
                 nb_isotherms_sum+=nb_isotherms
-            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle,block=False) # set block to True to keep opened each plot for visual check
+            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle,block=True) # set block to True to keep opened each plot for visual check
         assert nb_isotherms == 5,f'The number of isotherms after the merge must be 5.'
         print(f"Found {nb_isotherms} isotherms (< {nb_isotherms_sum}  = total number of isotherms in separated JSON files.)")
         print("\nTest successful :)")

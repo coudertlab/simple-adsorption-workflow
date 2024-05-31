@@ -1,0 +1,31 @@
+{
+    "parameters": {
+        "structure": [
+            "ABAVIJ",
+            "ABAYIO"
+        ],
+        "molecule_name": [
+            "CO2",
+            "N2"
+        ],
+        "pressure": [
+            10.0,
+            1000000.0
+        ],
+        "npoints": 6,
+        "temperature": [
+            298.15
+        ],
+        "charge_method": [
+            "EQeq"
+        ]
+    },
+    "defaults": {
+        "forcefield": "ExampleMOFsForceField",
+        "init_cycles": 10,
+        "cycles": 10,
+        "print_every": 5,
+        "grid_use": "no",
+        "grid_spacing": 0.1
+    }
+}

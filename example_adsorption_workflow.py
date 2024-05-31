@@ -33,7 +33,7 @@ def main():
 
     # Merge workflow outputs
     elif args.command == "merge":
-        merged_json = merge_json(args,args.input_files[0],args.input_files[1])
+        merged_json = merge_json(args,args.input_files)
         nb_isotherms = output_isotherms_to_json(args,f'{args.output_dir}/run_merged.json',
                                                 isotherm_filename=f'isotherms.json',
                                                 isotherm_dir=f'{args.output_dir}')

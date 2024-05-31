@@ -26,7 +26,7 @@
         "grid_spacing": 0.1
     },
     "metadata": {
-        "timestamp": "2024-05-31 14:31:56",
+        "timestamp": "2024-05-31 16:14:39",
         "python_version": "3.9.16 | packaged by conda-forge | (main, Feb  1 2023, 21:39:03) \n[GCC 11.3.0]",
         "python_compiler": "GCC 11.3.0",
         "python_implementation": "CPython",
@@ -36,7 +36,7 @@
         "os_release": "6.5.0-28-generic",
         "machine": "x86_64",
         "processor": "x86_64",
-        "workflow_package_git_hash": "1d690b02b2c5a6be46dc7f724a207bb661818f9a",
+        "workflow_package_git_hash": "1496703c1309920d8dcb4e21d2bda20e9d612242",
         "cif_source": {
             "database": "mofxdb",
             "version": "dc8a0295db"
@@ -54,7 +54,7 @@
             "npoints": 4.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sime67b78d7",
+            "simkey": "sim68a77c99",
             "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(3, 3, 2)",
@@ -72,7 +72,7 @@
             "npoints": 4.0,
             "pressure": 333340.0,
             "print_every": 5.0,
-            "simkey": "sim43264428",
+            "simkey": "sim25e1a1ab",
             "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(3, 3, 2)",
@@ -90,7 +90,7 @@
             "npoints": 4.0,
             "pressure": 666670.0,
             "print_every": 5.0,
-            "simkey": "sim96e021e8",
+            "simkey": "sime4da2c86",
             "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(3, 3, 2)",
@@ -108,7 +108,7 @@
             "npoints": 4.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "sim53da14ac",
+            "simkey": "sim00029b73",
             "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(3, 3, 2)",
@@ -126,7 +126,7 @@
             "npoints": 4.0,
             "pressure": 10.0,
             "print_every": 5.0,
-            "simkey": "sim4e59439f",
+            "simkey": "sim3368a46c",
             "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(1, 1, 1)",
@@ -144,12 +144,12 @@
             "npoints": 4.0,
             "pressure": 333340.0,
             "print_every": 5.0,
-            "simkey": "sim85f04b1c",
+            "simkey": "sim37a5838a",
             "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(1, 1, 1)",
             "Pressure(Pa)": 333340.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 3.8797533762
+            "uptake(cm^3 (STP)/cm^3 framework)": 6.9835560772
         },
         {
             "charge_method": "EQeq",
@@ -162,12 +162,12 @@
             "npoints": 4.0,
             "pressure": 666670.0,
             "print_every": 5.0,
-            "simkey": "sim310a9e24",
+            "simkey": "sim00e436dd",
             "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(1, 1, 1)",
             "Pressure(Pa)": 666670.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 10.6693217846
+            "uptake(cm^3 (STP)/cm^3 framework)": 6.9835560772
         },
         {
             "charge_method": "EQeq",
@@ -180,12 +180,12 @@
             "npoints": 4.0,
             "pressure": 1000000.0,
             "print_every": 5.0,
-            "simkey": "sim7cf145e2",
+            "simkey": "simf9a09c44",
             "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
             "temperature": 298.15,
             "unit_cells": "(1, 1, 1)",
             "Pressure(Pa)": 1000000.0,
-            "uptake(cm^3 (STP)/cm^3 framework)": 14.9370504985
+            "uptake(cm^3 (STP)/cm^3 framework)": 9.311408103
         }
     ]
 }

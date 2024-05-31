@@ -1,0 +1,178 @@
+{
+    "isotherms": [
+        {
+            "pressure": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "simkey": [
+                "sim3c218bda",
+                "sim18a0b7fb",
+                "simfa82c256",
+                "sim2025a0db",
+                "sim69e7a32b",
+                "sim2ce870b6"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "charge_method": "EQeq",
+            "cycles": 10.0,
+            "forcefield": "ExampleMOFsForceField",
+            "grid_spacing": 0.1,
+            "grid_use": "no",
+            "init_cycles": 10.0,
+            "molecule_name": "CO2",
+            "npoints": 6.0,
+            "print_every": 5.0,
+            "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
+            "temperature": 298.15,
+            "unit_cells": "(3, 3, 2)",
+            "uptake(cm^3 (STP)/cm^3 framework)": 0.0,
+            "isokey": "iso06520510"
+        },
+        {
+            "pressure": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "simkey": [
+                "sim34a0d264",
+                "sim6db20042",
+                "sim5743ecd3",
+                "sim3c83b2c6",
+                "sim24d2e61c",
+                "sim798b578a"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                4.073741045,
+                6.4015930708,
+                7.9534944213,
+                14.5490751609,
+                12.2212231351
+            ],
+            "charge_method": "EQeq",
+            "cycles": 10.0,
+            "forcefield": "ExampleMOFsForceField",
+            "grid_spacing": 0.1,
+            "grid_use": "no",
+            "init_cycles": 10.0,
+            "molecule_name": "CO2",
+            "npoints": 6.0,
+            "print_every": 5.0,
+            "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
+            "temperature": 298.15,
+            "unit_cells": "(1, 1, 1)",
+            "isokey": "iso4ef5fbab"
+        },
+        {
+            "pressure": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "simkey": [
+                "simeac46fd7",
+                "sim9120d31d",
+                "sim7f87c206",
+                "sim35bf11bb",
+                "sim0d8425af",
+                "sim46cc37e5"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "charge_method": "EQeq",
+            "cycles": 10.0,
+            "forcefield": "ExampleMOFsForceField",
+            "grid_spacing": 0.1,
+            "grid_use": "no",
+            "init_cycles": 10.0,
+            "molecule_name": "N2",
+            "npoints": 6.0,
+            "print_every": 5.0,
+            "structure": "ABAVIJ_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
+            "temperature": 298.15,
+            "unit_cells": "(3, 3, 2)",
+            "uptake(cm^3 (STP)/cm^3 framework)": 0.0,
+            "isokey": "iso5d72a547"
+        },
+        {
+            "pressure": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "simkey": [
+                "simacbf2046",
+                "simea6590c8",
+                "simeb7bc200",
+                "sim0937ca39",
+                "sim35769be0",
+                "simcab9c38c"
+            ],
+            "Pressure(Pa)": [
+                10.0,
+                200008.0,
+                400006.0,
+                600004.0,
+                800002.0,
+                1000000.0
+            ],
+            "uptake(cm^3 (STP)/cm^3 framework)": [
+                0.0,
+                0.9699383441,
+                1.3579136817,
+                1.7458890193,
+                5.0436793891,
+                5.6256423955
+            ],
+            "charge_method": "EQeq",
+            "cycles": 10.0,
+            "forcefield": "ExampleMOFsForceField",
+            "grid_spacing": 0.1,
+            "grid_use": "no",
+            "init_cycles": 10.0,
+            "molecule_name": "N2",
+            "npoints": 6.0,
+            "print_every": 5.0,
+            "structure": "ABAYIO_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00",
+            "temperature": 298.15,
+            "unit_cells": "(1, 1, 1)",
+            "isokey": "iso312801b4"
+        }
+    ]
+}
