@@ -1,6 +1,6 @@
 from deepdiff import DeepDiff
 import traceback
-import os,glob
+import os,glob,json
 from src.wraspa2 import *
 from src.input_parser import *
 from src.convert_data import *
@@ -70,15 +70,19 @@ def run_test_merge_json(args):
     """
     print(f"------------------------ Running test ---------------------------\n")
     try:
-        json1,json2 =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/gcmc/*")
-        merged_json = merge_json(args,json1,json2)
-        jsons = {'isotherms from json 1':json1,'isotherms from json 2':json2, 'Isotherms from merged JSON':merged_json}
+        json_files =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/gcmc/*")
+        merged_json = merge_json(args,json_files)
+        jsons = {f'Isotherms from json {i+1}': file for i,file in enumerate(json_files)}
+        jsons['Isotherms from merged JSON'] = merged_json
+        nb_isotherms_sum = 0
         for suptitle,file in jsons.items():
             basename = os.path.basename(file)
             nb_isotherms = output_isotherms_to_json(args,file,isotherm_filename=f'isotherms_{basename}')
-            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle)
-        assert nb_isotherms == 10,'The number of isotherms after the merge must be 10.'
-        print("Found 10 isotherms (< 12  = total number of isotherms in separated JSON files.)")
+            if suptitle != 'Isotherms from merged JSON':
+                nb_isotherms_sum+=nb_isotherms
+            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle,block=False) # set block to True to keep opened each plot for visual check
+        assert nb_isotherms == 5,f'The number of isotherms after the merge must be 5.'
+        print(f"Found {nb_isotherms} isotherms (< {nb_isotherms_sum}  = total number of isotherms in separated JSON files.)")
         print("\nTest successful :)")
     except Exception as e:
         print(traceback.format_exc())

@@ -4,7 +4,7 @@ import warnings
 import json
 import pandas as pd
 
-def plot_isotherm(isotherm_json,suptitle=None,figsize=(10,6)):
+def plot_isotherm(isotherm_json,suptitle=None,figsize=(10,6),block=False):
     '''
     Plot all isotherms with a default settings for legend, colors and markers.
 
@@ -40,4 +40,4 @@ def plot_isotherm(isotherm_json,suptitle=None,figsize=(10,6)):
 
     plt.suptitle(suptitle,y=0.95)
     fig.tight_layout()
-    plt.show(block=False)
+    plt.show(block=block)

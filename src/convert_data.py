@@ -286,7 +286,8 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
 
     with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
         json.dump(all_isotherms, f, indent=4)
-    print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
+    #print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
+    print(f"Total number of isotherms written in {isotherm_filename} : {len(all_isotherms['isotherms'])}")
 
     return len(all_isotherms['isotherms'])
 
@@ -390,26 +391,34 @@ def extract_properties(row,args):
     row['uptake(cm^3 (STP)/cm^3 framework)'] = r["Number of molecules"][gas]["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]
     return row
 
-def merge_json(args,json1,json2,filename='run_merged.json'):
+def merge_json(args, json_files, filename='run_merged.json'):
     """
-    Merge two json from independent workflow runs into a new file.
+    Merge multiple JSON files from independent workflow runs into a new file.
 
     Args:
         args (argparse.Namespace): Parsed command-line arguments.
+        json_files (list of str): List of filenames of JSON files to be merged.
+        filename (str): The name of the output file.
     """
-    os.makedirs(f'{args.output_dir}',exist_ok=True)
-    path_filename=f'{args.output_dir}/{filename}'
-    with open(json1,"r") as f1 :
-        json1_dict = json.load(f1)
-    with open(json2,"r") as f2 :
-        json2_dict = json.load(f2)
-    merged_json = {"input":[],"metadata":[],"results":[]}
-    for key,values in merged_json.items():
-        values.append(json1_dict[key])
-        values.append(json2_dict[key])
-    with open(path_filename,"w") as fp:
-        json.dump(merged_json,fp,indent=4)
-    print(f'{path_filename} has been been created.')
+    # Ensure the output directory exists
+    os.makedirs(f'{args.output_dir}', exist_ok=True)
+    path_filename = f'{args.output_dir}/{filename}'
+
+    # Initialize a dictionary to hold merged results
+    merged_json = {"input": [], "metadata": [], "results": []}
+
+    # Load and append data from each file into the appropriate lists in merged_json
+    for json_file in json_files:
+        with open(json_file, "r") as f:
+            json_dict = json.load(f)
+            for key in merged_json:
+                merged_json[key].append(json_dict.get(key, []))  # Use get to avoid errors if key doesn't exist
+
+    # Write the merged JSON to a file
+    with open(path_filename, "w") as fp:
+        json.dump(merged_json, fp, indent=4)
+
+    print(f'{path_filename} has been created.')
     return path_filename
 
 def flatten_list(lst):
