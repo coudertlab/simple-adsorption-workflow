@@ -10,6 +10,8 @@ import secrets
 import warnings
 from src.charge import *
 import numpy as np
+from pathlib import Path
+import shutil
 
 # Careful with these lines, since bugs might appear with C++ shared library call
 #try:
@@ -131,7 +133,7 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
     Args:
         l_dict_parameters (list) : a list of dictionaries containing each set of simulation parameters.
         data_dir (str) : the root path for outputs
-        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','csd'}.
+        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','csd','local'}.
         **kwargs: Additional keyword arguments passed to cif_from_mofxdb or cif_from_csd.
 
     Raises:
@@ -163,14 +165,16 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
             cifnames_nested.append(cif_from_mofxdb(structure, data_dir, **kwargs))
         elif database == 'csd':
             cifnames_nested.append(cif_from_csd(structure, data_dir, **kwargs))
+        elif database == 'local':
+            cifnames_nested.append(cif_from_local_directory(structure, data_dir))
         else:
-            raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
+            raise ValueError("Invalid database name. Expected 'mofxdb', 'csd' or 'local'.")
 
     # Flat lists
     cifnames_database = [item for sublist in cifnames_nested for item in sublist]
 
     # Stdout
-    print(f"Cif files fetched from {database}")
+    print(f"\nCIF files fetched from {database} : ")
     for cif in [cif for cif in _get_basename(cifnames_database)]:
         print(cif)
 
@@ -210,7 +214,7 @@ def _get_cifname_matching(cif_dir,pattern,exclude_pattern=None):
     """
     cifs_matched =glob.glob(f'{cif_dir}/{pattern}')
     if exclude_pattern is None:
-        assert len(cifs_matched) == 1, f'cif name with pattern {pattern} is not unique'
+        assert len(cifs_matched) == 1, f'cif name with pattern {pattern} do not exist or is not unique'
     elif isinstance(exclude_pattern, str):
         cifs_matched = [cif for cif in cifs_matched if exclude_pattern not in cif]
         assert len(cifs_matched) == 1, f'cif name with pattern {exclude_pattern} and exclusion pattern {exclude_pattern} is not unique'
@@ -259,7 +263,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     return cifnames
 
-def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=True):
+def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=False):
 
     '''
     Returns only the subset of cif filenames containing partial charges.
@@ -319,6 +323,36 @@ def cif_from_csd(structure, data_dir, search_by="identifier"):
             print(f'Cif has been written in {cifname}.')
         cifnames.append(cifname)
     return cifnames
+
+def cif_from_local_directory(structure, data_dir):
+    """Use CIF files provided by the user in a local path
+
+    Args:
+        structure (str): Name of the structure (CIF basename).
+        data_dir (str): Parent directory.
+    """
+    current_dir = Path.cwd()
+    target_directory = f"{data_dir}/cif"
+    
+    # Search for the file using rglob (recursive glob)
+    found_files = list(current_dir.rglob(f'{structure}.cif'))
+    
+    # Raise warning if structure file is not found
+    if not found_files:
+        warnings.warn(f"Warning: {structure}.cif' does not exist in the current directory or any subdirectories.")
+    
+    # Copy the file into the output directory
+    target_cifnames = []
+    for file_path in found_files:
+        try:
+            # Define the destination path
+            destination = f'{target_directory}/{file_path.name}'
+            shutil.copy2(file_path, destination)  # copy2 preserves metadata
+            print(f"Copied '{file_path}' to '{destination}'")
+            target_cifnames.append(destination)
+        except Exception as e:
+            warnings.warn(f"Failed to copy '{file_path}' to '{destination}': {e}")
+    return target_cifnames
 
 def get_minimal_unit_cells(cif_path_filename,cutoff=12):
     """

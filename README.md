@@ -8,7 +8,6 @@ This package provides a demonstrative workflow for automating RASPA simulations 
 
 Part of the code presented here was heavily inspired by [RASPA python wrapper](https://github.com/WilmerLab/raspa2/tree/sensor_array_mof_adsorption/python), and been adapted to meet the workflow architecture.
 
-
 ## Install
 
 ### With Conda
@@ -186,9 +185,15 @@ python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges
 ```
 The output of the EQeq code should appear with the atom types and the atomic experimental properties used for the calibration of the method.
 
-### Documentation
+### Run simulations on user CIF
+```bash
+python $PACKAGE_DIR/example_adsorption_workflow.py run --test-cif-local-directory
+```
+This test will copy the corresponding input files to run simulations from the CIF files found in the current directory (or subdirectory)
 
-#### JSON input
+## Documentation
+
+### JSON input
 
 - `structure` :  a list of MOF crystal identifiers.
   The input parser employs MOFXDB API, so for now the only structures that can be used are structures found in CoREMOF (2014 or 2019) and h-MOF. 
@@ -196,6 +201,10 @@ The output of the EQeq code should appear with the atom types and the atomic exp
 
 > Note : one six-letter identifier may result in two structures in the original CORE-MOF database, then all corresponding structures will be added to the list of cifs for further calculations, e.g. : structure=["AHUTIH"] will generate calculations for both files AHUTIH01_clean_coremof-2019.cif  and AHUTIH_clean_coremof-2019.cif.
 
+Users can also supply CIF files in a local archive. This option is enabled by setting `database`=`local` in the input JSON file. 
+
+> Note : The user is responsible for cleaning the structures he provides. To use the automatic EQeq charge assignment calculation, the CIF format must check the program specifications.
+ 
 - `molecule_name` : a list of gas molecule names. 
 By default, the force field for adsorbate molecules is ExampleDefinitions. Therefore a file of the same name must exist in `$RASPA_DIR/share/raspa/molecules/ExampleDefinitions`.
 - `forcefield` : the key name of the predefined force field in RASPA. The force field are stored in `$RASPA_DIR/share/raspa/forcefield/` and here the list of possible key names :
@@ -265,11 +274,11 @@ Definitions :
 
 > Note : In the future, we might let the user provide its own custom templates files to be able to take into account other parameters.
 
-#### JSON outputs
+### JSON outputs
 
 In the first version of the workflow, the outputs were stored in CSV files. Since this format is not appropriate to store metadata, we added routines to export all simulation data in a more suitable format, a JSON format. We also add a routine that transform single-pressure-point adsorption to isotherms.
 
-##### Workflow database JSON file
+#### Workflow database JSON file
 
 location : `./gcmc/run<runID>.json`
 
@@ -331,7 +340,7 @@ location : `./gcmc/run<runID>.json`
 ```
 
 
-##### isotherm JSON file
+#### isotherm JSON file
 
 location : `./gcmc/isotherms.json`
 
@@ -378,7 +387,7 @@ This is just a transformation in the way data is printed in JSON keys, all data 
 
 > Notes : In this version of the workflow, the metadata are lost, so JSON isotherms can be used for quick plot but should not be used to store long-term data. For this purpose the database JSON file is appropriate.
 
-##### Further development
+#### Further development
 
 In the future, we would like to update these routines to use a existent JSON format, the one used by MOFXDB for interoperable operations between databases.
 
@@ -390,7 +399,7 @@ What other data/metadata should be added  ?
 - composition to deal with co-adsorption
 - more simulation-related parameters from RASPA (e.g. SimulationType, UseChargesFromCIFFile, RASPA warnings, ...)
 
-#### Charge Assignment
+### Charge Assignment
 
 The partial charges can be calculated automatically given the atomic positions. To use this option ,add the following key with the corresponding keyword in the JSON input : 
 ```
@@ -402,14 +411,14 @@ The partial charges can be calculated automatically given the atomic positions. 
         }
 ...
 ```
-##### EQeq
+#### EQeq
 keyword : `"EQeq"`
 It calculates the partial charges using the [EQeq method](https://doi-org.inc.bib.cnrs.fr/10.1021/jz3008485) from the python wrapper [pyeqeq](https://github.com/lsmo-epfl/EQeq).
 First each CIF file is passed through Openbabel to correct format not compatible with EQeq (e.g. CIFs with columns in wrong order). A file with `_openbabel` prefix is written in the same directory.
 It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 and the hydrogen electron affinity is -2.
 Other default parameters can be found in the original code [page](https://github.com/lsmo-epfl/EQeq). For instance, one important implementation of EQeq (with respect to the Rappé and Goddard method) is the use of non-zero centered charge (parameter `chargecenters`), the charges are hence equilibrated around its number of oxidation and the **oxidation number of the atom are fixed by default**. If you use the same default parameters for the whole screening, a wrong oxidation number could be assign, and the calculation of the partial charges will be affected. To solve this, one can recalculate oxidation numbers from the structure file using [ref1](https://www.nature.com/articles/s41557-021-00717-y) or ref2 (MOSAEC code by Woo et al., not available yet).
 
-#### Grid Calculation
+### Grid Calculation
 
 In RASPA, one can speed up GCMC calculations by computing energy grids. It stores energies (Van der Waals and electrostatic) of all host atoms for a given framework in `$RASPA_DIR/share/raspa/grids/`. The position of a randomly inserted host molecule during GCMC is marked in the grid, then the energy of the host molecule is interpolated from the energy values on the neighboring grid nodes. 
 It can speed up calculations if a consequent number of simulations use the same framework-host (different pressures, temperatures).
@@ -428,5 +437,5 @@ If `grid_use` is set to 'yes', all GCMC simulations runnning in the workflow wil
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
-- Use a user-provided CIF structure file: several verification must be performed to use a new CIF in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
+- If the user wants to run calculation on its own structures, several verification must be performed to be used in a GCMC simulation which is out of the scope of the present tool (curate CIF, check presence of force field parameters for the new atoms name defined, ...)
 - Use a user-defined force field

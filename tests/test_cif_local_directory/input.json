@@ -1,0 +1,20 @@
+{
+    "parameters":
+        {
+        "structure":["FALQEQ_clean_pymatgen","FALQOA_clean_pymatgen","RURPAW_clean_pymatgen","RURPEA_clean_pymatgen"],
+        "molecule_name": ["N2", "CO2"],
+        "pressure": [10,1E6],
+        "npoints":3,
+        "temperature": [298.15],
+        "charge_method":["EQeq"],
+        "database":"local"
+        },
+    "defaults":
+        {
+            "forcefield":"ExampleMOFsForceField",
+            "init_cycles":10,
+            "cycles":20,
+            "print_every":5,
+            "grid_use":"no"
+        }
+}

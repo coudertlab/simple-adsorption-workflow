@@ -210,3 +210,27 @@ def run_test_grids(args):
         print("\nTest NOT successful :(")
     print(f"------------------------ End of the test ------------------------\n")
     exit(0)
+    
+def run_test_cif_local_directory(args):
+    """
+    Run a test that parse the JSON file with a parameter `database='local'` to load CIF files from a local directory (any directory and subdirectory in the current path).
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    print(f"------------------------ Running test ---------------------------\n")
+    try:
+        input_directory_test = f"{os.getenv('PACKAGE_DIR')}/tests/test_cif_local_directory/"
+        output_directory_test ="./test_cif_local_directory"
+        shutil.copytree(input_directory_test,output_directory_test)
+        if not args.input_file : args.input_file      = f"{input_directory_test}/input.json"
+        print(f"Reading input file in {args.input_file}")
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args)
+        run_simulations(args,sim_dir_names,grid_use = grid_use)
+        #export_simulation_result_to_json(args,sim_dir_names,verbose=False)
+        print("\nTest successful :)")
+    except Exception as e:
+        print(traceback.format_exc())
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
+    exit(0)

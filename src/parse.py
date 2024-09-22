@@ -24,6 +24,7 @@ def parse_arguments():
     parser_run.add_argument("-t2","--test-output-json", action="store_true", help="run test to create JSON outputs")
     parser_run.add_argument("-t4","--test-charges", action="store_true", help="run test to create CIFs with EQeq partial charges")
     parser_run.add_argument("-t5","--test-grids", action="store_true", help="run test with GCMC calculation on grids")
+    parser_run.add_argument("-t6","--test-cif-local-directory", action="store_true", help="run test with GCMC calculation on user CIF files.")
 
     # create the parser for the merge command
     parser_merge = subparsers.add_parser('merge', help='Merge workflow outputs.')
@@ -39,11 +40,12 @@ def parse_arguments():
 
     # Create a dictionary mapping flags to test functions
     test_functions = {
-        'test_isotherms_csv': run_test_isotherms_csv,
-        'test_output_json':   run_test_output_json,
-        'test_merge_json':    run_test_merge_json,
-        'test_charges'   :    run_test_charges,
-        'test_grids'   :      run_test_grids,
+        'test_isotherms_csv':       run_test_isotherms_csv,
+        'test_output_json':         run_test_output_json,
+        'test_merge_json':          run_test_merge_json,
+        'test_charges'   :          run_test_charges,
+        'test_grids'   :            run_test_grids,
+        'test_cif_local_directory': run_test_cif_local_directory
     }
 
     # Absolute paths 

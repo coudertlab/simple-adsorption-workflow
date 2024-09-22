@@ -83,14 +83,16 @@ def prepare_input_files(args,verbose=False):
 
     # 2. Parses the JSON input file and extracts input parameters for simulations.
     l_params = parse_json_to_list(args.input_file)
+    params = parse_json_to_dict(args.input_file)
     
     # 3. Fetch the cif files from a database and get partial charges.
+    # By default, CIF files are fetched from MOFXDB (subset CoRE MOF 2019)
+    database = params["database"] if 'database' in params.keys() else 'mofxdb'
     cifnames,l_params = get_cifs(l_params,args.output_dir,
-                                 database='mofxdb', substring="coremof-2019",
+                                 database=database, substring="coremof-2019",
                                  verbose=verbose)
     
     # 4. Generate grids for GCMC calculations
-    params = parse_json_to_dict(args.input_file)
     params["grid_use"] = params.get("grid_use", "no")
     grid_use = params["grid_use"] == "yes"
     if params["grid_use"] == "yes":
