@@ -201,7 +201,7 @@ This test will copy the corresponding input files to run simulations from the CI
 
 > Note : one six-letter identifier may result in two structures in the original CORE-MOF database, then all corresponding structures will be added to the list of cifs for further calculations, e.g. : structure=["AHUTIH"] will generate calculations for both files AHUTIH01_clean_coremof-2019.cif  and AHUTIH_clean_coremof-2019.cif.
 
-Users can also supply CIF files in a local archive. This option is enabled by setting `database`=`local` in the input JSON file. 
+Users can also supply CIF files in a local archive `./cif`. This option is enabled by setting `database`=`local` in the input JSON file. The `./cif` directory must be located in the current directory.  
 
 > Note : The user is responsible for cleaning the structures he provides. To use the automatic EQeq charge assignment calculation, the CIF format must check the program specifications.
  

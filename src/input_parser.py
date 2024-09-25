@@ -334,12 +334,14 @@ def cif_from_local_directory(structure, data_dir):
     current_dir = Path.cwd()
     target_directory = f"{data_dir}/cif"
     
-    # Search for the file using rglob (recursive glob)
-    found_files = list(current_dir.rglob(f'{structure}.cif'))
-    
+    # Search for the file in the 'cifs' subdirectory
+    cifs_dir = current_dir / 'cif'
+    found_files = list(cifs_dir.rglob(f'{structure}.cif'))
+
     # Raise warning if structure file is not found
     if not found_files:
-        warnings.warn(f"Warning: {structure}.cif' does not exist in the current directory or any subdirectories.")
+        warn_message = f"Warning: {structure}.cif does not exist the directory ./cif"
+        warnings.warn(warn_message)
     
     # Copy the file into the output directory
     target_cifnames = []
@@ -351,7 +353,7 @@ def cif_from_local_directory(structure, data_dir):
             print(f"Copied '{file_path}' to '{destination}'")
             target_cifnames.append(destination)
         except Exception as e:
-            warnings.warn(f"Failed to copy '{file_path}' to '{destination}': {e}")
+            warnings.warn(f"Failed to copy '{file_path}': {e}")
     return target_cifnames
 
 def get_minimal_unit_cells(cif_path_filename,cutoff=12):

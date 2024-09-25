@@ -75,7 +75,7 @@ def prepare_input_files(args,verbose=False):
     """
     # 1. Creates the output directory if it doesn't exist.
     try:
-        os.makedirs(args.output_dir, exist_ok=False)
+        os.makedirs(args.output_dir, exist_ok=True)
     except FileExistsError as e :
         print("The existing folder cannot be overwritten!")
         raise(e)

@@ -7,6 +7,7 @@ from src.convert_data import *
 from src.zeopp import *
 from src.plot import *
 from src.charge import *
+from pathlib import Path
 
 def run_test_isotherms_csv(args):
     """
@@ -221,9 +222,8 @@ def run_test_cif_local_directory(args):
     print(f"------------------------ Running test ---------------------------\n")
     try:
         input_directory_test = f"{os.getenv('PACKAGE_DIR')}/tests/test_cif_local_directory/"
-        output_directory_test ="./test_cif_local_directory"
-        shutil.copytree(input_directory_test,output_directory_test)
-        if not args.input_file : args.input_file      = f"{input_directory_test}/input.json"
+        shutil.copytree(f"{input_directory_test}/cif",Path.cwd() / 'cif')
+        args.input_file = f"{input_directory_test}/input.json"
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names, grid_use = prepare_input_files(args)
         run_simulations(args,sim_dir_names,grid_use = grid_use)
