@@ -128,6 +128,13 @@ Two files will be created :
 - `run_merged.json` : the workflow file with all single-point outputs
 - `isotherms.json` : the isotherms file
 
+
+### Use a GUI to create the input file of the workflow
+```
+python $PACKAGE_DIR/example_adsorption_workflow.py input
+```
+
+
 ## Workflow diagram
 
 The schematic diagram (Fig. 1) outlines the primary functions executed within the workflow:

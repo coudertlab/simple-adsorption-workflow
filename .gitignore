@@ -13,3 +13,4 @@ README_dev.md
 CHECKLIST.md
 src/.ipynb_checkpoints/
 __pycache__/
+Dockerfile
