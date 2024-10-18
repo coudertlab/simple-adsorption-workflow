@@ -110,11 +110,11 @@ These restrictions and assumptions aim to streamline the simulations and simplif
 
 ### Run simulations
 ```Bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run
+python $PACKAGE_DIR/saw.py run
 ```
 To specify input and output locations :
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run -i <path/to/myinput>.json -o <path/to/data/directory>
+python $PACKAGE_DIR/saw.py run -i <path/to/myinput>.json -o <path/to/data/directory>
 ```
 By default, when the flag `-o` is not provided,   a new directory will be created with the following formatting name : `./<Date>_<Time>_<Runtype>/` .
 The run type <Runtype> is `data` for normal runs and `<name_of_test>` for tests cases.
@@ -122,7 +122,7 @@ The run type <Runtype> is `data` for normal runs and `<name_of_test>` for tests 
 ### Merge outputs from two independent runs
 
 ```
-python $PACKAGE_DIR/example_adsorption_workflow.py merge -i run<index1>.json run<index2>.json -o ./
+python $PACKAGE_DIR/saw.py merge -i run<index1>.json run<index2>.json -o ./
 ```
 Two files will be created :
 - `run_merged.json` : the workflow file with all single-point outputs
@@ -131,9 +131,8 @@ Two files will be created :
 
 ### Use a GUI to create the input file of the workflow
 ```
-python $PACKAGE_DIR/example_adsorption_workflow.py input
+python $PACKAGE_DIR/saw.py input
 ```
-
 
 ## Workflow diagram
 
@@ -163,7 +162,7 @@ The schematic diagram (Fig. 1) outlines the primary functions executed within th
 It runs 20 simulations on RASPA and compute geometric features using ZEO++, then stores the results in CSV files. It then reconstructs the isotherms curves from the simulation results and compares line by line all isotherms files from pre-computed data found in the package repository. The geometrical features are also stored in a CSV format, and 
 To run it, use `-t` or `--test-isotherms-csv` flags: 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run -t
+python $PACKAGE_DIR/saw.py run -t
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_csv/`.
 
@@ -173,7 +172,7 @@ It runs 20 simulations on RASPA then stores the results in a single JSON file. I
 
 To run it, use the `-t2` or `--test-isotherm-json` flag : 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run -t2
+python $PACKAGE_DIR/saw.py run -t2
 ```
 The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`.
 
@@ -181,20 +180,20 @@ The input file used here is located in `$PACKAGE_DIR/tests/test_isotherms_json/`
 
 To run it, use the `-t3` or `--test-merge-json` flag : 
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py merge -t3
+python $PACKAGE_DIR/saw.py merge -t3
 ```
 The json files containing the data to be merged (single pressure data points) are located in `$PACKAGE_DIR/tests/test_merge_json/gcmc/`.
 
 
 ### Calculate the partial charges using the EQeq method
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run --test-charges
+python $PACKAGE_DIR/saw.py run --test-charges
 ```
 The output of the EQeq code should appear with the atom types and the atomic experimental properties used for the calibration of the method.
 
 ### Run simulations on user CIF
 ```bash
-python $PACKAGE_DIR/example_adsorption_workflow.py run --test-cif-local-directory
+python $PACKAGE_DIR/saw.py run --test-cif-local-directory
 ```
 This test will copy the corresponding input files to run simulations from the CIF files found in the current directory (or subdirectory)
 
