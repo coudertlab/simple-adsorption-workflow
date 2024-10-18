@@ -38,11 +38,16 @@ def main():
         get_geometrical_features(args,cif_names)                                                        # 4.
 
     # Merge workflow outputs
-    elif args.command == "merge":
+    if args.command == "merge":
         merged_json = merge_json(args,args.input_files)
         nb_isotherms = output_isotherms_to_json(args,f'{args.output_dir}/run_merged.json',
                                                 isotherm_filename=f'isotherms.json',
                                                 isotherm_dir=f'{args.output_dir}')
+
+    # Run a Graphical User Interface for plotting isotherms results
+    if args.command == "plot":
+        run_gui_output()
+
 
 if __name__ == "__main__":
     main()

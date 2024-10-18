@@ -33,7 +33,10 @@ def parse_arguments():
     parser_merge.add_argument("-t3","--test-merge-json", action="store_true", help="run test to merge json databases")
 
     # create the parser for the input command
-    parser_input = subparsers.add_parser('input', help='GUI for generating JSON input.')
+    parser_input = subparsers.add_parser('input', help='Launch interface for generating JSON input.')
+
+    # create the parser for the input command
+    parser_plot = subparsers.add_parser('plot', help='Launch interface for plotting isotherms from the database.')
 
     # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
@@ -105,6 +108,8 @@ def _check_input_file(parser,args):
         for i in range(len(args.input_files)):
             args.input_files[i] = os.path.abspath(args.input_files[i])
     elif(args.command=='input'):
+        pass
+    elif(args.command=='plot'):
         pass
     else :
         print(f"Input file not provided. Provide a correct input file using -i option.")

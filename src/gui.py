@@ -1,12 +1,14 @@
-import ctypes.wintypes
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import tkinter.font as tkFont
+import matplotlib.pyplot as plt
+#import plotly.express as px
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import json
 import os
 import pandas as pd
 
-class JSONFormApp:
+class JSONInputForm:
     def __init__(self, root):
         self.root = root
         self.root.title("JSON Form GUI")
@@ -323,12 +325,170 @@ class JSONFormApp:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to write JSON file.\n{e}")
 
+class JSONOutputReader:
+    def __init__(self, root):
+        self.root = root
+        self.json_file_path = tk.StringVar()
+        self.df_json = None
+        self.setup_file_selection_gui()
+
+    def setup_file_selection_gui(self):
+        """Setup the GUI for file selection"""
+        ttk.Label(self.root, text="Select Isotherms JSON File").pack(pady=10)
+        self.file_entry = ttk.Entry(self.root, textvariable=self.json_file_path, width=50)
+        self.file_entry.pack(pady=5)
+        browse_button = ttk.Button(self.root, text="Browse", command=self.browse_file)
+        browse_button.pack(pady=5)
+        load_button = ttk.Button(self.root, text="Load File", command=self.load_json_data)
+        load_button.pack(pady=10)
+
+    def browse_file(self):
+        """Open file dialog to select the JSON file"""
+        file_path = filedialog.askopenfilename(
+            title="Select Isotherms JSON File", 
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        if file_path:
+            self.json_file_path.set(file_path)
+
+    def load_json_data(self):
+        """Load and clean JSON isotherm data, then open field selection window"""
+        file_path = self.json_file_path.get()
+        if file_path:
+            with open(file_path, "r") as f:
+                file_contents = f.read()
+            parsed_json = json.loads(file_contents)
+            self.df_json = pd.DataFrame(parsed_json["isotherms"])
+
+            # Clean the data and extract unique values
+            self.df_json["refcode"] = self.df_json["structure"].apply(lambda x: x.split("_clean")[0])
+            unique_structures = self.df_json["refcode"].unique().tolist()
+            unique_charge_methods = self.df_json["charge_method"].unique().tolist()
+            unique_molecule_names = self.df_json["molecule_name"].unique().tolist()
+            min_temp = self.df_json["temperature"].min()
+            max_temp = self.df_json["temperature"].max()
+
+            # Once the file is loaded, show the field selection window
+            self.show_field_selection_window(unique_structures, unique_charge_methods, unique_molecule_names, min_temp, max_temp)
+
+    def show_field_selection_window(self, structures, charge_methods, molecules, min_temp, max_temp):
+        """Setup the GUI for selecting fields"""
+        # Create a new window
+        self.selection_window = tk.Toplevel(self.root)
+        self.selection_window.title("Select Parameters")
+
+        # Structure selection (Multi-select Listbox)
+        ttk.Label(self.selection_window, text="Select Structures:").grid(row=0, column=0, padx=10, pady=5)
+        self.structure_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6,exportselection=False)
+        for structure in structures:
+            self.structure_listbox.insert(tk.END, structure)
+        self.structure_listbox.grid(row=0, column=1, padx=10, pady=5)
+
+        # Charge method selection (Multi-select Listbox)
+        ttk.Label(self.selection_window, text="Select Charge methods:").grid(row=1, column=0, padx=10, pady=5)
+        self.charge_method_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6,exportselection=False)
+        for charge_method in charge_methods:
+            self.charge_method_listbox.insert(tk.END, charge_method)
+        self.charge_method_listbox.grid(row=1, column=1, padx=10, pady=5)
+
+        # Molecule name selection
+        ttk.Label(self.selection_window, text="Select Molecule Name:").grid(row=2, column=0, padx=10, pady=5)
+        self.molecule_var = tk.StringVar(value=molecules[0])
+        molecule_menu = ttk.Combobox(self.selection_window, textvariable=self.molecule_var, values=molecules, state="readonly")
+        molecule_menu.grid(row=2, column=1, padx=10, pady=5)
+
+        # Temperature range selection
+        ttk.Label(self.selection_window, text="Min Temperature:").grid(row=3, column=0, padx=10, pady=5)
+        self.min_temp_var = tk.DoubleVar(value=min_temp)
+        min_temp_entry = ttk.Entry(self.selection_window, textvariable=self.min_temp_var)
+        min_temp_entry.grid(row=3, column=1, padx=10, pady=5)
+
+        ttk.Label(self.selection_window, text="Max Temperature:").grid(row=4, column=0, padx=10, pady=5)
+        self.max_temp_var = tk.DoubleVar(value=max_temp)
+        max_temp_entry = ttk.Entry(self.selection_window, textvariable=self.max_temp_var)
+        max_temp_entry.grid(row=4, column=1, padx=10, pady=5)
+
+        # Button to confirm selection
+        confirm_button = ttk.Button(self.selection_window, text="Confirm Selection", command=self.process_selection)
+        confirm_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+    def process_selection(self):
+        """Process the user-selected fields and plot the isotherms"""
+        selected_structures = [self.structure_listbox.get(i) for i in self.structure_listbox.curselection()]
+        selected_charge_methods = [self.structure_listbox.get(i) for i in self.charge_method_listbox.curselection()]
+        #selected_charge_method = self.charge_method_var.get()
+        selected_molecule = self.molecule_var.get()
+        min_temp = self.min_temp_var.get()
+        max_temp = self.max_temp_var.get()
+
+        # Filter the data based on user selection
+        filtered_df = self.df_json[
+            (self.df_json["refcode"].isin(selected_structures)) &
+            (self.df_json["charge_method"].isin(selected_charge_methods)) &
+            (self.df_json["molecule_name"] == selected_molecule) &
+            (self.df_json["temperature"] >= min_temp) &
+            (self.df_json["temperature"] <= max_temp)
+        ]
+
+        # DEBUG FROM HERE
+
+        # Plot all selected isotherms in a single graph
+        self.plot_isotherms(filtered_df, selected_structures, selected_charge_methods, selected_molecule)
+
+    def plot_isotherms(self, df, structures, charge_method, molecule):
+        """Plot the filtered isotherms in a single matplotlib plot"""
+        fig, ax = plt.subplots()
+        print(df)
+        for structure in structures:
+            structure_data = df[df["refcode"] == structure]
+            for i, row in structure_data.iterrows():
+                ax.plot(row["Pressure(Pa)"], row["uptake(cm^3 (STP)/cm^3 framework)"], label=f"{structure}, {charge_method}, {molecule}, T={row['temperature']}K")
+
+        # Set labels and legend
+        ax.set_xlabel("Pressure (Pa)")
+        ax.set_ylabel("Uptake (cm^3 STP/cm^3 framework)")
+        #ax.legend(loc='best', fontsize='small')
+
+        # Display the plot in the tkinter window
+        canvas = FigureCanvasTkAgg(fig, self.selection_window)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row=6, column=0, columnspan=2, pady=10)
+
+        plt.tight_layout()
+
+        # Save button
+        save_button = ttk.Button(self.selection_window, text="Save Plot", command=lambda: self.save_plot(fig))
+        save_button.grid(row=7, column=0, columnspan=2, pady=10)
+
+    def save_plot(self, fig):
+        """Open a file dialog to save the plot"""
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+        if file_path:
+            fig.savefig(file_path)
+            print(f"Plot saved to {file_path}")
+
+def run_gui_output():
+    """Function to initialize and run the GUI"""
+    root = tk.Tk()
+    root.title("Isotherm Data Query")
+    app = JSONOutputReader(root)
+    root.mainloop()
+
+def run_gui_output():
+    """Function to initialize and run the GUI"""
+    root = tk.Tk()
+    root.geometry("400x400") # define size of the GUI window
+    root.title("Isotherm Data Query")
+    app = JSONOutputReader(root)
+    root.mainloop()
+
 def run_gui_input():
     root = tk.Tk()
     root.geometry("400x800") # define size of the GUI window
     root.tk.call('tk', 'scaling', 2.0) # to increase resolution
-    app = JSONFormApp(root)
+    app = JSONInputForm(root)
     root.mainloop()
 
-if __name__ == "__main__":
-    run_gui_input()
