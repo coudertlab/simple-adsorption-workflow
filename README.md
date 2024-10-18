@@ -443,7 +443,9 @@ To use this option, one can to pass these parameters in the `default` fields :
         }
 ...
 ```
-If `grid_use` is set to 'yes', all GCMC simulations runnning in the workflow will use grids, these latter are calculated in a previous step during the workflow.
+If `grid_use` is set to 'yes', all GCMC simulations running in the workflow will use grids, these latter are calculated in a previous step during the workflow.
+
+TODO : There is a bug to fix with this option ! for now,when this option is on, it recalculates for each GCMC simulations the energy grid, even if the grid has already been computed previously (same pair of adsorbate atom and adsorbent material).
 
 ### What can not be done (yet) with `simple-adsorption-workflow` ?
 
