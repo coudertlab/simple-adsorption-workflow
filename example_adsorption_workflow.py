@@ -6,13 +6,15 @@ from src.convert_data import *
 from src.plot import *
 from src.zeopp import *
 from src.test import *
+from src.gui import *
 
 def main():
     """
     Main function to execute a gas adsorption workflow in porous crystals.
 
     This workflow comprises the following steps:
-    1. Prepare input files.
+    0. Create input file for this workflow.
+    1. Prepare input files for all simulation codes.
     2. Run simulations with RASPA.
     3. Convert outputs, check errors and process isotherms.
     4. Compute geometrical features with Zeo++.
@@ -21,6 +23,10 @@ def main():
         Run the script to execute the workflow based on provided input arguments.
     """
     args = parse_arguments()
+
+    # Run a Graphical User Interface for generating workflow input
+    if args.command == "input":
+        run_gui_input()
 
     # Run simulations
     if args.command == "run": 

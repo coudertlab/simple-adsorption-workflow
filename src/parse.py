@@ -32,6 +32,9 @@ def parse_arguments():
     parser_merge.add_argument("-o", "--output-dir", default=default_directory, help="output directory path")
     parser_merge.add_argument("-t3","--test-merge-json", action="store_true", help="run test to merge json databases")
 
+    # create the parser for the input command
+    parser_input = subparsers.add_parser('input', help='GUI for generating JSON input.')
+
     # Check package and dependencies install paths 
     check_environment_variables(ENV_VAR_LIST)
 
@@ -49,7 +52,10 @@ def parse_arguments():
     }
 
     # Absolute paths 
-    args.output_dir = os.path.abspath(args.output_dir)
+    try:
+        args.output_dir = os.path.abspath(args.output_dir)
+    except Exception as e:
+        pass
 
     # Execute tests
     for arg_name,value in vars(args).items():
@@ -98,6 +104,8 @@ def _check_input_file(parser,args):
     elif args.command=='merge' and args.input_files is not None: # merge
         for i in range(len(args.input_files)):
             args.input_files[i] = os.path.abspath(args.input_files[i])
+    elif(args.command=='input'):
+        pass
     else :
         print(f"Input file not provided. Provide a correct input file using -i option.")
         parser.print_help()
