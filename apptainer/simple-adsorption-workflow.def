@@ -45,7 +45,7 @@ Stage: final
 %labels
     Owner Arthur Hardiagon
     Author dylan.bissuel@univ-lyon1.fr
-    Version v0.0.4
+    Version v0.0.2
     MyLabel simple-adsorption-workflow
     EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
 
