@@ -40,12 +40,12 @@ Stage: final
 
 %runscript
     cd /home/app
-    python3 ./example_adsorption_workflow.py -t -o /tmp/tests
+    python3 ./saw.py -t -o /tmp/tests
 
 %labels
     Owner Arthur Hardiagon
     Author dylan.bissuel@univ-lyon1.fr
-    Version v0.0.1
+    Version v0.0.4
     MyLabel simple-adsorption-workflow
     EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
 
