@@ -207,9 +207,59 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     if verbose:
         print(json.dumps(dict_results,indent=4))
 
-def transform_grouped_data(grouped_data):
+def transform_grouped_data(grouped_data,variable_feature='uptake(cm^3 (STP)/cm^3 framework)'):
     '''
-    Group data into a dictionary. Different values will be grouped in a list.
+    Group data into a dictionary. Different values will be grouped in a list,
+    including the variable feature even if it does not vary.
+
+    Parameters:
+    -----------
+    grouped_data : list
+        List of dictionaries representing grouped data.
+    variable_feature : str
+        Name of the variable feature, e.g. the uptake.
+
+    Returns:
+    --------
+    dict
+        Transformed data as a dictionary with combined results.
+    '''
+    df = pd.DataFrame(grouped_data)
+
+    # Determine which columns have varying values
+    varying_values = df.nunique() > 1
+    transformed_df = df.loc[:, varying_values]
+
+    # Get unique keys
+    unique_keys = df.columns[df.nunique() == 1].tolist()
+
+    # Prepare the transformed data
+    transformed_data = transformed_df.to_dict('list')
+
+    # Include unique values from other columns
+    unique_values_dict = {key: df[key].iloc[0] for key in unique_keys}
+    combined_result = transformed_data.copy()
+
+    # Transform to a list the specific data if it takes a unique value
+    if variable_feature in unique_keys:
+        combined_result[variable_feature] = [unique_values_dict[variable_feature]]*transformed_df.shape[0]
+        unique_values_dict.pop(variable_feature)
+
+    combined_result.update(unique_values_dict)
+    return combined_result
+
+def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
+                             isotherm_dir=None,debug=False):
+    '''
+    Group data along the 'pressure' key.
+
+    Parameters:
+        args (argparse.Namespace): Parsed command-line arguments
+        file (str) : path to the database json file
+        isotherm_filename (str) : name of the JSON file with isotherm tabulated data
+        isotherm_dir (str) : path to the JSON file with isotherm tabulated data
+    Returns:
+        None
 
     Example:
     --------
@@ -231,30 +281,6 @@ def transform_grouped_data(grouped_data):
     print(transformed_data)
     Output:
     {'uptake(cm^3 (STP)/cm^3 framework)': [0.1, 0.2, 0.15], 'cycles': 20.0}
-    '''
-    df = pd.DataFrame(grouped_data)
-    varying_values = df.nunique() > 1
-    transformed_df = df.loc[:, varying_values]
-    unique_keys = df.columns[df.nunique() == 1].tolist()
-    transformed_data = transformed_df.to_dict('list')
-    unique_values_dict = {key: df[key].iloc[0] for key in unique_keys}
-    combined_result = transformed_data.copy()
-    combined_result.update(unique_values_dict)
-    
-    return combined_result
-
-def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
-                             isotherm_dir=None,debug=False):
-    '''
-    Group data along the 'pressure' key.
-
-    Parameters:
-        args (argparse.Namespace): Parsed command-line arguments
-        file (str) : path to the database json file
-        isotherm_filename (str) : name of the JSON file with isotherm tabulated data
-        isotherm_dir (str) : path to the JSON file with isotherm tabulated data
-    Returns:
-        None
     '''
 
     # Create isotherms directory if not already exist
@@ -332,8 +358,6 @@ def get_git_commit_hash():
             return None
         else :
             return commit_hash
-
-        
 
 def get_workflow_metadata():
     metadata = {}
