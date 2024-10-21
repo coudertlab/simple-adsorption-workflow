@@ -22,6 +22,13 @@ class JSONInputForm:
 
         self.create_widgets()
 
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def on_close(self):
+        """Handle the window close event."""
+        self.root.quit()  # Quit the main loop
+        self.root.destroy()  # Destroy the main window
+
     def create_widgets(self):
         # Create a Notebook (tabbed interface)
         notebook = ttk.Notebook(self.root)
@@ -332,6 +339,12 @@ class JSONOutputReader:
         self.json_file_path = tk.StringVar()
         self.df_json = None
         self.setup_file_selection_gui()
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def on_close(self):
+        """Handle the window close event."""
+        self.root.quit()  # Quit the main loop
+        self.root.destroy()  # Destroy the main window
 
     def setup_file_selection_gui(self):
         """Setup the GUI for file selection"""
@@ -484,13 +497,6 @@ class JSONOutputReader:
         if file_path:
             fig.savefig(file_path)
             print(f"Plot saved to {file_path}")
-
-def run_gui_output():
-    """Function to initialize and run the GUI"""
-    root = tk.Tk()
-    root.title("Isotherm Data Query")
-    app = JSONOutputReader(root)
-    root.mainloop()
 
 def run_gui_output():
     """Function to initialize and run the GUI"""
