@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import json
 import os
 import pandas as pd
+from itertools import cycle
 
 class JSONInputForm:
     def __init__(self, root):
@@ -393,9 +394,10 @@ class JSONOutputReader:
 
         # Molecule name selection
         ttk.Label(self.selection_window, text="Select Molecule Name:").grid(row=2, column=0, padx=10, pady=5)
-        self.molecule_var = tk.StringVar(value=molecules[0])
-        molecule_menu = ttk.Combobox(self.selection_window, textvariable=self.molecule_var, values=molecules, state="readonly")
-        molecule_menu.grid(row=2, column=1, padx=10, pady=5)
+        self.molecule_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6,exportselection=False)
+        for molecule in molecules:
+            self.molecule_listbox.insert(tk.END, molecule)
+        self.molecule_listbox.grid(row=2, column=1, padx=10, pady=5)
 
         # Temperature range selection
         ttk.Label(self.selection_window, text="Min Temperature:").grid(row=3, column=0, padx=10, pady=5)
@@ -415,9 +417,11 @@ class JSONOutputReader:
     def process_selection(self):
         """Process the user-selected fields and plot the isotherms"""
         selected_structures = [self.structure_listbox.get(i) for i in self.structure_listbox.curselection()]
-        selected_charge_methods = [self.structure_listbox.get(i) for i in self.charge_method_listbox.curselection()]
-        #selected_charge_method = self.charge_method_var.get()
-        selected_molecule = self.molecule_var.get()
+        selected_charge_methods = [self.charge_method_listbox.get(i) for i in self.charge_method_listbox.curselection()]
+        selected_molecules = [self.molecule_listbox.get(i) for i in self.molecule_listbox.curselection()]
+        #selected_charge_method = self.charge_method_var.get() # only one possible value
+        #selected_molecule = self.molecule_var.get() # only one possible value
+
         min_temp = self.min_temp_var.get()
         max_temp = self.max_temp_var.get()
 
@@ -425,29 +429,40 @@ class JSONOutputReader:
         filtered_df = self.df_json[
             (self.df_json["refcode"].isin(selected_structures)) &
             (self.df_json["charge_method"].isin(selected_charge_methods)) &
-            (self.df_json["molecule_name"] == selected_molecule) &
+            (self.df_json["molecule_name"].isin(selected_molecules)) &
             (self.df_json["temperature"] >= min_temp) &
             (self.df_json["temperature"] <= max_temp)
-        ]
-
-        # DEBUG FROM HERE
+            ]
 
         # Plot all selected isotherms in a single graph
-        self.plot_isotherms(filtered_df, selected_structures, selected_charge_methods, selected_molecule)
+        self.plot_isotherms(filtered_df)
 
-    def plot_isotherms(self, df, structures, charge_method, molecule):
-        """Plot the filtered isotherms in a single matplotlib plot"""
+    def plot_isotherms(self, filtered_df):
+        """Plot the filtered isotherms in a single matplotlib plot with proper legend"""
         fig, ax = plt.subplots()
-        print(df)
-        for structure in structures:
-            structure_data = df[df["refcode"] == structure]
-            for i, row in structure_data.iterrows():
-                ax.plot(row["Pressure(Pa)"], row["uptake(cm^3 (STP)/cm^3 framework)"], label=f"{structure}, {charge_method}, {molecule}, T={row['temperature']}K")
 
-        # Set labels and legend
+        # Generate distinct line styles, colors, or markers
+        markers = cycle(('o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', 'D', 'd'))
+        colors = cycle(plt.cm.tab20.colors)  # Using tab20 colormap for distinct colors
+
+        # Plot each row in the filtered dataframe
+        for i, row in filtered_df.iterrows():
+            structure = row["refcode"]
+            temperature = row["temperature"]
+            molecule = row["molecule_name"]
+            charge_method = row["charge_method"]
+
+            # Plot each isotherm with a unique color and marker
+            ax.plot(row["Pressure(Pa)"], row["uptake(cm^3 (STP)/cm^3 framework)"],
+                    label=f"{structure} {temperature}K {molecule} {charge_method}",
+                    marker=next(markers), color=next(colors))
+
+        # Set labels
         ax.set_xlabel("Pressure (Pa)")
         ax.set_ylabel("Uptake (cm^3 STP/cm^3 framework)")
-        #ax.legend(loc='best', fontsize='small')
+
+        # Set the legend to the right of the plot
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
 
         # Display the plot in the tkinter window
         canvas = FigureCanvasTkAgg(fig, self.selection_window)
@@ -492,3 +507,5 @@ def run_gui_input():
     app = JSONInputForm(root)
     root.mainloop()
 
+if __name__ == "__main__":
+    run_gui_output()
