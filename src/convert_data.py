@@ -132,7 +132,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         series_metadata_isot = data.iloc[0].drop('simkey')
         series_metadata_isot["simkeys"] = simkeys.to_numpy()
         series_metadata_isot["isokey"] = "iso" + secrets.token_hex(4)
-        df_isot = df_isot.append(series_metadata_isot)
+        df_isot = pd.concat([df_isot, series_metadata_isot.to_frame().T], ignore_index=True)
 
     if  os.path.isfile(f'{isotherm_dir}/index.csv'):
         df_isot.to_csv(f'{isotherm_dir}/index.csv',index=False,header=False,mode = 'a')
@@ -311,7 +311,7 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
         all_isotherms["isotherms"].append(isotherm_dict)
 
     with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
-        json.dump(all_isotherms, f, indent=4)
+        json.dump(all_isotherms, f, indent=4,default=str)
     #print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
     print(f"Total number of isotherms written in {isotherm_filename} : {len(all_isotherms['isotherms'])}")
 

@@ -433,15 +433,23 @@ def create_dir(dict_parameters,data_dir,simulation_name_length=4,verbose=False):
 
     df = pd.DataFrame()
     
+    # Convert dict_parameters to a DataFrame
+    new_row = pd.Series(dict_parameters).to_frame().T  # Create a DataFrame from the Series
+
     if os.path.isfile(index_file):
-        # Append the DataFrame to the existing CSV file
-        df = df.append(pd.Series(dict_parameters), ignore_index=True)
-        df.to_csv(index_file, mode='a', header= False, index=False)
+        # Read existing DataFrame from CSV
+        df = pd.read_csv(index_file)
+        
+        # Concatenate the new row to the existing DataFrame
+        df = pd.concat([df, new_row], ignore_index=True)
+        
+        # Write back to CSV
+        df.to_csv(index_file, index=False)
         if verbose:
             print(f"Row appended to '{index_file}'.")
     else:
-        # Create a new CSV file with the DataFrame
-        df = df.append(pd.Series(dict_parameters), ignore_index=True)
+        # Create a new CSV file with the new DataFrame
+        df = new_row  # Start with the new row as the DataFrame
         df.to_csv(index_file, index=False)
         if verbose:
             print(f"New file '{index_file}' created.")
