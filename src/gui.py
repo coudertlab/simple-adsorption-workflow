@@ -196,7 +196,17 @@ class JSONInputForm:
         self.forcefield_combobox = ttk.Combobox(
             defaults_scrollable_frame,
             textvariable=self.forcefield_var,
-            values=['ExampleMOFsForceField', 'no other on register'],
+            values=['CoreShellSchroderSauer',
+                    'Dubbeldam2007FlexibleIRMOF-1',
+                    'Dubbeldam2007FlexibleIRMOF-10',
+                    'Dubbeldam2007FlexibleIRMOF-16',
+                    'ExampleMOFsForceField',
+                    'ExampleMoleculeForceField',
+                    'ExampleZeolitesForceField',
+                    'Nicholas',
+                    'Dreiding_uff',
+                    'UFF'
+                    ],
             state='readonly',
             width=30
         )
