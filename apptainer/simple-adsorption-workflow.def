@@ -2,20 +2,63 @@ Bootstrap: docker
 From: python:3.9-slim
 Stage: devel
 
-%files
-    ../../simple-adsorption-workflow /home/app
+#####################################################################
+# For now and for the near- to mid-future, only a full Apptainer (ie.
+# not guix-based) version of this workflow is envisioned.
+# We will see how well a `pip` based CI auto-build survives in time.
+#####################################################################
 
+%files
+    
 %post
+    # Before anything, updates and main packages
     apt-get -y update
     apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
-    cd /home/app
+    # Install Tkinter and dependencies
+    apt-get install -y python3-tk tk-dev tcl-dev --no-install-recommends
+    # Installing cmake
+    apt-get install -y automake libtool --no-install-recommends
+    apt-get install -y wget
+    # Installing pip requirements
+    cd /opt
+    wget https://github.com/coudertlab/simple-adsorption-workflow/archive/refs/tags/v0.0.5.tar.gz
+    tar xzf v0.0.5.tar.gz
+    rm -rf v0.0.5.tar.gz
+    mv simple-adsorption-workflow-0.0.5 app
+    cd app
     pip install --no-cache-dir -r requirements.txt
-    tar xvf zeo++-0.3.tar
-    rm -rf zeo++-0.3.tar
-    rm -rf /home/app/apptainer
-    cd /home/app/zeo++-0.3/voro++/src
+    # Openbabel
+    pip install --no-cache-dir openbabel-wheel==3.1.1.17
+    # RASPA2
+    # Download the source code
+    mkdir -p /opt/raspa
+    cd /opt/raspa
+    wget https://github.com/iRASPA/RASPA2/archive/refs/tags/v2.0.48.tar.gz
+    tar -xzf v2.0.48.tar.gz
+    rm -rf v2.0.48.tar.gz
+    cd RASPA2-2.0.48
+    rm -rf autom4te.cache
+    mkdir m4
+    aclocal
+    autoreconf -i
+    automake --add-missing
+    autoconf
+    ./configure --prefix=/opt/raspa/RASPA2-2.0.48
     make
-    cd /home/app/zeo++-0.3
+    make install
+    python3 setup.py install
+    # ZEO++
+    # Download the source code
+    mkdir -p /opt/zeo
+    cd /opt/zeo
+    wget https://www.zeoplusplus.org/zeo++-0.3.tar.gz
+    # First, build voro++
+    tar xzf zeo++-0.3.tar.gz
+    rm -rf zeo++-0.3.tar.gz
+    cd /opt/zeo/zeo++-0.3/voro++/src
+    make
+    # Then build zeo++
+    cd /opt/zeo/zeo++-0.3
     make
 
 
@@ -24,28 +67,115 @@ From: python:3.9-slim
 Stage: final
 
 %files from devel
-    /home/app /home/app
+    /opt/app /opt/app
+    /usr/local /usr/local
+    /opt/zeo/zeo++-0.3 /opt/zeo/zeo++-0.3
+    /opt/raspa/RASPA2-2.0.48 /opt/raspa/RASPA2-2.0.48
+
 
 %environment
-    export RASPA_PARENT_DIR=/usr/local/lib/python3.9/site-packages/RASPA2
-    export RASPA_DIR=$RASPA_DIR/gcmc
+    export RASPA_PARENT_DIR=/opt/raspa
+    export RASPA_DIR=$RASPA_PARENT_DIR/RASPA2-2.0.48
     export DYLD_LIBRARY_PATH=$RASPA_DIR/lib
     export LD_LIBRARY_PATH=$RASPA_DIR/lib
-    export ZEO_DIR=/home/app/zeo++-0.3
+    export ZEO_DIR=/opt/zeo/zeo++-0.3
+    export PACKAGE_DIR=/opt/app
+    export SA_WORKFLOW_COMMIT_HASH="4573c2a839b5d0b3510b98c6c492d020e560950e"
+    export PYTHONNOUSERSITE=1
 
 %post
     apt-get -y update
     apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
-    pip install --no-cache-dir -r /home/app/requirements.txt
+    apt-get install -y python3-tk tk-dev tcl-dev --no-install-recommends
+    pip install --no-cache-dir -r /opt/app/requirements.txt
+    pip install --no-cache-dir openbabel-wheel==3.1.1.17
+
+%test
+    rm -rf /tmp/tests*
+    echo "[STARTING TESTS :] cd $PACKAGE_DIR"
+    cd $PACKAGE_DIR
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run -t -o /tmp/tests1"
+    python $PACKAGE_DIR/saw.py run -t -o /tmp/tests1
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run -t2 -o /tmp/tests2"
+    python $PACKAGE_DIR/saw.py run -t2 -o /tmp/tests2
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py merge -t3 -o /tmp/tests3"
+    python $PACKAGE_DIR/saw.py merge -t3 -o /tmp/tests3
+    echo "[TEST FINISHED] - cleaning outputs in /tmp"
+    rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run --test-charges -o /tmp/tests4"
+    python $PACKAGE_DIR/saw.py run --test-charges -o /tmp/tests4
+    echo "[TEST FINISHED] - cleaning output in /tmp"
+    rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run --test-grids -o /tmp/tests5"
+    python $PACKAGE_DIR/saw.py run --test-charges -o /tmp/tests5
+    echo "[TEST FINISHED] - cleaning output in /tmp"
+    rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run --test-cif-local-directory -o /tmp/tests6"
+    python $PACKAGE_DIR/saw.py run --test-charges -o /tmp/tests6
+    echo "[TEST FINISHED] - cleaning output in /tmp"
+    rm -rf /tmp/tests*
 
 %runscript
-    cd /home/app
-    python3 ./saw.py -t -o /tmp/tests
+    exec python /opt/app/saw.py "$@"
+
+  
+%help
+    This container image embedds the "simple adsorption workflow", version v0.0.5 ;
+    commit hash "4573c2a839b5d0b3510b98c6c492d020e560950e".
+    For more information about this image, such as its metadata please run
+        "apptainer inspect <this-image>"
+    
+    This workflow proposes two type of calculations :
+    1 - "run",   called as "$PACKAGE_DIR/saw.py run"
+        which performs actual adsorption simulations and produces isotherms.
+    2 - "merge", called as "$PACKAGE_DIR/saw.py merge"
+        which takes several output (json) files and merges them.
+    3 - "input", called as "$PACKAGE_DIR/saw.py input"
+        which launch a GUI to create a (json) input file.
+    4 - "plot", called as "$PACKAGE_DIR/saw.py plot"
+        which launch a GUI to plot isotherms from the (json) isotherm files.
+
+    See https://github.com/coudertlab/simple-adsorption-workflow for mor infomation.
+
+    To call either of these commands in a container with this image through three commands :
+        * "apptainer run <this-image>"  which runs the default command of the image inside a container.
+        * "apptainer exec <this-image> <command>"   which allows you to specify the command you want
+                                                    to run inside the container.
+        * "apptainer shell<this-image>" which allows you to enter an interactive shell inside a container.
+
+    If you use "apptainer run <this-image>", the folloing command will be called :
+        "python /opt/app/saw.py run"
+    which runs the default calculation of the workflow.
+    If you want to specify either the input file or the output file, you can append
+        "-i <path/to/myinput>.json" or "-o <path/to/data/directory>"
+    to the "apptainer run <this-image>" command.
+
+    If you use "apptainer exec <this-image> <command>", you will execute <command> (whatever it is) inside
+    the container. It can be useful for instance if you want to perform a merge operation :
+        "apptainer exec <this-image> python /opt/app/saw.py merge -i run<index1>.json run<index2>.json -o ./"
+
+    You can also enter an interactive shell within the container with "apptainer shell <this-image>".
+
+    Finally, you can also run tests to ensure the image works as intended. Just use
+        "apptainer test <this-image>"
+
+    If you wish, data isolation and path bindings are available (as for any Apptainer container).
+    Use "--containall" to fully isolate the container from the host machine.
+    Use "--bind </path/on/your/machine>:</path/in/the/container>" to manually mount a directory from
+    your machine in the container.
+    For instance, assuming you want to run a fully-isolated computation with the input "input.json"
+    file in "./input" and gather the output in "./output" :
+        "apptainer exec --containall --bind $PWD:/tmp <this-image> \
+            python /opt/app/saw.py run -i /tmp/input/input.json -o /tmp/output"
 
 %labels
     Owner Arthur Hardiagon
     Author dylan.bissuel@univ-lyon1.fr
-    Version v0.0.2
+    Version v0.0.5
+    Commit_hash 4573c2a839b5d0b3510b98c6c492d020e560950e
     MyLabel simple-adsorption-workflow
     EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
-

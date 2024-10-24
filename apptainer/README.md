@@ -26,12 +26,12 @@ apptainer run --containall simple-adsorption-workflow.sif
 ```
 which is equivalent to
 ```
-apptainer exec --containall simple-adsorption-workflow.sif python3 /home/app/example_adsorption_workflow.py -t -o /tmp/tests
+apptainer exec --containall simple-adsorption-workflow.sif python3 /home/app/saw.py -t -o /tmp/tests
 ```
 
 If you want to access the files produced by the test, you need to bind the output from the container to the host machine (ie. yours). For instance, if you want to gather the output data into the existing `./tests` directory :
 ```
-apptainer exec --containall --bind ./tests:/tmp/tests simple-adsorption-workflow.sif python3 /home/app/example_adsorption_workflow.py -t -o /tmp/tests
+apptainer exec --containall --bind ./tests:/tmp/tests simple-adsorption-workflow.sif python3 /home/app/saw.py -t -o /tmp/tests
 ```
 
 Eventually, it is also possible to enter the container as
@@ -41,11 +41,11 @@ apptainer shell --containall simple-adsorption-workflow.sif
 From there you can run whatever command you want, and for instance run the example as
 ```
 cd /home/app
-python3 /home/app/example_adsorption_workflow.py -t -o /tmp/tests
+python3 /home/app/saw.py -t -o /tmp/tests
 ```
 or directly (from wherever you might be located in the container)
 ```
-python3 /home/app/example_adsorption_workflow.py -t -o /tmp/tests
+python3 /home/app/saw.py -t -o /tmp/tests
 ```
 
 When you're done, you can exit the container with `exit` or using `Ctrl+D`.
