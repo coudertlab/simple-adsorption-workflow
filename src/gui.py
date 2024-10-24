@@ -83,11 +83,15 @@ class JSONInputForm:
         # Structures
         structures_label = ttk.Label(parameters_scrollable_frame, text="Structures:", font=self.title_font)
         structures_label.grid(row=0, column=0, sticky='w', padx=5, pady=5)
-
-        self.structures_listbox = tk.Listbox(parameters_scrollable_frame, selectmode=tk.MULTIPLE, height=6, exportselection=False)
+        structure_scrollbar = tk.Scrollbar(parameters_scrollable_frame, orient="vertical")
+        self.structures_listbox = tk.Listbox(parameters_scrollable_frame, 
+                                             selectmode=tk.MULTIPLE, height=6, exportselection=False,
+                                             yscrollcommand = structure_scrollbar.set)
         for item in self.refcodes:
             self.structures_listbox.insert(tk.END, item)
         self.structures_listbox.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
+        structure_scrollbar.config(command=self.structures_listbox.yview)
+        structure_scrollbar.grid(row=1, column=2, sticky="ns")
 
         # Adsorbed gas molecules
         molecule_label = ttk.Label(parameters_scrollable_frame, text="Adsorbed Gas Molecules:", font=self.title_font)
@@ -390,13 +394,17 @@ class JSONOutputReader:
         # Create a new window
         self.selection_window = tk.Toplevel(self.root)
         self.selection_window.title("Select Parameters")
-
-        # Structure selection (Multi-select Listbox)
+        
+        # Structure selection (Multi-select Listbox) with scrollbar
         ttk.Label(self.selection_window, text="Select Structures:").grid(row=0, column=0, padx=10, pady=5)
-        self.structure_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6,exportselection=False)
+        structure_scrollbar = tk.Scrollbar(self.selection_window, orient="vertical")
+        self.structure_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6, exportselection=False, 
+                                            yscrollcommand=structure_scrollbar.set)
         for structure in structures:
             self.structure_listbox.insert(tk.END, structure)
         self.structure_listbox.grid(row=0, column=1, padx=10, pady=5)
+        structure_scrollbar.config(command=self.structure_listbox.yview)
+        structure_scrollbar.grid(row=0, column=2, sticky="ns")
 
         # Charge method selection (Multi-select Listbox)
         ttk.Label(self.selection_window, text="Select Charge methods:").grid(row=1, column=0, padx=10, pady=5)
