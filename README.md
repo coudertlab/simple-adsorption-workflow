@@ -152,7 +152,7 @@ The schematic diagram (Fig. 1) outlines the primary functions executed within th
 
   
 <p align="center">
-  <img src="./figures/diagram_workflow_v2.png" alt="Diagram of the workflow" width="800" />
+  <img src="./figures/diagram_workflow_v3.png" alt="Diagram of the workflow" width="800" />
 </p>
 <p align="center"><i>Figure 1: Diagram of the workflow. </i></p>
 
