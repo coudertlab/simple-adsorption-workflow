@@ -10,7 +10,13 @@ Part of the code presented here was heavily inspired by [RASPA python wrapper](h
 
 ## Install
 
+### With Apptainer
+
+For a ready-to-use solution of this workflow, one can use an apptainer image (similar to Docker), further information can be found on the [DIAMOND website](https://diamond-diadem.github.io/workflows/saw/tutorial/).
+
 ### With Conda
+
+For development purposes, use the following instructions :
 
 - Create a conda environment with Python 3.9:
 ```bash
@@ -54,11 +60,6 @@ chmod +x $CONDA_PREFIX/etc/conda/activate.d/simple-adsorption-workflow_set_env.s
 ```
 
 In the case you are running in a fish shell, `set_environment_fish` should be used  in the commands above instead of `set_environment`.
-
-### With Docker
-
-A already configured Docker image is provided, and can be mounted via
-**... ??? Expand on that ???**
 
 ## User input (JSON file)
 
