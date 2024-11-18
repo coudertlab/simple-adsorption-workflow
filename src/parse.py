@@ -25,7 +25,8 @@ def parse_arguments():
     parser_run.add_argument("-t4","--test-charges", action="store_true", help="run test to create CIFs with EQeq partial charges")
     parser_run.add_argument("-t5","--test-grids", action="store_true", help="run test with GCMC calculation on grids")
     parser_run.add_argument("-t6","--test-cif-local-directory", action="store_true", help="run test with GCMC calculation on user CIF files.")
-
+    parser_run.add_argument("-t7","--test-charges-pacmof", action="store_true", help="run test to generate a CIF structure with partial charges from PACMOF method.")
+    
     # create the parser for the merge command
     parser_merge = subparsers.add_parser('merge', help='Merge workflow outputs.')
     parser_merge.add_argument("-i", "--input-files", nargs='+', help="list of JSON workflow outputs runfiles")
@@ -50,6 +51,7 @@ def parse_arguments():
         'test_output_json':         run_test_output_json,
         'test_merge_json':          run_test_merge_json,
         'test_charges'   :          run_test_charges,
+        'test_charges_pacmof'   :   run_test_charges_pacmof,
         'test_grids'   :            run_test_grids,
         'test_cif_local_directory': run_test_cif_local_directory
     }

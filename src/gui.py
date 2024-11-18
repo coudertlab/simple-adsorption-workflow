@@ -112,8 +112,9 @@ class JSONInputForm:
         self.molecule_listbox = tk.Listbox(parameters_scrollable_frame, selectmode=tk.MULTIPLE, height=6, exportselection=False)
         for item in self.molecule_options:
             self.molecule_listbox.insert(tk.END, item)
-        # Pre-select "CO2" and "N2" if they exist
-        for molecule in ["CO2", "N2"]:
+
+        # Pre-select "N2" if they exist
+        for molecule in ["N2"]:
             if molecule in self.molecule_options:
                 index = self.molecule_options.index(molecule)
                 self.molecule_listbox.selection_set(index)
@@ -154,13 +155,12 @@ class JSONInputForm:
         charge_label = ttk.Label(parameters_scrollable_frame, text="Charge Methods:", font=self.title_font)
         charge_label.grid(row=9, column=0, sticky='w', padx=5, pady=5)
 
-        self.charge_options = ['EQeq', 'None']
+        self.charge_options = ['pacmof2','EQeq','None']
         self.charge_listbox = tk.Listbox(parameters_scrollable_frame, selectmode=tk.MULTIPLE, height=2, exportselection=False)
         for item in self.charge_options:
             self.charge_listbox.insert(tk.END, item)
-        # Pre-select 'EQeq' and 'None' if available
-        for idx in range(len(self.charge_options)):
-            self.charge_listbox.selection_set(idx)
+        # Pre-select 'pacmof2' if available
+        self.charge_listbox.selection_set(0)
         self.charge_listbox.grid(row=10, column=0, padx=5, pady=5, sticky='nsew')
 
         # Configure grid weights
@@ -196,12 +196,12 @@ class JSONInputForm:
         self.forcefield_combobox = ttk.Combobox(
             defaults_scrollable_frame,
             textvariable=self.forcefield_var,
-            values=['CoreShellSchroderSauer',
+            values=['ExampleMOFsForceField',
+                    'CoreShellSchroderSauer',
                     'Dubbeldam2007FlexibleIRMOF-1',
                     'Dubbeldam2007FlexibleIRMOF-10',
                     'Dubbeldam2007FlexibleIRMOF-16',
                     'ExampleMOFsForceField',
-                    'ExampleMoleculeForceField',
                     'ExampleZeolitesForceField',
                     'Nicholas',
                     'Dreiding_uff',
@@ -217,7 +217,7 @@ class JSONInputForm:
         init_cycles_label = ttk.Label(defaults_scrollable_frame, text="Init Cycles:", font=self.title_font)
         init_cycles_label.grid(row=3, column=0, sticky='w', padx=5, pady=5)
         self.init_cycles_entry = ttk.Entry(defaults_scrollable_frame, width=30)
-        self.init_cycles_entry.insert(0, "20000")
+        self.init_cycles_entry.insert(0, "10000")
         self.init_cycles_entry.grid(row=4, column=0, padx=5, pady=5, sticky='w')
 
         # Cycles

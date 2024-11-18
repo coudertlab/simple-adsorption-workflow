@@ -1,7 +1,10 @@
 import os,glob,sys,shutil
+from io import StringIO
+
 from openbabel import openbabel
 from pyeqeq import run_on_cif
-from io import StringIO
+from pacmof2 import pacmof2
+
 
 def run_EQeq(cif_dir,cifnames,verbose=False,output_type="files",**kwargs):
     '''
@@ -41,6 +44,49 @@ def run_EQeq(cif_dir,cifnames,verbose=False,output_type="files",**kwargs):
 
     cifnames_new = glob.glob(f"{cif_dir}/*EQeq*.cif")
     print(f'Partial charges with method EQeq have been calculated for {len(cifnames)} structures.')
+
+    # Restore stdout
+    if verbose == False:
+        sys.stdout,sys.stderr = original_stdout,original_stderr
+        output_text,error_text = captured_output.getvalue(),captured_error.getvalue()
+#        print(output_text,error_text)
+
+    return cifnames_new
+
+def run_pacmof(cif_dir,cifnames,verbose=False,**kwargs):
+    '''
+    Compute the partial charges of framework using the PACMOF method (10.1021/acs.jpcc.4c04879). 
+
+    The new CIF files are located in the same directory as the original CIF files.
+
+    Parameters:
+        cifnames (str) : Absolute paths for cif input files.
+        verbose (bool) : if True, print the stdout/stderr PACMOF code
+
+    Returns:
+        cifnames_new (list) : the list of CIF filenames with partial charges
+    '''
+    print('Predicting partial charges from PACMOF2 ...')
+
+    # Capture current stdout
+    if verbose == False :
+        original_stdout,original_stderr = sys.stdout,sys.stderr
+        captured_output,captured_error = StringIO(),StringIO()
+        sys.stdout,sys.stderr = captured_output,captured_error
+
+    # Input filenames must be absolute
+    cifnames = [ _to_absolute_path(cif_dir,cifname,'.cif') for cifname in cifnames]
+    
+    # Run EQeq with defaults parameters
+    for file in cifnames:
+        if "EQeq" not in file and "openbabel" not in file:
+            pacmof2.get_charges(file, cif_dir, identifier="_pacmof2")
+    
+    # Clean the directory
+    #_clean_cif_directory(cif_dir)
+
+    cifnames_new = glob.glob(f"{cif_dir}/*_pacmof*.cif")
+    print(f'Partial charges with PACMOF2 method have been calculated for {len(cifnames)} structures.')
 
     # Restore stdout
     if verbose == False:

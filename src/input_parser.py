@@ -21,7 +21,7 @@ import shutil
 #    print(e)
 
 # Allowed keywords for charge method
-CHARGE_METHOD = ["EQeq","None","",None,"QMOF"]
+CHARGE_METHOD = ["EQeq","None","",None,"QMOF","pacmof2"]
 
 def parse_json_to_list(filename):#,cifnames):
     """
@@ -271,7 +271,7 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=False):
     Args:
         cif_dir (str): The absolute path of the directory where CIFs are stored
         method (str) : A keyword to select the charge assignment method;
-                        possible values : 'EQeq'
+                        possible values : 'EQeq',"pacmof2"
     Returns:
         cifnames (list): A list CIF absolute filenames
     '''
@@ -279,6 +279,8 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=False):
         cifnames = run_EQeq(cif_dir,cifnames_input,verbose=verbose)
     elif method == 'QMOF':
         cifnames = fetch_QMOF(cifnames_input,verbose=verbose)
+    elif method == 'pacmof2':
+        cifnames = run_pacmof(cif_dir,cifnames_input,verbose=verbose)
     else:
         raise ValueError(f'Invalid charge method keyword. Expected values : {[el for el in CHARGE_METHOD]}')
     return cifnames

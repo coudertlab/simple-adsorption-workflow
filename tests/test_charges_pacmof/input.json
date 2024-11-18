@@ -1,0 +1,20 @@
+{
+    "parameters":
+        {
+        "structure":["MIBQAR","ABEFUL"],
+        "molecule_name": ["N2", "CO2"],
+        "pressure": [10,1E6],
+        "npoints":5,
+        "temperature": [298.15],
+        "charge_method":["pacmof2"]
+        }
+        ,
+    "defaults":
+        {
+            
+            "forcefield":"ExampleMOFsForceField",
+            "init_cycles":10,
+            "cycles":20,
+            "print_every":5
+        }
+}

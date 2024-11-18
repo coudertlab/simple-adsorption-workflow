@@ -190,6 +190,25 @@ def run_test_charges(args):
     print(f"------------------------ End of the test ------------------------\n")
     exit(0)
 
+def run_test_charges_pacmof(args):
+    """
+    Run a test that parse the JSON file, and run the PACMOF2 code to generate a set of partial charges.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+    """
+    print(f"------------------------ Running test ---------------------------\n")
+    try:
+        if not args.input_file : args.input_file      = f"{os.getenv('PACKAGE_DIR')}/tests/test_charges_pacmof/input.json"
+        print(f"Reading input file in {args.input_file}")
+        cif_names, sim_dir_names, grid_use = prepare_input_files(args,verbose=True)
+        print("\nTest successful :)")
+    except Exception as e:
+        print(traceback.format_exc())
+        print("\nTest NOT successful :(")
+    print(f"------------------------ End of the test ------------------------\n")
+    exit(0)
+    
 def run_test_grids(args):
     """
     Run a test that parse the JSON file, generate input files for creating grid in RASPA,

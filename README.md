@@ -46,6 +46,17 @@ pip install -r requirements.txt
 export ZEO_DIR=/opt/zeo++-0.3
 ```
 
+- Dependencies for PACMOF2
+```bash
+git clone https://github.com/tdpham2/pacmof2
+conda install -c conda-forge pymatgen=2023.10.4
+conda install -c conda-forge scikit-learn=1.3.2
+cd pacmof2
+wget -P pacmof2/models/ https://zenodo.org/records/12747095/files/PACMOF2_neutral.gz
+pip install build
+pip install .
+```
+
 - Define the environment variables:
 ```bash
 source set_environment
@@ -191,6 +202,11 @@ The json files containing the data to be merged (single pressure data points) ar
 python $PACKAGE_DIR/saw.py run --test-charges
 ```
 The output of the EQeq code should appear with the atom types and the atomic experimental properties used for the calibration of the method.
+
+### Calculate the partial charges using the PACMOF method
+```bash
+python $PACKAGE_DIR/saw.py run --test-charges-pacmof2
+```
 
 ### Run simulations on user CIF
 ```bash
@@ -428,6 +444,10 @@ It calculates the partial charges using the [EQeq method](https://doi-org.inc.bi
 First each CIF file is passed through Openbabel to correct format not compatible with EQeq (e.g. CIFs with columns in wrong order). A file with `_openbabel` prefix is written in the same directory.
 It will then duplicate the CIF files present in `./cif` directory with a suffix name related to the method; e.g.: `MIBQAR16_clean_coremof-2019_openbabel.cif_EQeq_ewald_1.20_-2.00.cif` contains an extra column for the partial charges calculated with Ewald Coulombic interaction, a dielectric parameter of 1.2 and the hydrogen electron affinity is -2.
 Other default parameters can be found in the original code [page](https://github.com/lsmo-epfl/EQeq). For instance, one important implementation of EQeq (with respect to the Rappé and Goddard method) is the use of non-zero centered charge (parameter `chargecenters`), the charges are hence equilibrated around its number of oxidation and the **oxidation number of the atom are fixed by default**. If you use the same default parameters for the whole screening, a wrong oxidation number could be assign, and the calculation of the partial charges will be affected. To solve this, one can recalculate oxidation numbers from the structure file using [ref1](https://www.nature.com/articles/s41557-021-00717-y) or ref2 (MOSAEC code by Woo et al., not available yet).
+
+#### PACMOF
+
+This charge assigment method [here](https://doi.org/10.1021/acs.jpcc.4c04879) (PACMOF v.2), use a descritor-based Machine Learning model to predict partial charges from the structure of the materials. The training set is based on DFT calculations in the GCA approximations with PBE fonctionals and the reference structures comes from QMOF database.
 
 ### Grid Calculation
 
