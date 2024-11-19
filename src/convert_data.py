@@ -9,10 +9,8 @@ import datetime
 import subprocess
 from mofdb_client import fetch
 
-
 # List of parameters to adjust to group data and define isotherm arrays
 ISOTHERM_VARS = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
-
 
 class NumpyEncoder(json.JSONEncoder):
     """ Custom encoder for numpy data types """
@@ -126,12 +124,12 @@ def print_dict(d):
             print(element)
         print()
 
-def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
+def output_isotherms_to_csv(output_dir,sim_dir_names=None,verbose=False):
     """
     Output isotherms to CSV files.
 
     Parameters:
-        args (argparse.Namespace): Parsed command-line arguments
+        output_dir (str): Output directory path.
         sim_dir_names (list): List of string with simulation directory names.
                               By default, it will create isotherms from all 
                               files found in the simulation directory.
@@ -142,11 +140,11 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     print("Parsing RASPA outputs and writing CSV isotherm files ...")
 
     # Create isotherms directory if not already exist
-    isotherm_dir = f"{args.output_dir}/isotherms"
+    isotherm_dir = f"{output_dir}/isotherms"
     os.makedirs(isotherm_dir,exist_ok=True)
 
     # Find the restored results based on the list of simulation directories
-    df = pd.read_csv(f'{args.output_dir}/gcmc/index.csv')
+    df = pd.read_csv(f'{output_dir}/gcmc/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
     param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
@@ -174,7 +172,7 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
     for index,row in df_isot.iterrows():
         results =[]
         simkeys = eval(row['simkeys'].replace(' ',','))
-        paths = [f'{args.output_dir}/gcmc/{simkey}/Output/System_0/' for simkey in simkeys]
+        paths = [f'{output_dir}/gcmc/{simkey}/Output/System_0/' for simkey in simkeys]
         filenames = [os.listdir(path)[0] for path in paths]
         for filename,path in zip(filenames,paths):
             with open(os.path.join(path,filename),'r') as f:
@@ -191,12 +189,13 @@ def output_isotherms_to_csv(args,sim_dir_names=None,verbose=False):
         df_iso.to_csv(file_out,index=False)
     print(f'Total number of isotherms written in {isotherm_dir} : {df_isot.shape[0]}')
 
-def output_to_json(args,sim_dir_names=None,verbose=False):
+def output_to_json(json_file,output_dir,sim_dir_names=None,verbose=False):
     '''
-    Return a single output by workflow run in a JSON format.
+    Write a single output per workflow run in a JSON format (run<ID>.json).
 
     Parameters:
-        args (argparse.Namespace): Parsed command-line arguments
+        json_file (str):  Path to JSON file containing parameters to run the workflow.
+        output_dir (str): Output directory path.
         data_dir (str): Parent directory.
         sim_dir_names (list): List of string with simulation directory names.
                               By default, it will create isotherms from all 
@@ -208,7 +207,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     dict_results = {}
     
     # Add run inputs of the whole workflow in the output file
-    dict_input = parse_json_to_dict(args.input_file)
+    dict_input = parse_json_to_dict(json_file)
     dict_results.update({"input":dict_input})
 
     # Add running metadata
@@ -216,10 +215,10 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     dict_results.update({"metadata":dict_metadata})
 
     # Add parameters for each simulation
-    df = pd.read_csv(f'{args.output_dir}/gcmc/index.csv')
+    df = pd.read_csv(f'{output_dir}/gcmc/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
-    df = df.apply(lambda row: extract_properties(row,args), axis=1)
+    df = df.apply(lambda row: extract_properties(row,output_dir), axis=1)
     dict_data = df.to_dict(orient='records')
     dict_results.update({"results":dict_data})
 
@@ -227,7 +226,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
     runkey = 'run' + secrets.token_hex(4)
 
     # Write the dictionary in a JSON file
-    with open(f'{args.output_dir}/gcmc/{runkey}.json', 'a') as f:
+    with open(f'{output_dir}/gcmc/{runkey}.json', 'a') as f:
         json.dump(dict_results, f, indent=4,cls=NumpyEncoder)
 
     # Write the output for debugging
@@ -275,13 +274,13 @@ def transform_grouped_data(grouped_data,variable_feature='uptake(cm^3 (STP)/cm^3
     combined_result.update(unique_values_dict)
     return combined_result
 
-def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
+def output_isotherms_to_json(output_dir,file,isotherm_filename='isotherms.json',
                              isotherm_dir=None,debug=False):
     '''
     Group data along the 'pressure' key.
 
     Parameters:
-        args (argparse.Namespace): Parsed command-line arguments
+        output_dir (str): Output directory path.
         file (str) : path to the database json file
         isotherm_filename (str) : name of the JSON file with isotherm tabulated data
         isotherm_dir (str) : path to the JSON file with isotherm tabulated data
@@ -311,7 +310,7 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
     '''
 
     # Create isotherms directory if not already exist
-    if isotherm_dir is None: isotherm_dir = f"{args.output_dir}/isotherms"
+    if isotherm_dir is None: isotherm_dir = f"{output_dir}/isotherms"
     os.makedirs(isotherm_dir,exist_ok=True)
 
     with open(file) as f:
@@ -344,33 +343,33 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
 
     return len(all_isotherms['isotherms'])
 
-def reconstruct_isotherms_to_csv(args,sim_dir_names=None):
+def reconstruct_isotherms_to_csv(output_dir,sim_dir_names=None):
     """
     Check and process the results of gas adsorption simulations.
 
     Args:
-        args (argparse.Namespace): Parsed command-line arguments.
+        output_dir (str): Output directory path..
         sim_dir_names (list, optional): List of simulation directory names.
     """
     print("Parsing RASPA output files for warnings and errors ...")
-    check_simulations(args.output_dir,sim_dir_names, verbose=False)
+    check_simulations(output_dir,sim_dir_names, verbose=False)
 
     print("Parsing RASPA output files and writing a JSON database file ...")
-    output_isotherms_to_csv(args,sim_dir_names)
+    output_isotherms_to_csv(output_dir,sim_dir_names)
 
-def export_simulation_result_to_json(args,sim_dir_names=None,**kwargs):
+def export_simulation_result_to_json(json_file,output_dir,sim_dir_names=None,**kwargs):
     """
     Check and process the results of gas adsorption simulations.
 
     Args:
-        args (argparse.Namespace): Parsed command-line arguments.
+        output_dir (str): Output directory path..
         sim_dir_names (list, optional): List of simulation directory names.
     """
     print("Parsing RASPA output files for warnings and errors ...")
-    check_simulations(args.output_dir,sim_dir_names,**kwargs)
+    check_simulations(output_dir,sim_dir_names,**kwargs)
 
     print("Parsing RASPA output files and writing a JSON database file ...")
-    output_to_json(args,sim_dir_names,**kwargs)
+    output_to_json(json_file,output_dir,sim_dir_names,**kwargs)
 
 def get_git_commit_hash():
     try:
@@ -419,20 +418,20 @@ def get_workflow_metadata():
         break
     return metadata
 
-def extract_properties(row,args):
+def extract_properties(row,root_output_dir):
     '''
     Use the RASPA parser to extract the adsorption properties.
 
     Parameters:
         row (Pandas.Series) : a series with the input parameters of a simulation.
-        args (argparse.Namespace): Parsed command-line arguments
+        root_output_dir (str): Root directory path that contains all simulations results.
 
     Returns:
         row (Pandas.Series) : the appended series.
 
     '''
     simkey = row['simkey']
-    path = f'{args.output_dir}/gcmc/{simkey}/Output/System_0/'
+    path = f'{root_output_dir}/gcmc/{simkey}/Output/System_0/'
     filename = os.listdir(path)[0]
     with open(os.path.join(path,filename),'r') as f:
         string_output = f.read()
@@ -442,25 +441,25 @@ def extract_properties(row,args):
     row['uptake(cm^3 (STP)/cm^3 framework)'] = r["Number of molecules"][gas]["Average loading absolute [cm^3 (STP)/cm^3 framework]"][0]
     return row
 
-def merge_json(args, json_files, filename='run_merged.json'):
+def merge_json(output_dir, json_runfiles, filename='run_merged.json'):
     """
     Merge multiple JSON files from independent workflow runs into a new file.
 
     Args:
-        args (argparse.Namespace): Parsed command-line arguments.
-        json_files (list of str): List of filenames of JSON files to be merged.
+        output_dir (str): Output directory path..
+        json_runfiles (list of str): List of filenames of JSON files (single calculations run<ID>.json) to be merged.
         filename (str): The name of the output file.
     """
     # Ensure the output directory exists
-    os.makedirs(f'{args.output_dir}', exist_ok=True)
-    path_filename = f'{args.output_dir}/{filename}'
+    os.makedirs(f'{output_dir}', exist_ok=True)
+    path_filename = f'{output_dir}/{filename}'
 
     # Initialize a dictionary to hold merged results
     merged_json = {"input": [], "metadata": [], "results": []}
 
     # Load and append data from each file into the appropriate lists in merged_json
-    for json_file in json_files:
-        with open(json_file, "r") as f:
+    for json_runfile in json_runfiles:
+        with open(json_runfile, "r") as f:
             json_dict = json.load(f)
             for key in merged_json:
                 merged_json[key].append(json_dict.get(key, []))  # Use get to avoid errors if key doesn't exist

@@ -22,7 +22,7 @@ def run_test_isotherms_csv(args):
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names, grid_use = prepare_input_files(args)
         run_simulations(args,sim_dir_names)
-        reconstruct_isotherms_to_csv(args,sim_dir_names)
+        reconstruct_isotherms_to_csv(args.output_dir,sim_dir_names)
         test_isotherms(args)
         get_geometrical_features(args,cif_names)
         test_zeopp(args)
@@ -47,9 +47,9 @@ def run_test_output_json(args):
         print(f"Reading input file in {args.input_file}")
         cif_names, sim_dir_names, grid_use = prepare_input_files(args)
         run_simulations(args,sim_dir_names)
-        reconstruct_isotherms_to_csv(args,sim_dir_names)
-        export_simulation_result_to_json(args,sim_dir_names,verbose=False)
-        output_isotherms_to_json(args,f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}")
+        reconstruct_isotherms_to_csv(args.output_dir,sim_dir_names)
+        export_simulation_result_to_json(args.input_file,args.output_dir,sim_dir_names,verbose=False)
+        output_isotherms_to_json(args.output_dir,f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}")
         compare_csv_json(args)
         compare_json_subtrees(f"{glob.glob(f'{args.output_dir}/gcmc/run*json')[0]}",output_test_file,"results")
         print("\nTest successful :)")
@@ -71,17 +71,18 @@ def run_test_merge_json(args):
     """
     print(f"------------------------ Running test ---------------------------\n")
     try:
-        json_files =  glob.glob(f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json/gcmc/*")
-        merged_json = merge_json(args,json_files)
+        root_test_dir = f"{os.getenv('PACKAGE_DIR')}/tests/test_merge_json"
+        json_files =  glob.glob(f"{root_test_dir}/gcmc/*")
+        merged_json = merge_json(args.output_dir,json_files)
         jsons = {f'Isotherms from json {i+1}': file for i,file in enumerate(json_files)}
         jsons['Isotherms from merged JSON'] = merged_json
         nb_isotherms_sum = 0
         for suptitle,file in jsons.items():
             basename = os.path.basename(file)
-            nb_isotherms = output_isotherms_to_json(args,file,isotherm_filename=f'isotherms_{basename}')
+            nb_isotherms = output_isotherms_to_json(args.output_dir,file,isotherm_filename=f'isotherms_{basename}')
             if suptitle != 'Isotherms from merged JSON':
                 nb_isotherms_sum+=nb_isotherms
-            plot_isotherm(f'{args.output_dir}/isotherms/isotherms_{basename}',suptitle=suptitle,block=True) # set block to True to keep opened each plot for visual check
+            plot_isotherm(f'{root_test_dir}/isotherms/isotherms/isotherms_{basename}',suptitle=suptitle,block=True) # set block to True to keep opened each plot for visual check
         assert nb_isotherms == 5,f'The number of isotherms after the merge must be 5.'
         print(f"Found {nb_isotherms} isotherms (< {nb_isotherms_sum}  = total number of isotherms in separated JSON files.)")
         print("\nTest successful :)")
