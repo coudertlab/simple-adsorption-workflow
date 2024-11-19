@@ -13,6 +13,33 @@ from mofdb_client import fetch
 # List of parameters to adjust to group data and define isotherm arrays
 ISOTHERM_VARS = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
 
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Custom encoder for numpy data types """
+    def default(self, obj):
+        if isinstance(obj, (np.int_, np.intc, np.intp, np.int8,
+                            np.int16, np.int32, np.int64, np.uint8,
+                            np.uint16, np.uint32, np.uint64)):
+
+            return int(obj)
+
+        elif isinstance(obj, (np.float_, np.float16, np.float32, np.float64)):
+            return float(obj)
+
+        elif isinstance(obj, (np.complex_, np.complex64, np.complex128)):
+            return {'real': obj.real, 'imag': obj.imag}
+
+        elif isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+
+        elif isinstance(obj, (np.bool_)):
+            return bool(obj)
+
+        elif isinstance(obj, (np.void)): 
+            return None
+
+        return json.JSONEncoder.default(self, obj)
+
 def check_simulations(data_dir,sim_dir_names=None,verbose=False):
     """
     Returns statistics of warning, errors in simulations.
@@ -201,7 +228,7 @@ def output_to_json(args,sim_dir_names=None,verbose=False):
 
     # Write the dictionary in a JSON file
     with open(f'{args.output_dir}/gcmc/{runkey}.json', 'a') as f:
-        json.dump(dict_results, f, indent=4)
+        json.dump(dict_results, f, indent=4,cls=NumpyEncoder)
 
     # Write the output for debugging
     if verbose:
@@ -311,7 +338,7 @@ def output_isotherms_to_json(args,file,isotherm_filename='isotherms.json',
         all_isotherms["isotherms"].append(isotherm_dict)
 
     with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
-        json.dump(all_isotherms, f, indent=4,default=str)
+        json.dump(all_isotherms, f, indent=4,cls=NumpyEncoder)
     #print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
     print(f"Total number of isotherms written in {isotherm_filename} : {len(all_isotherms['isotherms'])}")
 
@@ -440,7 +467,7 @@ def merge_json(args, json_files, filename='run_merged.json'):
 
     # Write the merged JSON to a file
     with open(path_filename, "w") as fp:
-        json.dump(merged_json, fp, indent=4)
+        json.dump(merged_json, fp, indent=4,cls=NumpyEncoder)
 
     print(f'{path_filename} has been created.')
     return path_filename
