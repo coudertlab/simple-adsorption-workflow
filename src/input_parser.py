@@ -12,6 +12,7 @@ from src.charge import *
 import numpy as np
 from pathlib import Path
 import shutil
+import fnmatch
 
 # Careful with these lines, since bugs might appear with C++ shared library call
 #try:
@@ -208,27 +209,61 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
     cifnames_modified = _get_basename(cifnames_modified)
     return cifnames_modified,l_dict_parameters
 
-def _get_cifname_matching(cif_dir,pattern,exclude_pattern=None):
+def _get_cifname_matching(cif_dir, pattern, exclude_pattern=None):
     """
-    Sample of a list using match and exclusion terms.
+    Retrieve a single CIF filename from cif_dir that matches the given pattern 
+    applied only to the filename (not the directory path). Optionally exclude 
+    filenames containing exclude_pattern(s).
+    
+    Args:
+        cif_dir (str): Directory containing CIF files.
+        pattern (str): Glob pattern to match filenames.
+        exclude_pattern (str or list, optional): Pattern(s) to exclude from matching.
+    
+    Returns:
+        str: The matched CIF filename.
+    
+    Raises:
+        AssertionError: If no files match or if multiple files match the criteria.
     """
-    cifs_matched =glob.glob(f'{cif_dir}/{pattern}')
-    if exclude_pattern is None:
-        assert len(cifs_matched) == 1, f'cif name with pattern {pattern} do not exist or is not unique'
-    elif isinstance(exclude_pattern, str):
-        cifs_matched = [cif for cif in cifs_matched if exclude_pattern not in cif]
-        assert len(cifs_matched) == 1, f'cif name with pattern {exclude_pattern} and exclusion pattern {exclude_pattern} is not unique'
-    elif isinstance(exclude_pattern, list):
-        cifs_matched = [cif for cif in cifs_matched if not any(pattern in cif for pattern in exclude_pattern)]
-        assert len(cifs_matched) == 1, f'cif name with pattern {exclude_pattern} and exclusion patterns {exclude_pattern} is not unique'
-    cifs_matched = _get_basename(cifs_matched)
-    return cifs_matched[0]
+    # List all files in the directory
+    all_files = glob.glob(os.path.join(cif_dir, '*'))
+    
+    # Filter files where the basename matches the pattern
+    cifs_matched = [
+        f for f in all_files 
+        if fnmatch.fnmatch(os.path.basename(f), pattern)
+    ]
+    
+    # Apply exclusion patterns if provided
+    if exclude_pattern is not None:
+        if isinstance(exclude_pattern, str):
+            exclude_patterns = [exclude_pattern]
+        elif isinstance(exclude_pattern, list):
+            exclude_patterns = exclude_pattern
+        else:
+            raise TypeError("exclude_pattern must be a string or a list of strings")
+        
+        cifs_matched = [
+            f for f in cifs_matched 
+            if not any(excl in os.path.basename(f) for excl in exclude_patterns)
+        ]
+    
+    # Ensure exactly one match is found
+    assert len(cifs_matched) == 1, (
+        f"CIF name with pattern '{pattern}'"
+        + (f" and exclusion pattern(s) {exclude_patterns}" if exclude_pattern else "")
+        + " does not exist or is not unique"
+    )
+    
+    # Extract and return the basename of the matched file
+    return _get_basename(cifs_matched)[0]
 
 def _get_basename(filenames):
     '''
     Get basename of a list of files without path and extension.
     '''
-    return [os.path.splitext(path)[0].split('/')[-1] for path in filenames]
+    return [os.path.splitext(os.path.basename(path))[0] for path in filenames]
 
 def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=False):
     """
