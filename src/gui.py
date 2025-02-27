@@ -81,17 +81,34 @@ class JSONInputForm:
             self.refcodes = []
 
         # Structures
-        structures_label = ttk.Label(parameters_scrollable_frame, text="Structures:", font=self.title_font)
+        structures_label = ttk.Label(parameters_scrollable_frame, text="Structures (mofxdb):", font=self.title_font)
         structures_label.grid(row=0, column=0, sticky='w', padx=5, pady=5)
         structure_scrollbar = tk.Scrollbar(parameters_scrollable_frame, orient="vertical")
         self.structures_listbox = tk.Listbox(parameters_scrollable_frame, 
-                                             selectmode=tk.MULTIPLE, height=6, exportselection=False,
-                                             yscrollcommand = structure_scrollbar.set)
+                             selectmode=tk.MULTIPLE, height=6, exportselection=False,
+                             yscrollcommand = structure_scrollbar.set)
         for item in self.refcodes:
             self.structures_listbox.insert(tk.END, item)
         self.structures_listbox.grid(row=1, column=0, padx=5, pady=5, sticky='nsew')
         structure_scrollbar.config(command=self.structures_listbox.yview)
-        structure_scrollbar.grid(row=1, column=2, sticky="ns")
+        structure_scrollbar.grid(row=1, column=1, sticky="ns")
+
+        # Local CIF files
+        cif_label = ttk.Label(parameters_scrollable_frame, text="Local CIF Files:", font=self.title_font)
+        cif_label.grid(row=0, column=2, sticky='w', padx=5, pady=5)
+        cif_scrollbar = tk.Scrollbar(parameters_scrollable_frame, orient="vertical")
+        self.cif_listbox = tk.Listbox(parameters_scrollable_frame, 
+                          selectmode=tk.MULTIPLE, height=6, exportselection=False,
+                          yscrollcommand = cif_scrollbar.set)
+        cif_dir = os.path.join(os.path.curdir, "cif")
+        if os.path.exists(cif_dir):
+            cif_files = [f for f in os.listdir(cif_dir) if f.endswith('.cif')]
+            cif_files = [f.split('.cif')[0] for f in cif_files]
+            for item in cif_files:
+                self.cif_listbox.insert(tk.END, item)
+        self.cif_listbox.grid(row=1, column=2, padx=5, pady=5, sticky='nsew')
+        cif_scrollbar.config(command=self.cif_listbox.yview)
+        cif_scrollbar.grid(row=1, column=3, sticky="ns")
 
         # Adsorbed gas molecules
         molecule_label = ttk.Label(parameters_scrollable_frame, text="Adsorbed Gas Molecules:", font=self.title_font)
@@ -261,7 +278,9 @@ class JSONInputForm:
     def save_to_json(self):
         # Collect Structures
         selected_structures_indices = self.structures_listbox.curselection()
+        selected_cifs_indices = self.cif_listbox.curselection()
         structures = [self.structures_listbox.get(i) for i in selected_structures_indices]
+        structures+= [self.cif_listbox.get(i) for i in selected_cifs_indices]
 
         # Collect Molecules
         selected_molecules_indices = self.molecule_listbox.curselection()
@@ -320,7 +339,8 @@ class JSONInputForm:
                 "pressure": [pmin, pmax],
                 "npoints": psteps,
                 "temperature": temperatures,
-                "charge_method": charge_method
+                "charge_method": charge_method,
+                "database":"mixed"
             },
             "defaults": {
                 "forcefield": forcefield,
