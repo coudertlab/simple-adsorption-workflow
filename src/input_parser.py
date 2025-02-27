@@ -72,7 +72,7 @@ def check_input_raspa(molecule_name_list):
     '''
     basenames = ([os.path.basename(filename).split('.def')[0] for filename in os.listdir(f"{os.environ.get('RASPA_DIR')}/share/raspa/molecules/ExampleDefinitions/")])
     for molecule_name in molecule_name_list: 
-        assert molecule_name in basenames, 'The molecule {molecule_name} is not found in ExampleDefinitions.'
+        assert molecule_name in basenames, f'The molecule {molecule_name} is not found in ExampleDefinitions.'
 
 def parse_json_to_dict(filename):
     """
