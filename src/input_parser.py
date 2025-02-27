@@ -145,7 +145,6 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
                 cifnames_nested.append(mofxdb_cifs)
         else:
             raise ValueError("Invalid database name. Expected 'mofxdb', 'local', or 'mixed'.")
-    import sys;sys.exit(1)
     # Flat lists
     cifnames_database = [item for sublist in cifnames_nested for item in sublist]
 
