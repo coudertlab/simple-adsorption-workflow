@@ -129,9 +129,23 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
             cifnames_nested.append(cif_from_mofxdb(structure, data_dir, **kwargs))
         elif database == 'local':
             cifnames_nested.append(cif_from_local_directory(structure, data_dir))
+        elif database == 'mixed':
+            local_cifs = []
+            mofxdb_cifs = []
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                local_cifs = cif_from_local_directory(structure, data_dir)
+                mofxdb_cifs = cif_from_mofxdb(structure, data_dir, **kwargs)
+            if not local_cifs and not mofxdb_cifs:
+                warnings.warn(f"{structure} not found in both local directory and MOFXDB.")
+            # By default we take the local CIFs
+            if local_cifs:
+                cifnames_nested.append(local_cifs)
+            else:
+                cifnames_nested.append(mofxdb_cifs)
         else:
-            raise ValueError("Invalid database name. Expected 'mofxdb' or 'local'.")
-
+            raise ValueError("Invalid database name. Expected 'mofxdb', 'local', or 'mixed'.")
+    import sys;sys.exit(1)
     # Flat lists
     cifnames_database = [item for sublist in cifnames_nested for item in sublist]
 
@@ -255,7 +269,7 @@ def cif_from_mofxdb(structure, data_dir, substring = "coremof-2019", verbose=Fal
 
     # Add a warning for the structure has no entry in the structural databases
     if len(cifnames)==0:
-        raise ValueError(f"{structure} not found in MOFXDB subset {substring}")
+        warnings.warn(f"{structure} not found in MOFXDB subset {substring}")
 
     return cifnames
 
@@ -297,7 +311,7 @@ def cif_from_local_directory(structure, data_dir):
 
     # Raise warning if structure file is not found
     if not found_files:
-        warn_message = f"Warning: {structure}.cif does not exist the directory ./cif"
+        warn_message = f"{structure}.cif does not exist in the directory ./cif"
         warnings.warn(warn_message)
     
     # Copy the file into the output directory
@@ -307,7 +321,6 @@ def cif_from_local_directory(structure, data_dir):
             # Define the destination path
             destination = f'{target_directory}/{file_path.name}'
             shutil.copy2(file_path, destination)  # copy2 preserves metadata
-            print(f"Copied '{file_path}' to '{destination}'")
             target_cifnames.append(destination)
         except Exception as e:
             warnings.warn(f"Failed to copy '{file_path}': {e}")
