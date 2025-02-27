@@ -90,43 +90,6 @@ def parse_json_to_dict(filename):
     data_flat.update(data["defaults"])
     return data_flat
 
-def cif_from_json(filename, data_dir, database='mofxdb', **kwargs):
-    """
-    DEPRECATED.
-
-    Generate CIF files from a JSON file containing structures.
-
-    Args:
-        filename (str): Path to the JSON file.
-        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','csd'}.
-        **kwargs: Additional keyword arguments passed to cif_from_mofxdb or cif_from_csd.
-
-    Raises:
-        ValueError: If an invalid database name is provided.
-
-    Returns:
-        cif_names (list) : A list of CIF filenames.
-    """
-
-    # Get structure names from json parsing
-    with open(filename, 'r') as f:
-        data = json.load(f)
-    structures = data["parameters"]["structure"]
-    
-    # Create directory where CIF files are stored
-    cif_dir = f"{data_dir}/cif/"
-    os.makedirs(cif_dir,exist_ok=True)
-
-    # Download CIF files from databases
-    cifnames_nested = []
-    for structure in structures:
-        if database == 'mofxdb':
-            cifnames_nested.append(cif_from_mofxdb(structure, data_dir, **kwargs))
-        elif database == 'csd':
-            cifnames_nested.append(cif_from_csd(structure, data_dir, **kwargs))
-        else:
-            raise ValueError("Invalid database name. Expected 'mofxdb' or 'csd'.")
-
 def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwargs):
     """
     Generate CIF files from a JSON file containing structures.
@@ -134,8 +97,8 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
     Args:
         l_dict_parameters (list) : a list of dictionaries containing each set of simulation parameters.
         data_dir (str) : the root path for outputs
-        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','csd','local'}.
-        **kwargs: Additional keyword arguments passed to cif_from_mofxdb or cif_from_csd.
+        database (str, optional): Database name. Default is 'mofxdb'. Possible values : {'moxdb','local'}.
+        **kwargs: Additional keyword arguments passed to cif_from_mofxdb.
 
     Raises:
         ValueError: If an invalid database name is provided.
@@ -164,12 +127,10 @@ def get_cifs(l_dict_parameters, data_dir, database='mofxdb', verbose=False,**kwa
     for structure in structures:
         if database == 'mofxdb':
             cifnames_nested.append(cif_from_mofxdb(structure, data_dir, **kwargs))
-        elif database == 'csd':
-            cifnames_nested.append(cif_from_csd(structure, data_dir, **kwargs))
         elif database == 'local':
             cifnames_nested.append(cif_from_local_directory(structure, data_dir))
         else:
-            raise ValueError("Invalid database name. Expected 'mofxdb', 'csd' or 'local'.")
+            raise ValueError("Invalid database name. Expected 'mofxdb' or 'local'.")
 
     # Flat lists
     cifnames_database = [item for sublist in cifnames_nested for item in sublist]
@@ -318,47 +279,6 @@ def cif_with_charges(cif_dir,cifnames_input,method='EQeq',verbose=False):
         cifnames = run_pacmof(cif_dir,cifnames_input,verbose=verbose)
     else:
         raise ValueError(f'Invalid charge method keyword. Expected values : {[el for el in CHARGE_METHOD]}')
-    return cifnames
-
-def cif_from_csd(structure, data_dir, search_by="identifier"):
-    """
-    Generate CIF files from the Cambridge Structural Database (CSD) based on a given structure name.
-
-    Args:
-        structure (str): Name of the structure.
-        data_dir (str): Parent directory
-        search_by (str, optional): Search criteria. Default is "identifier".
-
-    Raises:
-        ValueError: If an invalid search criteria is provided or no entries found for the given search criteria.
-
-    Returns:
-        cifnames (list) : A list of cif names fetched from the database.
-    """
-
-    search = TextNumericSearch()
-
-    if search_by == "identifier":
-        search.add_identifier(structure)
-    elif search_by == "compound":
-        search.add_compound_name(structure)
-    else:
-        raise ValueError("Invalid search criteria. Expected 'compound' or 'identifier'.")
-
-    entries = search.search()
-
-    if len(entries) == 0:
-        raise ValueError("No entries found for the given search criteria.")
-
-    cifnames = []
-    for entry in entries:
-        cif_string = entry.crystal.to_string('cif')
-        cifname = os.path.join(f"{data_dir}/cif/{entry.identifier}_csd.cif")
-
-        with open(cifname, 'w') as cif_file:
-            cif_file.write(cif_string)
-            print(f'Cif has been written in {cifname}.')
-        cifnames.append(cifname)
     return cifnames
 
 def cif_from_local_directory(structure, data_dir):
