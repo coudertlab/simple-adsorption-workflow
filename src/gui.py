@@ -389,7 +389,9 @@ class JSONOutputReader:
             self.df_json = pd.DataFrame(parsed_json["isotherms"])
 
             # Clean the data and extract unique values
-            self.df_json["refcode"] = self.df_json["structure"].apply(lambda x: x.split("_clean")[0])
+            self.df_json["refcode"] = self.df_json["structure"]
+            for suf in ["_clean","_openbabel","_pacmof2","_P1"]:
+                self.df_json["refcode"] = self.df_json["refcode"].apply(lambda x: x.split(suf)[0])
             unique_structures = self.df_json["refcode"].unique().tolist()
             unique_charge_methods = self.df_json["charge_method"].unique().tolist()
             unique_molecule_names = self.df_json["molecule_name"].unique().tolist()
