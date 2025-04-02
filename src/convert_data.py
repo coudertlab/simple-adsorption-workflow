@@ -211,7 +211,7 @@ def output_to_json(json_file,output_dir,sim_dir_names=None,verbose=False):
     dict_results.update({"input":dict_input})
 
     # Add running metadata
-    dict_metadata = get_workflow_metadata()
+    dict_metadata = get_workflow_metadata(dict_input)
     dict_results.update({"metadata":dict_metadata})
 
     # Add parameters for each simulation
@@ -385,7 +385,7 @@ def get_git_commit_hash():
         else :
             return commit_hash
 
-def get_workflow_metadata():
+def get_workflow_metadata(dict_input):
     metadata = {}
 
     # Timestamp of the workflow run
@@ -411,11 +411,25 @@ def get_workflow_metadata():
     git_hash = get_git_commit_hash()
     metadata['workflow_package_git_hash'] = git_hash
 
-    # Metadata of structure source (e.g : MOFXDB version)
-    for mof in fetch():
-        mofdb_version = mof.json_repr['mofdb_version']
-        metadata['cif_source'] = {'database':'mofxdb','version':mofdb_version}
-        break
+    # Metadata with source of cif structural file (e.g : MOFXDB version)
+    try:
+        cif_source = dict_input.get('database', 'mofxdb')
+
+        if cif_source == 'mofxdb':
+            for mof in fetch():
+                mofdb_version = mof.json_repr['mofdb_version']
+                metadata['cif_source'] = {'database': 'mofxdb', 'version': mofdb_version}
+                break
+        elif cif_source == 'local':
+            metadata['cif_source'] = {'database': 'local', 'version': None}
+        elif cif_source == 'mixed':
+            metadata['cif_source'] = {'database': 'mixed', 'version': None}
+        else:
+            metadata['cif_source'] = {'database': None, 'version': None}
+            print(f"Warning: Unknown cif_source_type '{cif_source}' in workflow input.")
+    except Exception as e:
+        metadata['cif_source'] = {'database': None, 'version': None}
+        print(f"Warning: Unable to determine CIF source. Error: {e}")
     return metadata
 
 def extract_properties(row,root_output_dir):
