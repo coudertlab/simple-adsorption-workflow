@@ -21,14 +21,14 @@ Stage: devel
     apt-get install -y wget
     # Installing pip requirements
     cd /opt
-    wget https://github.com/coudertlab/simple-adsorption-workflow/archive/refs/tags/v0.0.5.tar.gz
-    tar xzf v0.0.5.tar.gz
-    rm -rf v0.0.5.tar.gz
-    mv simple-adsorption-workflow-0.0.5 app
+    wget https://github.com/coudertlab/simple-adsorption-workflow/archive/refs/tags/v0.0.6.tar.gz
+    tar xzf v0.0.6.tar.gz
+    rm -rf v0.0.6.tar.gz
+    mv simple-adsorption-workflow-0.0.6 app
     cd app
-    pip install --no-cache-dir -r requirements.txt
+    pip install  --no-cache-dir -r requirements.txt
     # Openbabel
-    pip install --no-cache-dir openbabel-wheel==3.1.1.17
+    pip install  --no-cache-dir openbabel-wheel==3.1.1.17
     # RASPA2
     # Download the source code
     mkdir -p /opt/raspa
@@ -60,6 +60,16 @@ Stage: devel
     # Then build zeo++
     cd /opt/zeo/zeo++-0.3
     make
+    # PACMOF2
+    cd /opt
+    wget https://github.com/snurr-group/pacmof2/archive/main.tar.gz
+    tar -xvf main.tar.gz
+    rm -rf main.tar.gz
+    cd pacmof2-main
+    wget -P pacmof2/models/ https://zenodo.org/records/12747095/files/PACMOF2_neutral.gz # !!! Random Forest Model, 700MB !!!
+    pip install -r requirements.txt
+    python3 -m build
+    pip install .
 
 
 Bootstrap: docker
@@ -71,6 +81,7 @@ Stage: final
     /usr/local /usr/local
     /opt/zeo/zeo++-0.3 /opt/zeo/zeo++-0.3
     /opt/raspa/RASPA2-2.0.48 /opt/raspa/RASPA2-2.0.48
+    /opt/pacmof2-main /opt/pacmof2-main
 
 
 %environment
@@ -80,15 +91,18 @@ Stage: final
     export LD_LIBRARY_PATH=$RASPA_DIR/lib
     export ZEO_DIR=/opt/zeo/zeo++-0.3
     export PACKAGE_DIR=/opt/app
-    export SA_WORKFLOW_COMMIT_HASH="4573c2a839b5d0b3510b98c6c492d020e560950e"
-    export PYTHONNOUSERSITE=1
+    export SA_WORKFLOW_COMMIT_HASH="4bd7253f9027a89b51d5b32f46e83496109ca8cd"
+#   export PYTHONNOUSERSITE=1 # TEST : is this really important ?
+#  Packages are installed in /usr/local/local for some unknown reasons, so we need to redefine the PYTHONPATH accordingly :
+    export PYTHONPATH=/usr/local/lib/python3.9:/usr/local/lib/python3.9:/usr/local/lib/python3.9/lib-dynload:/usr/local/lib/python3.9/site-packages:/usr/local/local/lib/python3.9:/usr/local/local/lib/python3.9/site-packages
 
 %post
     apt-get -y update
     apt-get install -y build-essential libxrender1 libxext6 --no-install-recommends
     apt-get install -y python3-tk tk-dev tcl-dev --no-install-recommends
-    pip install --no-cache-dir -r /opt/app/requirements.txt
-    pip install --no-cache-dir openbabel-wheel==3.1.1.17
+    pip install  --no-cache-dir -r /opt/app/requirements.txt
+    pip install  --no-cache-dir openbabel-wheel==3.1.1.17
+    pip install  --no-cache-dir -r /opt/pacmof2-main/requirements.txt
 
 %test
     rm -rf /tmp/tests*
@@ -118,14 +132,18 @@ Stage: final
     python $PACKAGE_DIR/saw.py run --test-charges -o /tmp/tests6
     echo "[TEST FINISHED] - cleaning output in /tmp"
     rm -rf /tmp/tests*
+    echo "[NEW TEST :] python $PACKAGE_DIR/saw.py run --test-charges-pacmof -o /tmp/tests7"
+    python $PACKAGE_DIR/saw.py run --test-charges-pacmof -o /tmp/tests7
+    echo "[TEST FINISHED] - cleaning output in /tmp"
+    rm -rf /tmp/tests*
 
 %runscript
     exec python /opt/app/saw.py "$@"
 
   
 %help
-    This container image embedds the "simple adsorption workflow", version v0.0.5 ;
-    commit hash "4573c2a839b5d0b3510b98c6c492d020e560950e".
+    This container image embedds the "simple adsorption workflow", version v0.0.6 ;
+    commit hash "4bd7253f9027a89b51d5b32f46e83496109ca8cd".
     For more information about this image, such as its metadata please run
         "apptainer inspect <this-image>"
     
@@ -175,7 +193,7 @@ Stage: final
 %labels
     Owner Arthur Hardiagon
     Author dylan.bissuel@univ-lyon1.fr
-    Version v0.0.5
-    Commit_hash 4573c2a839b5d0b3510b98c6c492d020e560950e
+    Version v0.0.6
+    Commit_hash 4bd7253f9027a89b51d5b32f46e83496109ca8cd
     MyLabel simple-adsorption-workflow
     EntryPoint https://github.com/coudertlab/simple-adsorption-workflow
