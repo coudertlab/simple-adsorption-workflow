@@ -10,7 +10,13 @@ import subprocess
 from mofdb_client import fetch
 
 # List of parameters to adjust to group data and define isotherm arrays
-ISOTHERM_VARS = ['Pressure(Pa)', 'uptake(cm^3 (STP)/cm^3 framework)','simkey','pressure','npoints']
+ISOTHERM_VARS = ['Pressure(Pa)', 
+                 'uptake(cm^3 (STP)/cm^3 framework)',
+                 'uptake(cm^3 (STP)/gr framework)',
+                 'uptake(mol/kg framework)',
+                 'simkey',
+                 'pressure',
+                 'npoints']
 
 class NumpyEncoder(json.JSONEncoder):
     """ Custom encoder for numpy data types """

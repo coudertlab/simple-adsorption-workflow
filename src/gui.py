@@ -447,10 +447,21 @@ class JSONOutputReader:
 
         # Molecule name selection
         ttk.Label(self.selection_window, text="Select Molecule Name:").grid(row=2, column=0, padx=10, pady=5)
-        self.molecule_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6,exportselection=False)
+        self.molecule_listbox = tk.Listbox(self.selection_window, selectmode="multiple", height=6, exportselection=False)
         for molecule in molecules:
             self.molecule_listbox.insert(tk.END, molecule)
         self.molecule_listbox.grid(row=2, column=1, padx=10, pady=5)
+
+        # Y data name selection (single choice)
+        ttk.Label(self.selection_window, text="Select Y Data:").grid(row=2, column=2, padx=10, pady=5)
+        y_data_options = [
+            "uptake(cm^3 (STP)/cm^3 framework)",
+            "uptake(mol/kg framework)",
+            "uptake(cm^3 (STP)/gr framework)"
+        ]
+        self.y_data_var = tk.StringVar(value=y_data_options[0])
+        self.y_data_combobox = ttk.Combobox(self.selection_window, textvariable=self.y_data_var, values=y_data_options, state="readonly", width=30)
+        self.y_data_combobox.grid(row=2, column=3, padx=10, pady=5)
 
         # Temperature range selection
         ttk.Label(self.selection_window, text="Min Temperature:").grid(row=3, column=0, padx=10, pady=5)
@@ -498,6 +509,9 @@ class JSONOutputReader:
         markers = cycle(('o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', 'D', 'd'))
         colors = cycle(plt.cm.tab20.colors)  # Using tab20 colormap for distinct colors
 
+        # Get the y data label to get the corresponding data array
+        y_data_label = self.y_data_var.get()
+
         # Plot each row in the filtered dataframe
         for i, row in filtered_df.iterrows():
             structure = row["refcode"]
@@ -506,13 +520,13 @@ class JSONOutputReader:
             charge_method = row["charge_method"]
 
             # Plot each isotherm with a unique color and marker
-            ax.plot(row["Pressure(Pa)"], row["uptake(cm^3 (STP)/cm^3 framework)"],
+            ax.plot(row["Pressure(Pa)"], row[y_data_label],
                     label=f"{structure} {temperature}K {molecule} {charge_method}",
                     marker=next(markers), color=next(colors))
 
         # Set labels
         ax.set_xlabel("Pressure (Pa)")
-        ax.set_ylabel("Uptake (cm^3 STP/cm^3 framework)")
+        ax.set_ylabel(y_data_label)
 
         # Set the legend to the right of the plot
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize='small')
