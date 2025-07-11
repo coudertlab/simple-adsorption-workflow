@@ -413,9 +413,11 @@ def get_workflow_metadata(dict_input):
     metadata['processor'] = platform.processor()
 
     # Package versions
+    original_dir = os.getcwd()
     os.chdir(os.getenv('PACKAGE_DIR'))
     git_hash = get_git_commit_hash()
     metadata['workflow_package_git_hash'] = git_hash
+    os.chdir(original_dir)
 
     # Metadata with source of cif structural file (e.g : MOFXDB version)
     try:
