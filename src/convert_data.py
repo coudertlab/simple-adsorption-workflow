@@ -9,14 +9,8 @@ import datetime
 import subprocess
 from mofdb_client import fetch
 
-# List of parameters to adjust to group data and define isotherm arrays
-ISOTHERM_VARS = ['Pressure(Pa)', 
-                 'uptake(cm^3 (STP)/cm^3 framework)',
-                 'uptake(cm^3 (STP)/gr framework)',
-                 'uptake(mol/kg framework)',
-                 'simkey',
-                 'pressure',
-                 'npoints']
+# List of features that are shared by all data points in a single isotherm
+ISOTHERM_CONSTANTS = ["charge_method","cycles","forcefield","molecule_name","structure","temperature","unit_cells"]
 
 class NumpyEncoder(json.JSONEncoder):
     """ Custom encoder for numpy data types """
@@ -330,21 +324,26 @@ def output_isotherms_to_json(output_dir,file,isotherm_filename='isotherms.json',
     # This step helps plotting the data
     df.sort_values(by="Pressure(Pa)",inplace=True)
 
-    if debug==True : print(df)
-    param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
-    grouped = df.groupby(param_columns,dropna=False)
-
+    print("List of features that are shared by all data points in a single isotherm :",' '.join(ISOTHERM_CONSTANTS))
+    grouped = df.groupby(ISOTHERM_CONSTANTS,dropna=False)    
+    
     all_isotherms = {"isotherms":[]}
+    all_groups = []
     for group,data_group in grouped:
-        if debug==True :print(group)
+        all_groups.append(group)
         isokey = "iso" + secrets.token_hex(4)
         isotherm_dict = transform_grouped_data(data_group)
         isotherm_dict["isokey"] = isokey
         all_isotherms["isotherms"].append(isotherm_dict)
 
+    if debug==True :
+        print("All features: "," ".join(df.columns))
+        print(df)
+        print(pd.DataFrame(all_groups,columns=param_columns))
+
     with open(f'{isotherm_dir}/{isotherm_filename}', 'w') as f:
         json.dump(all_isotherms, f, indent=4,cls=NumpyEncoder)
-    #print(f"Total number of isotherms written in {isotherm_dir}/{isotherm_filename} : {len(all_isotherms['isotherms'])}")
+    
     print(f"Total number of isotherms written in {isotherm_filename} : {len(all_isotherms['isotherms'])}")
 
     return len(all_isotherms['isotherms'])
