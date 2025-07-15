@@ -147,8 +147,9 @@ def output_isotherms_to_csv(output_dir,sim_dir_names=None,verbose=False):
     df = pd.read_csv(f'{output_dir}/gcmc/index.csv')
     if sim_dir_names is not None :
         df = df.loc[df['simkey'].isin(sim_dir_names)]
-    param_columns = df.columns.difference(ISOTHERM_VARS).to_list()
-    grouped = df.groupby(param_columns,dropna=False)
+
+    print("List of features that are shared by all data points in a single isotherm :",' '.join(ISOTHERM_CONSTANTS))
+    grouped = df.groupby(ISOTHERM_CONSTANTS,dropna=False)    
 
     # Create an index file for isotherms
     df_isot = pd.DataFrame()
