@@ -151,7 +151,7 @@ class JSONInputForm:
 
         ttk.Label(pressure_frame, text="Max:", width=10).grid(row=1, column=0, padx=5, pady=2, sticky='e')
         self.pmax_entry = ttk.Entry(pressure_frame, width=20)
-        self.pmax_entry.insert(0, "1000000")
+        self.pmax_entry.insert(0, "100000")  # default 1bar=10^5 Pa
         self.pmax_entry.grid(row=1, column=1, padx=5, pady=2)
 
         ttk.Label(pressure_frame, text="Steps:", width=10).grid(row=2, column=0, padx=5, pady=2, sticky='e')
@@ -275,6 +275,27 @@ class JSONInputForm:
         # Configure grid weights
         defaults_scrollable_frame.columnconfigure(0, weight=1)
 
+        # Use Crash Binary 
+        binary_use_label = ttk.Label(defaults_scrollable_frame, text="Use Crash Binary?", font=self.title_font)
+        binary_use_label.grid(row=12, column=0, sticky='w', padx=5, pady=5)
+        self.binary_use_var = tk.StringVar()
+        self.binary_use_combobox = ttk.Combobox(
+            defaults_scrollable_frame,
+            textvariable=self.binary_use_var,
+            values=['yes', 'no'],
+            state='readonly',
+            width=28
+        )
+        self.binary_use_combobox.current(0)  # Default to 'yes'
+        self.binary_use_combobox.grid(row=13, column=0, padx=5, pady=5, sticky='w')
+
+        # Binary writing frequency
+        binary_every_label = ttk.Label(defaults_scrollable_frame, text="Print binary every:", font=self.title_font)
+        binary_every_label.grid(row=14, column=0, sticky='w', padx=5, pady=5)
+        self.binary_every_entry = ttk.Entry(defaults_scrollable_frame, width=30)
+        self.binary_every_entry.insert(0, "1000") # default to 1000 cycles
+        self.binary_every_entry.grid(row=15, column=0, padx=5, pady=5, sticky='w')
+
     def save_to_json(self):
         # Collect Structures
         selected_structures_indices = self.structures_listbox.curselection()
@@ -330,6 +351,14 @@ class JSONInputForm:
         except ValueError:
             messagebox.showerror("Invalid Input", "Grid spacing must be a number.")
             return
+    
+        binary_use = self.binary_use_var.get()
+
+        try:
+            binary_every = int(self.binary_every_entry.get())
+        except ValueError:
+            messagebox.showerror("Invalid Input", "Binary write frequency must be a integer.")
+            return
 
         # Prepare data
         data = {
@@ -348,7 +377,9 @@ class JSONInputForm:
                 "cycles": cycles,
                 "print_every": print_every,
                 "grid_use": grid_use,
-                "grid_spacing": grid_spacing
+                "grid_spacing": grid_spacing,
+                "binary_use":binary_use,
+                "binary_every":binary_every
             }
         }
 

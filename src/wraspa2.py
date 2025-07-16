@@ -139,6 +139,7 @@ def prepare_input_files(args,verbose=False):
         work_dir = create_dir(params, args.output_dir)
         sim_dir_names.append(params["simkey"])
         shutil.copy(cif_path_filename, work_dir)
+        if verbose : print(params)
         create_script(**params, save=True, filename=f'{work_dir}/simulation.input')
         create_run_script(path=work_dir, save=True)
 
@@ -289,6 +290,7 @@ def create_script(structure,molecule_name="N2", temperature=273.15, pressure=101
                   charge_method=None,input_file_type="cif",
                   save=False,filename="simulation.input",
                   grid_use="no",grid_spacing=0.1,grid_n_atoms=2,grid_atoms="C_co2 O_co2",
+                  binary_use="yes",binary_every=1000,
                   **kwargs):
     """Creates a RASPA simulation input file from parameters.
 
@@ -332,6 +334,8 @@ def create_script(structure,molecule_name="N2", temperature=273.15, pressure=101
                   NumberOfInitializationCycles  {init_cycles}
                   PrintEvery                    {print_every}
                   RestartFile                   no
+                  ContinueAfterCrash            {binary_use}
+                  WriteBinaryRestartFileEvery   {binary_every}
 
                   Forcefield                    {forcefield}
                   CutOff                        12
